@@ -15,7 +15,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   title = 'Trending Tech & Gadgets in Sri Lanka',
   subtitle = '100% Genuine electronics with manufacturer warranty & islandwide delivery.',
 }) => {
-  const { products } = useStore();
+  const { storefrontProducts: products } = useStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>(initialCategory);
@@ -34,17 +34,11 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     { id: 'cases-protection', label: 'Cases & Protection' },
   ];
 
-  const brands: (BrandName | 'all')[] = [
-    'all',
-    'Apple',
-    'Samsung',
-    'Anker',
-    'Soundpeats',
-    'UGREEN',
-    'Sony',
-    'Xiaomi',
-    'Baseus',
-  ];
+  // Derived from the products actually on sale, so new brands appear without code changes.
+  const brands: (BrandName | 'all')[] = useMemo(
+    () => ['all', ...Array.from(new Set(products.map((p) => p.brand))).sort()],
+    [products]
+  );
 
   const filteredProducts = useMemo(() => {
     return products
