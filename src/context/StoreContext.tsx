@@ -17,7 +17,16 @@ import {
   INITIAL_ORDERS,
   INITIAL_CLIENTS,
   INITIAL_TEAM_USERS,
+  DEMO_DATA_VERSION,
 } from '../data/mockData';
+import {
+  hasVariants,
+  getDefaultVariant,
+  getSelectedVariant,
+  normalizeProduct,
+  normalizeProducts,
+  setVariantStock,
+} from '../lib/variants';
 
 interface CartItem extends OrderItem {
   maxStock: number;
@@ -83,6 +92,8 @@ interface StoreContextType {
   updateProductStock: (productId: string, newStock: number) => void;
   addProduct: (product: Product) => void;
   restockProduct: (productId: string, delta: number) => void;
+  updateVariantStock: (productId: string, variantId: string, newStock: number) => void;
+  resetDemoData: () => void;
 
   // Client actions
   updateClientAccount: (clientId: string, updates: Partial<ClientAccount>) => void;
@@ -104,10 +115,47 @@ interface StoreContextType {
   ) => void;
 }
 
+/**
+ * Bring saved products up to the current seed shape without losing user data:
+ * keep saved products (stock/price edits, user-added items), swap in seed variants
+ * for sample products that predate variants, append seed products that are missing,
+ * then normalise so derived price/stock cannot disagree with variants.
+ */
+const migrateProducts = (saved: unknown): Product[] => {
+  if (!Array.isArray(saved)) return normalizeProducts(INITIAL_PRODUCTS);
+  const valid = (saved as Product[]).filter((p) => p && typeof p.id === 'string' && Array.isArray(p.colorOptions));
+  const savedById = new Map(valid.map((p) => [p.id, p]));
+  const merged = valid.map((p) => {
+    const seed = INITIAL_PRODUCTS.find((s) => s.id === p.id);
+    if (seed && hasVariants(seed) && !hasVariants(p)) {
+      return { ...seed, reviews: p.reviews ?? seed.reviews, rating: p.rating, reviewCount: p.reviewCount };
+    }
+    return p;
+  });
+  INITIAL_PRODUCTS.forEach((seed) => {
+    if (!savedById.has(seed.id)) merged.push(seed);
+  });
+  return normalizeProducts(merged);
+};
+
+const loadProducts = (): Product[] => {
+  const fresh = () => normalizeProducts(INITIAL_PRODUCTS);
+  try {
+    const current = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+    const legacy = current ? null : localStorage.getItem(STORAGE_KEYS.LEGACY_PRODUCTS);
+    const raw = current ?? legacy;
+    return raw ? migrateProducts(JSON.parse(raw)) : fresh();
+  } catch {
+    return fresh();
+  }
+};
+
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'y5hut_products_v3',
+  PRODUCTS: 'y5hut_products_v4',
+  LEGACY_PRODUCTS: 'y5hut_products_v3',
+  DEMO_VERSION: 'y5hut_demo_data_version',
   ORDERS: 'y5hut_orders_v3',
   CLIENTS: 'y5hut_clients_v3',
   NOTIFICATIONS: 'y5hut_notifications_v3',
@@ -135,14 +183,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const [products, setProducts] = useState<Product[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-      return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
-    } catch {
-      return INITIAL_PRODUCTS;
-    }
-  });
+  const [products, setProducts] = useState<Product[]>(loadProducts);
 
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
@@ -234,6 +275,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      localStorage.setItem(STORAGE_KEYS.DEMO_VERSION, String(DEMO_DATA_VERSION));
     } catch (e) {
       console.error(e);
     }
@@ -357,44 +399,51 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     color?: string,
     storage?: string
   ) => {
-    const chosenColor = color || product.colorOptions[0]?.name;
-    const chosenStorage = storage || product.storageOptions?.[0];
+    // Always price/limit from the latest catalogue entry, and from the selected variant when there is one.
+    const live = products.find((p) => p.id === product.id) ?? product;
+    const variant = hasVariants(live)
+      ? getSelectedVariant(live, color, storage) ?? getDefaultVariant(live)
+      : undefined;
+    const chosenColor = variant?.color ?? (color || live.colorOptions[0]?.name);
+    const chosenStorage = variant?.storage ?? (storage || live.storageOptions?.[0]);
+    const unitStock = variant ? variant.stock : live.stock;
+    const unitPriceLKR = variant ? variant.priceLKR : live.priceLKR;
+    const unitPriceUSD = variant?.priceUSD ?? live.priceUSD;
+    if (unitStock <= 0) return;
 
     setCart((prev) => {
       const existingIndex = prev.findIndex(
         (item) =>
-          item.productId === product.id &&
+          item.productId === live.id &&
+          item.variantId === variant?.id &&
           item.selectedColor === chosenColor &&
           item.selectedStorage === chosenStorage
       );
 
       if (existingIndex > -1) {
         const next = [...prev];
-        const newQty = Math.min(
-          next[existingIndex].quantity + quantity,
-          product.stock
-        );
         next[existingIndex] = {
           ...next[existingIndex],
-          quantity: newQty,
+          quantity: Math.min(next[existingIndex].quantity + quantity, unitStock),
         };
         return next;
-      } else {
-        return [
-          ...prev,
-          {
-            productId: product.id,
-            name: product.name,
-            priceLKR: product.priceLKR,
-            priceUSD: product.priceUSD,
-            quantity: Math.min(quantity, product.stock),
-            selectedColor: chosenColor,
-            selectedStorage: chosenStorage,
-            deviceType: product.deviceType,
-            maxStock: product.stock,
-          },
-        ];
       }
+      return [
+        ...prev,
+        {
+          productId: live.id,
+          name: live.name,
+          priceLKR: unitPriceLKR,
+          priceUSD: unitPriceUSD,
+          quantity: Math.min(quantity, unitStock),
+          selectedColor: chosenColor,
+          selectedStorage: chosenStorage,
+          variantId: variant?.id,
+          sku: variant?.sku,
+          deviceType: live.deviceType,
+          maxStock: unitStock,
+        },
+      ];
     });
 
     setIsCartOpen(true);
@@ -458,38 +507,60 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 
   // Stock operations
+  const notifyIfLow = (name: string, stock: number, threshold: number) => {
+    if (stock <= threshold) {
+      triggerNotification('inventory', `Low Stock Alert: ${name}`, `Only ${stock} units remaining in the warehouse.`);
+    }
+  };
+
+  const updateVariantStock = (productId: string, variantId: string, newStock: number) => {
+    const target = products.find((p) => p.id === productId);
+    if (!target) return;
+    const updated = setVariantStock(target, variantId, newStock);
+    setProducts((prev) => prev.map((p) => (p.id === productId ? setVariantStock(p, variantId, newStock) : p)));
+    notifyIfLow(updated.name, updated.variants?.find((v) => v.id === variantId)?.stock ?? 0, updated.lowStockThreshold);
+  };
+
+  // For products with variants these act on the default variant; use updateVariantStock for a specific one.
   const updateProductStock = (productId: string, newStock: number) => {
-    setProducts((prev) =>
-      prev.map((p) => {
-        if (p.id === productId) {
-          const updated = { ...p, stock: Math.max(0, newStock) };
-          if (updated.stock <= updated.lowStockThreshold) {
-            triggerNotification(
-              'inventory',
-              `Low Stock Alert: ${updated.name}`,
-              `Only ${updated.stock} units remaining in the warehouse.`
-            );
-          }
-          return updated;
-        }
-        return p;
-      })
-    );
+    const target = products.find((p) => p.id === productId);
+    if (!target) return;
+    const dv = getDefaultVariant(target);
+    if (dv) {
+      updateVariantStock(productId, dv.id, newStock);
+      return;
+    }
+    const stock = Math.max(0, newStock);
+    setProducts((prev) => prev.map((p) => (p.id === productId ? { ...p, stock } : p)));
+    notifyIfLow(target.name, stock, target.lowStockThreshold);
   };
 
   const restockProduct = (productId: string, delta: number) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === productId ? { ...p, stock: p.stock + delta } : p))
-    );
+    const target = products.find((p) => p.id === productId);
+    if (!target) return;
+    const dv = getDefaultVariant(target);
+    if (dv) {
+      updateVariantStock(productId, dv.id, dv.stock + delta);
+      return;
+    }
+    setProducts((prev) => prev.map((p) => (p.id === productId ? { ...p, stock: p.stock + delta } : p)));
   };
 
   const addProduct = (product: Product) => {
-    setProducts((prev) => [product, ...prev]);
+    setProducts((prev) => [normalizeProduct(product), ...prev]);
     triggerNotification(
       'task',
       'New Product Catalog Item Listed',
       `${product.name} registered with ${product.stock} units.`
     );
+  };
+
+  const resetDemoData = () => {
+    setProducts(normalizeProducts(INITIAL_PRODUCTS));
+    setOrders(INITIAL_ORDERS);
+    setClients(INITIAL_CLIENTS);
+    setCart([]);
+    setSelectedProductForDetail(null);
   };
 
   // Order creation with milestones
@@ -539,17 +610,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       milestones: newMilestones,
     };
 
-    // Deduct stock
-    orderData.items.forEach((item) => {
-      updateProductStock(
-        item.productId,
-        Math.max(
-          0,
-          (products.find((p) => p.id === item.productId)?.stock || 10) -
-            item.quantity
-        )
-      );
+    // Deduct stock in one pass (per variant when the line has one)
+    const deduct = (p: Product): Product => {
+      const lines = orderData.items.filter((it) => it.productId === p.id);
+      if (lines.length === 0) return p;
+      if (hasVariants(p)) {
+        return normalizeProduct({
+          ...p,
+          variants: p.variants!.map((v) => {
+            const qty = lines.filter((l) => l.variantId === v.id).reduce((n, l) => n + l.quantity, 0);
+            return qty ? { ...v, stock: Math.max(0, v.stock - qty) } : v;
+          }),
+        });
+      }
+      return { ...p, stock: Math.max(0, p.stock - lines.reduce((n, l) => n + l.quantity, 0)) };
+    };
+    products.forEach((p) => {
+      const after = deduct(p);
+      if (after !== p && after.stock !== p.stock) notifyIfLow(after.name, after.stock, after.lowStockThreshold);
     });
+    setProducts((prev) => prev.map(deduct));
 
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
@@ -764,6 +844,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateProductStock,
         addProduct,
         restockProduct,
+        updateVariantStock,
+        resetDemoData,
         updateClientAccount,
         addClientAccount,
         addProductReview,

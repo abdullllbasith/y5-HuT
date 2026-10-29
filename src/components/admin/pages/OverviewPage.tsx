@@ -18,7 +18,7 @@ const QUICK_ACTIONS: QuickAction[] = [
 ];
 
 export const OverviewPage: React.FC = () => {
-  const { products, orders, setActiveAdminTab } = useStore();
+  const { products, orders, setActiveAdminTab, resetDemoData } = useStore();
   const lowStock = products.filter((p) => p.stock > 0 && p.stock <= p.lowStockThreshold).length;
   const outOfStock = products.filter((p) => p.stock === 0).length;
 
@@ -71,6 +71,20 @@ export const OverviewPage: React.FC = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4">
+        <p className="text-xs text-slate-600">
+          Want a clean start? Reset restores the sample products, orders and clients in this browser.
+        </p>
+        <button
+          onClick={() => {
+            if (window.confirm('Reset all demo data in this browser to the original samples?')) resetDemoData();
+          }}
+          className="text-xs font-bold px-3 py-1.5 rounded-lg border border-rose-200 text-[#E11D48] hover:bg-rose-50 cursor-pointer shrink-0"
+        >
+          Reset demo data
+        </button>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600 leading-relaxed">

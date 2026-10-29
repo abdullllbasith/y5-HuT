@@ -1,9 +1,16 @@
 import { Product, ClientAccount, Order, MonthlySalesMetric, UserProfile } from '../types';
+import { buildVariants } from '../lib/variants';
+
+/** Bump when seed products change shape/content; drives localStorage migration. */
+export const DEMO_DATA_VERSION = 2;
+
+const PHONE_WARRANTY = '1-Year official local warranty (sample demo record)';
+
 
 export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'prod-iphone16promax',
-    name: 'Apple iPhone 16 Pro Max 256GB',
+    name: 'Apple iPhone 16 Pro Max',
     brand: 'Apple',
     category: 'apple-store',
     priceLKR: 425000,
@@ -29,6 +36,16 @@ export const INITIAL_PRODUCTS: Product[] = [
       { name: 'Black Titanium', hex: '#1C1D1F' },
     ],
     storageOptions: ['256GB', '512GB', '1TB'],
+    variants: buildVariants({
+      skuPrefix: 'APL-IP16PM',
+      colors: ['Desert Titanium', 'Natural Titanium', 'White Titanium', 'Black Titanium'],
+      storages: [
+        { storage: '256GB', priceLKR: 425000, priceUSD: 1199 },
+        { storage: '512GB', priceLKR: 495000, priceUSD: 1399 },
+        { storage: '1TB', priceLKR: 565000, priceUSD: 1599 },
+      ],
+      stockFor: (_s, _c, i) => [3, 2, 2, 1, 2, 1, 1, 0, 1, 1, 0, 0][i] ?? 0,
+    }),
     specs: {
       display: '6.9-inch Super Retina XDR OLED, 120Hz ProMotion, 2000 nits peak',
       processor: 'Apple A18 Pro 3nm chip with 16-core Neural Engine',
@@ -65,7 +82,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'prod-s24ultra',
-    name: 'Samsung Galaxy S24 Ultra 5G 512GB',
+    name: 'Samsung Galaxy S24 Ultra 5G',
     brand: 'Samsung',
     category: 'smartphones',
     priceLKR: 395000,
@@ -91,6 +108,15 @@ export const INITIAL_PRODUCTS: Product[] = [
       { name: 'Titanium Yellow', hex: '#D6A868' },
     ],
     storageOptions: ['256GB', '512GB'],
+    variants: buildVariants({
+      skuPrefix: 'SAM-S24U',
+      colors: ['Titanium Gray', 'Titanium Black', 'Titanium Violet', 'Titanium Yellow'],
+      storages: [
+        { storage: '256GB', priceLKR: 365000, priceUSD: 1199 },
+        { storage: '512GB', priceLKR: 395000, priceUSD: 1299 },
+      ],
+      stockFor: (_s, _c, i) => [3, 2, 1, 1, 2, 1, 1, 1][i] ?? 0,
+    }),
     specs: {
       display: '6.8-inch Dynamic AMOLED 2X, QHD+, 1-120Hz Variable, 2600 nits',
       processor: 'Snapdragon 8 Gen 3 for Galaxy (4nm)',
@@ -378,6 +404,139 @@ export const INITIAL_PRODUCTS: Product[] = [
       weight: '62 grams',
       warranty: '1 Year Warranty',
     },
+    reviews: [],
+  },
+  {
+    id: 'prod-iphone15',
+    name: 'Apple iPhone 15',
+    brand: 'Apple',
+    category: 'apple-store',
+    priceLKR: 245000,
+    priceUSD: 699,
+    stock: 0,
+    lowStockThreshold: 3,
+    rating: 4.6,
+    reviewCount: 0,
+    tagline: 'A16 Bionic, USB-C and a 48MP main camera.',
+    description: 'Sample demo record with sample/demo prices, not a real offer. Official local warranty and TRCSL registration shown for illustration.',
+    kokoEligible: true,
+    mintpayEligible: true,
+    deviceType: 'phone',
+    colorOptions: [
+      { name: 'Blue', hex: '#A9C1D9' },
+      { name: 'Pink', hex: '#E8CDD0' },
+      { name: 'Black', hex: '#2B2D2F' },
+    ],
+    storageOptions: ['128GB', '256GB'],
+    variants: buildVariants({
+      skuPrefix: 'APL-IP15',
+      colors: ['Blue', 'Pink', 'Black'],
+      storages: [
+        { storage: '128GB', priceLKR: 245000, priceUSD: 699 },
+        { storage: '256GB', priceLKR: 285000, priceUSD: 799 },
+      ],
+      stockFor: (_s, _c, i) => [4, 2, 3, 2, 1, 0][i] ?? 0,
+    }),
+    specs: { warranty: PHONE_WARRANTY },
+    reviews: [],
+  },
+  {
+    id: 'prod-galaxy-a55',
+    name: 'Samsung Galaxy A55 5G',
+    brand: 'Samsung',
+    category: 'smartphones',
+    priceLKR: 112000,
+    priceUSD: 349,
+    stock: 0,
+    lowStockThreshold: 3,
+    rating: 4.6,
+    reviewCount: 0,
+    tagline: 'Metal frame, 120Hz AMOLED and a 5,000 mAh battery.',
+    description: 'Sample demo record with sample/demo prices, not a real offer. Official local warranty and TRCSL registration shown for illustration.',
+    kokoEligible: true,
+    mintpayEligible: true,
+    deviceType: 'phone',
+    colorOptions: [
+      { name: 'Awesome Navy', hex: '#2B3350' },
+      { name: 'Awesome Lilac', hex: '#B7A6D6' },
+    ],
+    storageOptions: ['128GB', '256GB'],
+    variants: buildVariants({
+      skuPrefix: 'SAM-A55',
+      colors: ['Awesome Navy', 'Awesome Lilac'],
+      storages: [
+        { storage: '128GB', priceLKR: 112000, priceUSD: 349 },
+        { storage: '256GB', priceLKR: 129000, priceUSD: 399 },
+      ],
+      stockFor: (_s, _c, i) => [6, 4, 3, 2][i] ?? 0,
+    }),
+    specs: { warranty: PHONE_WARRANTY },
+    reviews: [],
+  },
+  {
+    id: 'prod-redmi-note13pro',
+    name: 'Xiaomi Redmi Note 13 Pro',
+    brand: 'Xiaomi',
+    category: 'smartphones',
+    priceLKR: 82000,
+    priceUSD: 249,
+    stock: 0,
+    lowStockThreshold: 3,
+    rating: 4.6,
+    reviewCount: 0,
+    tagline: '200MP camera, 120Hz AMOLED and 67W turbo charging.',
+    description: 'Sample demo record with sample/demo prices, not a real offer. Official local warranty and TRCSL registration shown for illustration.',
+    kokoEligible: true,
+    mintpayEligible: true,
+    deviceType: 'phone',
+    colorOptions: [
+      { name: 'Midnight Black', hex: '#1B1B1D' },
+      { name: 'Aurora Purple', hex: '#8E7CC3' },
+    ],
+    storageOptions: ['128GB', '256GB'],
+    variants: buildVariants({
+      skuPrefix: 'XIA-RN13P',
+      colors: ['Midnight Black', 'Aurora Purple'],
+      storages: [
+        { storage: '128GB', priceLKR: 82000, priceUSD: 249 },
+        { storage: '256GB', priceLKR: 94000, priceUSD: 279 },
+      ],
+      stockFor: (_s, _c, i) => [8, 5, 4, 1][i] ?? 0,
+    }),
+    specs: { warranty: PHONE_WARRANTY },
+    reviews: [],
+  },
+  {
+    id: 'prod-xiaomi-14t',
+    name: 'Xiaomi 14T',
+    brand: 'Xiaomi',
+    category: 'smartphones',
+    priceLKR: 189000,
+    priceUSD: 549,
+    stock: 0,
+    lowStockThreshold: 3,
+    rating: 4.6,
+    reviewCount: 0,
+    tagline: 'Leica-tuned cameras and 120W HyperCharge.',
+    description: 'Sample demo record with sample/demo prices, not a real offer. Official local warranty and TRCSL registration shown for illustration.',
+    kokoEligible: true,
+    mintpayEligible: true,
+    deviceType: 'phone',
+    colorOptions: [
+      { name: 'Titan Black', hex: '#202124' },
+      { name: 'Titan Blue', hex: '#3E5C86' },
+    ],
+    storageOptions: ['256GB', '512GB'],
+    variants: buildVariants({
+      skuPrefix: 'XIA-14T',
+      colors: ['Titan Black', 'Titan Blue'],
+      storages: [
+        { storage: '256GB', priceLKR: 189000, priceUSD: 549 },
+        { storage: '512GB', priceLKR: 215000, priceUSD: 649 },
+      ],
+      stockFor: (_s, _c, i) => [3, 2, 2, 0][i] ?? 0,
+    }),
+    specs: { warranty: PHONE_WARRANTY },
     reviews: [],
   },
 ];

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useStore } from '../../../context/StoreContext';
 import { Product, ProductCategory, BrandName } from '../../../types';
+import { hasVariants } from '../../../lib/variants';
 import { TrendingUp, Package, Layers, Users, Shield, Search, Plus, Mail, ChevronRight, Download, AlertTriangle, CheckCircle, Truck, DollarSign, ArrowUpRight } from 'lucide-react';
 
 export const InventoryPage: React.FC = () => {
-  const { products, updateProductStock, restockProduct, addProduct, currentUser, formatPrice, currency, switchUserRole } = useStore();
+  const { products, updateProductStock, restockProduct, updateVariantStock, addProduct, currentUser, formatPrice, currency, switchUserRole } = useStore();
   const [stockSearch, setStockSearch] = useState('');
   const [isNewProductOpen, setIsNewProductOpen] = useState(false);
   const [newProductName, setNewProductName] = useState('');
@@ -121,11 +122,11 @@ export const InventoryPage: React.FC = () => {
                         p.id.toLowerCase().includes(stockSearch.toLowerCase())
                       : true
                   )
-                  .map((p) => {
+                  .flatMap((p) => {
                     const isLow = p.stock > 0 && p.stock <= p.lowStockThreshold;
                     const isOut = p.stock === 0;
 
-                    return (
+                    const parentRow = (
                       <tr key={p.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="font-bold text-slate-900">{p.name}</div>
@@ -135,10 +136,11 @@ export const InventoryPage: React.FC = () => {
                         </td>
                         <td className="px-4 py-3 capitalize">{p.category}</td>
                         <td className="px-4 py-3 font-mono font-bold text-slate-900 tabular-nums">
+                          {hasVariants(p) && <span className="text-[10px] font-bold text-slate-500 mr-1">From</span>}
                           {formatPrice(p.priceLKR, p.priceUSD)}
                         </td>
                         <td className="px-4 py-3 font-mono font-bold tabular-nums text-slate-950">
-                          {p.stock} units
+                          {p.stock} units{hasVariants(p) && <span className="block text-[10px] font-normal text-slate-400">total of {p.variants!.length} variants</span>}
                         </td>
                         <td className="px-4 py-3 font-mono tabular-nums text-slate-500">
                           {p.lowStockThreshold} units
@@ -159,6 +161,9 @@ export const InventoryPage: React.FC = () => {
                           )}
                         </td>
                         <td className="px-4 py-3 text-right space-x-2">
+                          {hasVariants(p) ? (
+                            <span className="text-[11px] text-slate-400">Adjust per variant below</span>
+                          ) : (<>
                           <button
                             onClick={() => updateProductStock(p.id, Math.max(0, p.stock - 1))}
                             className="px-2 py-0.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer"
@@ -177,9 +182,50 @@ export const InventoryPage: React.FC = () => {
                           >
                             Restock +25
                           </button>
+                          </>)}
                         </td>
                       </tr>
                     );
+                    const variantRows = (p.variants ?? []).map((v) => (
+                      <tr key={v.id} className="bg-slate-50/60">
+                        <td className="pl-10 pr-4 py-2 text-[11px]">
+                          <span className="font-bold text-slate-700">
+                            {[v.storage, v.color].filter(Boolean).join(' · ')}
+                          </span>
+                          <div className="text-slate-400 font-mono">{v.sku}</div>
+                        </td>
+                        <td className="px-4 py-2" />
+                        <td className="px-4 py-2 font-mono tabular-nums text-[11px]">
+                          {formatPrice(v.priceLKR, v.priceUSD ?? p.priceUSD)}
+                        </td>
+                        <td className="px-4 py-2 font-mono tabular-nums text-[11px] font-bold">{v.stock} units</td>
+                        <td className="px-4 py-2" />
+                        <td className="px-4 py-2 text-[11px]">
+                          {v.stock === 0 ? (
+                            <span className="font-bold text-rose-600">Sold Out</span>
+                          ) : v.stock <= p.lowStockThreshold ? (
+                            <span className="font-bold text-[#E11D48]">Low</span>
+                          ) : (
+                            <span className="text-emerald-700">OK</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2 text-right space-x-2">
+                          <button
+                            onClick={() => updateVariantStock(p.id, v.id, Math.max(0, v.stock - 1))}
+                            className="px-2 py-0.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer"
+                          >
+                            -1
+                          </button>
+                          <button
+                            onClick={() => updateVariantStock(p.id, v.id, v.stock + 10)}
+                            className="px-2 py-0.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded cursor-pointer"
+                          >
+                            +10
+                          </button>
+                        </td>
+                      </tr>
+                    ));
+                    return [parentRow, ...variantRows];
                   })}
               </tbody>
             </table>
