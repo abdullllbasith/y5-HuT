@@ -20,6 +20,29 @@ export const usePriceDraft = () => {
   const { products, publishPriceChanges } = useStore();
   const rows = useMemo(() => buildPriceRows(products), [products]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  // Explicit selection of rows for bulk actions. Filters never add to it by themselves.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggleSelected = useCallback((key: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+  const selectMany = useCallback((keys: string[]) => setSelected((prev) => new Set([...prev, ...keys])), []);
+  const clearSelection = useCallback(() => setSelected(new Set()), []);
+  const selectedRows = useMemo(() => rows.filter((r) => selected.has(r.key)), [rows, selected]);
+
+  // Stage already-reviewed bulk results as ordinary drafts (still unpublished).
+  const stageMany = useCallback((prices: Record<string, number>) => {
+    setDrafts((prev) => {
+      const next = { ...prev };
+      Object.entries(prices).forEach(([k, v]) => (next[k] = String(v)));
+      return next;
+    });
+  }, []);
 
   const setDraft = useCallback((key: string, raw: string) => {
     setDrafts((prev) => ({ ...prev, [key]: raw }));
@@ -62,7 +85,7 @@ export const usePriceDraft = () => {
     return result;
   }, [changes, publishPriceChanges]);
 
-  return { rows, drafts, setDraft, clear, entries, entryByKey, changes, invalid, publish };
+  return { rows, drafts, setDraft, clear, selected, selectedRows, toggleSelected, selectMany, clearSelection, stageMany, entries, entryByKey, changes, invalid, publish };
 };
 
 export type PriceDraft = ReturnType<typeof usePriceDraft>;

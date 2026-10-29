@@ -200,6 +200,19 @@ export interface PriceChange {
   newPriceLKR: number;
 }
 
+/** What the most recent publish changed, so it can be undone safely. In memory only. */
+export interface PublishSnapshot {
+  at: string;
+  entries: {
+    productId: string;
+    variantId?: string;
+    oldPriceLKR: number;
+    newPriceLKR: number;
+    oldUpdatedAt?: string;
+    oldOriginalPriceLKR?: number;
+  }[];
+}
+
 export type AdminTab =
   | 'overview'
   | 'price-manager'
