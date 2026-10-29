@@ -1,3 +1,4 @@
+import { hasPriceRange } from '../../lib/variants';
 import React from 'react';
 import { Product } from '../../types';
 import { DeviceGraphic } from '../common/DeviceGraphic';
@@ -146,6 +147,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="pt-2 border-t border-slate-100 space-y-1.5">
           <div className="flex items-baseline gap-2">
             <span className="text-base sm:text-lg font-black font-mono text-slate-950 tabular-nums">
+              {hasPriceRange(product) && <span className="text-[10px] font-bold text-slate-500 mr-1">From</span>}
               {formatPrice(product.priceLKR, product.priceUSD)}
             </span>
             {(product.originalPriceLKR || product.originalPriceUSD) && (

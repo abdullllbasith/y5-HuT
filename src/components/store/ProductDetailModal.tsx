@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { DeviceGraphic } from '../common/DeviceGraphic';
+import {
+  hasVariants,
+  getSelectedVariant,
+  getDefaultVariant,
+  getVariantColors,
+  getVariantStorages,
+} from '../../lib/variants';
 import {
   X,
   Star,
@@ -15,6 +22,7 @@ import {
 export const ProductDetailModal: React.FC = () => {
   const {
     selectedProductForDetail,
+    products,
     setSelectedProductForDetail,
     addToCart,
     addProductReview,
@@ -25,13 +33,17 @@ export const ProductDetailModal: React.FC = () => {
     isInWishlist,
   } = useStore();
 
-  const product = selectedProductForDetail;
+  // Resolve the live catalogue entry so price/stock are never stale after an edit.
+  const product =
+    (selectedProductForDetail && products.find((p) => p.id === selectedProductForDetail.id)) ||
+    selectedProductForDetail;
 
+  const initialVariant = product ? getDefaultVariant(product) : undefined;
   const [selectedColor, setSelectedColor] = useState<string>(
-    product?.colorOptions[0]?.name || ''
+    initialVariant?.color || product?.colorOptions[0]?.name || ''
   );
   const [selectedStorage, setSelectedStorage] = useState<string>(
-    product?.storageOptions?.[0] || ''
+    initialVariant?.storage || product?.storageOptions?.[0] || ''
   );
   const [quantity, setQuantity] = useState(1);
   const [reviewTab, setReviewTab] = useState<'specs' | 'reviews' | 'write'>('specs');
@@ -44,23 +56,42 @@ export const ProductDetailModal: React.FC = () => {
   const [reviewCompany, setReviewCompany] = useState(currentUser.company || '');
   const [reviewSuccess, setReviewSuccess] = useState(false);
 
+  const productId = product?.id;
+  useEffect(() => {
+    // Reset selection when a different product is opened (the modal stays mounted).
+    const p = products.find((x) => x.id === productId);
+    if (!p) return;
+    const dv = getDefaultVariant(p);
+    setSelectedColor(dv?.color || p.colorOptions[0]?.name || '');
+    setSelectedStorage(dv?.storage || p.storageOptions?.[0] || '');
+    setQuantity(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productId]);
+
   if (!product) return null;
 
   const activeColorObj =
     product.colorOptions.find((c) => c.name === selectedColor) ||
     product.colorOptions[0];
 
-  const isLowStock = product.stock > 0 && product.stock <= product.lowStockThreshold;
-  const isOutOfStock = product.stock === 0;
+  const variant = hasVariants(product) ? getSelectedVariant(product, selectedColor, selectedStorage) : undefined;
+  const unitPriceLKR = variant ? variant.priceLKR : product.priceLKR;
+  const unitPriceUSD = variant?.priceUSD ?? product.priceUSD;
+  const unitStock = variant ? variant.stock : product.stock;
+  const colorNames = hasVariants(product) ? getVariantColors(product) : product.colorOptions.map((c) => c.name);
+  const storageNames = hasVariants(product) ? getVariantStorages(product) : product.storageOptions ?? [];
+  const isLowStock = unitStock > 0 && unitStock <= product.lowStockThreshold;
+  const isOutOfStock = unitStock === 0;
+  const variantCombinationMissing = hasVariants(product) && !variant;
   const isWishlisted = isInWishlist(product.id);
 
   const installmentThird =
     currency === 'LKR'
-      ? Math.round(product.priceLKR / 3)
-      : Math.round(product.priceUSD / 3);
+      ? Math.round(unitPriceLKR / 3)
+      : Math.round(unitPriceUSD / 3);
 
   const handleAddToCart = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || variantCombinationMissing) return;
     addToCart(product, quantity, selectedColor, selectedStorage);
     setSelectedProductForDetail(null);
   };
@@ -172,7 +203,7 @@ export const ProductDetailModal: React.FC = () => {
               {/* Price & Savings */}
               <div className="mt-3 flex items-baseline gap-3">
                 <span className="text-2xl sm:text-3xl font-black font-mono text-slate-950">
-                  {formatPrice(product.priceLKR, product.priceUSD)}
+                  {formatPrice(unitPriceLKR, unitPriceUSD)}
                 </span>
                 {(product.originalPriceLKR || product.originalPriceUSD) && (
                   <span className="text-sm text-slate-400 line-through font-mono">
@@ -215,7 +246,7 @@ export const ProductDetailModal: React.FC = () => {
                   Finish: <span className="font-normal text-slate-500">{selectedColor}</span>
                 </label>
                 <div className="flex items-center gap-2">
-                  {product.colorOptions.map((c) => (
+                  {product.colorOptions.filter((c) => colorNames.includes(c.name)).map((c) => (
                     <button
                       key={c.name}
                       onClick={() => setSelectedColor(c.name)}
@@ -236,13 +267,13 @@ export const ProductDetailModal: React.FC = () => {
               </div>
 
               {/* Storage */}
-              {product.storageOptions && (
+              {storageNames.length > 0 && (
                 <div className="mt-4">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                     Storage Capacity
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {product.storageOptions.map((s) => (
+                    {storageNames.map((s) => (
                       <button
                         key={s}
                         onClick={() => setSelectedStorage(s)}
@@ -266,12 +297,12 @@ export const ProductDetailModal: React.FC = () => {
                     <span className="text-xs font-bold text-rose-600">Currently Sold Out</span>
                   ) : isLowStock ? (
                     <span className="text-xs font-bold text-[#E11D48]">
-                      Only {product.stock} units remaining in stock
+                      Only {unitStock} units remaining in stock
                     </span>
                   ) : (
                     <span className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      <span>In Stock ({product.stock} units)</span>
+                      <span>In Stock ({unitStock} units)</span>
                     </span>
                   )}
                 </div>
@@ -286,8 +317,8 @@ export const ProductDetailModal: React.FC = () => {
                   </button>
                   <span className="px-3 py-1 text-xs font-mono font-bold">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                    disabled={quantity >= product.stock || isOutOfStock}
+                    onClick={() => setQuantity(Math.min(unitStock, quantity + 1))}
+                    disabled={quantity >= unitStock || isOutOfStock}
                     className="px-3 py-1 text-xs hover:bg-slate-100 cursor-pointer"
                   >
                     +
@@ -300,11 +331,14 @@ export const ProductDetailModal: React.FC = () => {
             <div className="pt-2 space-y-2">
               <button
                 onClick={handleAddToCart}
-                disabled={isOutOfStock}
+                disabled={isOutOfStock || variantCombinationMissing}
                 className="w-full py-3 px-4 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-md disabled:opacity-50 cursor-pointer"
               >
-                {isOutOfStock ? 'Sold Out' : `Add to Cart · ${formatPrice(product.priceLKR * quantity, product.priceUSD * quantity)}`}
+                {variantCombinationMissing ? 'Combination unavailable' : isOutOfStock ? 'Sold Out' : `Add to Cart · ${formatPrice(unitPriceLKR * quantity, unitPriceUSD * quantity)}`}
               </button>
+              <p className="text-[10px] text-slate-400 text-center">
+                Sample/demo prices.{currency === 'USD' ? ' USD is illustrative and not exchange-rate synced.' : ''}
+              </p>
             </div>
           </div>
         </div>

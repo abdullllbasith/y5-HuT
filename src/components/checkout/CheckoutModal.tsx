@@ -98,6 +98,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
           quantity: c.quantity,
           selectedColor: c.selectedColor,
           selectedStorage: c.selectedStorage,
+          variantId: c.variantId,
+          sku: c.sku,
           deviceType: c.deviceType,
         })),
         subtotalLKR: cartSubtotalLKR,

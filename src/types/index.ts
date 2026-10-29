@@ -48,6 +48,21 @@ export interface ProductReview {
   isVerifiedPurchase: boolean;
 }
 
+/**
+ * A sellable combination of storage + colour. When a product has variants, the
+ * variant's price and stock are the source of truth; Product.priceLKR and
+ * Product.stock are derived (lowest price / total stock) by normalizeProduct().
+ */
+export interface ProductVariant {
+  id: string;
+  sku: string;
+  storage?: string;
+  color?: string;
+  priceLKR: number; // editable selling price (LKR)
+  priceUSD?: number; // illustrative only, not exchange-synced
+  stock: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -73,6 +88,7 @@ export interface Product {
   reviews: ProductReview[];
   kokoEligible?: boolean;
   mintpayEligible?: boolean;
+  variants?: ProductVariant[];
 }
 
 export type OrderStatus = 'confirmed' | 'processing' | 'dispatched' | 'delivered' | 'cancelled';
@@ -93,6 +109,8 @@ export interface OrderItem {
   quantity: number;
   selectedColor?: string;
   selectedStorage?: string;
+  variantId?: string;
+  sku?: string;
   deviceType: 'phone' | 'earbuds' | 'charger' | 'case' | 'cable' | 'smartwatch' | 'powerbank';
 }
 
@@ -172,3 +190,15 @@ export interface MonthlySalesMetric {
   smartphonesCount: number;
   accessoriesCount: number;
 }
+
+export type AdminTab =
+  | 'overview'
+  | 'price-manager'
+  | 'products'
+  | 'inventory'
+  | 'price-history'
+  | 'import-export'
+  | 'orders'
+  | 'analytics'
+  | 'clients'
+  | 'rbac';
