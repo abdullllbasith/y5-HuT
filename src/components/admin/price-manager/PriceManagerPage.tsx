@@ -1,5 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { CheckCircle, FlaskConical, SearchX, PackageOpen } from 'lucide-react';
+import { CheckCircle, FlaskConical, SearchX, PackageOpen, Undo2 } from 'lucide-react';
+import { useStore } from '../../../context/StoreContext';
+import { BulkMode, previewBulk } from '../../../lib/bulkPricing';
+import { BulkToolbar } from './BulkToolbar';
+import { BulkPreviewDialog } from './BulkPreviewDialog';
 import { PriceDraft } from './usePriceDraft';
 import { EMPTY_FILTERS, PriceFilters, filterPriceRows } from '../../../lib/priceRows';
 import { PriceFiltersBar } from './PriceFiltersBar';
@@ -11,6 +15,8 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
   const [filters, setFilters] = useState<PriceFilters>(EMPTY_FILTERS);
   const [reviewing, setReviewing] = useState(false);
   const [publishedMsg, setPublishedMsg] = useState<string | null>(null);
+  const [bulk, setBulk] = useState<{ mode: BulkMode; value: number } | null>(null);
+  const { lastPublish, undoLastPublish } = useStore();
 
   const visible = useMemo(
     () => filterPriceRows(draft.rows, filters, (k) => draft.entryByKey.has(k)),
@@ -18,6 +24,18 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
   );
 
   const dirty = draft.entries.length;
+  const visibleKeys = new Set(visible.map((r) => r.key));
+  const hiddenSelected = draft.selectedRows.filter((r) => !visibleKeys.has(r.key)).length;
+  const filteredProducts = new Set(visible.map((r) => r.productId)).size;
+  const bulkPreview = bulk
+    ? previewBulk(draft.selectedRows, bulk.mode, bulk.value, hiddenSelected)
+    : null;
+  if (bulkPreview) {
+    const replaced = bulkPreview.changes.filter((c) => (draft.drafts[c.row.key] ?? '').trim() !== '').length;
+    if (replaced > 0) {
+      bulkPreview.warnings.push(`${replaced} row${replaced === 1 ? ' has' : 's have'} an unsaved draft edit that staging will replace.`);
+    }
+  }
   const hasDraft = Object.values(draft.drafts).some((v) => v !== '');
 
   return (
@@ -37,7 +55,59 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
         </div>
       )}
 
+      {lastPublish && (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-xs text-slate-700">
+          <span>
+            Last publish: <strong>{lastPublish.entries.length}</strong> price{lastPublish.entries.length === 1 ? '' : 's'} changed at{' '}
+            {new Date(lastPublish.at).toLocaleTimeString()}.
+          </span>
+          <button
+            onClick={() => {
+              const { restored, skipped } = undoLastPublish();
+              setPublishedMsg(
+                `Undid last publish: ${restored} restored${skipped ? `, ${skipped} left alone because they changed since` : ''}.`
+              );
+            }}
+            className="inline-flex items-center gap-1 font-bold text-[#E11D48] hover:underline cursor-pointer"
+          >
+            <Undo2 className="w-3.5 h-3.5" /> Undo last publish
+          </button>
+        </div>
+      )}
+
       <PriceFiltersBar rows={draft.rows} filters={filters} onChange={setFilters} />
+
+      {/* Filtered count vs. explicit selection: filtering never selects anything */}
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-slate-600">
+          <span>Filtered products: <strong>{filteredProducts}</strong> <span className="text-slate-400">({visible.length} variant rows)</span></span>
+          <span>Selected variants: <strong className="text-[#E11D48]">{draft.selected.size}</strong></span>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => draft.selectMany(visible.map((r) => r.key))}
+            disabled={visible.length === 0}
+            className="font-bold text-slate-700 hover:text-[#E11D48] disabled:opacity-40 cursor-pointer"
+          >
+            Select visible ({visible.length})
+          </button>
+          <button
+            onClick={draft.clearSelection}
+            disabled={draft.selected.size === 0}
+            className="font-bold text-slate-700 hover:text-[#E11D48] disabled:opacity-40 cursor-pointer"
+          >
+            Clear selection
+          </button>
+        </div>
+      </div>
+
+      <BulkToolbar
+        selectedCount={draft.selected.size}
+        hiddenCount={hiddenSelected}
+        onClear={draft.clearSelection}
+        onPreview={(mode, value) => setBulk({ mode, value })}
+      />
+      {draft.selected.size > 0 && <div className="h-40 md:hidden" aria-hidden />}
 
       {/* Draft controls */}
       <div className="sticky top-2 z-10 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white/95 backdrop-blur px-4 py-2.5 shadow-xs">
@@ -105,6 +175,25 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
           <PriceTable rows={visible} draft={draft} />
           <PriceCards rows={visible} draft={draft} />
         </>
+      )}
+
+      {bulk && bulkPreview && (
+        <BulkPreviewDialog
+          mode={bulk.mode}
+          value={bulk.value}
+          preview={bulkPreview}
+          onCancel={() => setBulk(null)}
+          onStage={() => {
+            const staged: Record<string, number> = {};
+            bulkPreview.changes.forEach((c) => (staged[c.row.key] = c.newPrice!));
+            draft.stageMany(staged);
+            draft.clearSelection();
+            setBulk(null);
+            setPublishedMsg(
+              `Staged ${bulkPreview.changes.length} bulk change${bulkPreview.changes.length === 1 ? '' : 's'} as draft. Use Review Changes to check and publish.`
+            );
+          }}
+        />
       )}
 
       {reviewing && (

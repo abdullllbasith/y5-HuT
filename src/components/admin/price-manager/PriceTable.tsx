@@ -10,6 +10,7 @@ export const PriceTable: React.FC<{ rows: PriceRow[]; draft: PriceDraft }> = ({ 
     <table className="w-full text-left text-xs">
       <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider font-bold">
         <tr>
+          <th className="px-3 py-3 w-8"><span className="sr-only">Select</span></th>
           <th className="px-3 py-3">Product / variant</th>
           <th className="px-3 py-3">Brand</th>
           <th className="px-3 py-3">SKU</th>
@@ -25,6 +26,15 @@ export const PriceTable: React.FC<{ rows: PriceRow[]; draft: PriceDraft }> = ({ 
           const entry = draft.entryByKey.get(r.key);
           return (
             <tr key={r.key} className={entry ? 'bg-amber-50/40' : 'hover:bg-slate-50'}>
+              <td className="px-3 py-2">
+                <input
+                  type="checkbox"
+                  aria-label={`Select ${r.name} ${r.sku}`}
+                  checked={draft.selected.has(r.key)}
+                  onChange={() => draft.toggleSelected(r.key)}
+                  className="w-4 h-4 accent-[#E11D48] cursor-pointer"
+                />
+              </td>
               <td className="px-3 py-2">
                 <div className="font-bold text-slate-900">{r.name}</div>
                 {(r.storage || r.color) && (

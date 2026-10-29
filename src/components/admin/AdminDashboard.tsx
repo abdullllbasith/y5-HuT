@@ -1,5 +1,5 @@
 import React from 'react';
-import { Smartphone, History, FileSpreadsheet } from 'lucide-react';
+import { Smartphone, History } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { AdminShell } from './AdminShell';
 import { OverviewPage } from './pages/OverviewPage';
@@ -11,6 +11,7 @@ import { ClientsPage } from './pages/ClientsPage';
 import { RolesPage } from './pages/RolesPage';
 import { CustomerAccessGate } from './pages/CustomerAccessGate';
 import { PriceManagerPage } from './price-manager/PriceManagerPage';
+import { ImportExportPage } from './import-export/ImportExportPage';
 import { usePriceDraft } from './price-manager/usePriceDraft';
 
 export const AdminDashboard: React.FC = () => {
@@ -61,17 +62,7 @@ export const AdminDashboard: React.FC = () => {
           />
         );
       case 'import-export':
-        return (
-          <ComingSoonPage
-            title="Import / Export"
-            phase={5}
-            icon={FileSpreadsheet}
-            summary="Export prices to CSV, edit in Excel, and import them back with validation."
-            planned={['CSV export', 'Import preview with row-by-row errors']}
-            onBack={backToOverview}
-            backLabel="Back to Overview"
-          />
-        );
+        return <ImportExportPage />;
       case 'orders':
         return <OrdersPage />;
       case 'analytics':

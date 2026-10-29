@@ -1,0 +1,7 @@
+sku,product_name,brand,variant,current_price_lkr,new_price_lkr,stock
+APL-IP15-128GB-B,Apple iPhone 15,Apple,128GB / Blue,245000,242000,4
+SAM-A55-128GB-AN,Samsung Galaxy A55 5G,Samsung,128GB / Awesome Navy,112000,114500,6
+XIA-RN13P-128GB-MB,Xiaomi Redmi Note 13 Pro,Xiaomi,128GB / Midnight Black,82000,82000,8
+"XIA-14T-256GB-TB","Xiaomi 14T, Leica edition (name differs)",Xiaomi,256GB / Titan Black,189000,,3
+APL-IP16PM-256GB-DT,Apple iPhone 16 Pro Max,Apple,256GB / Desert Titanium,425000,abc,3
+APL-IP99-512GB-X,Apple iPhone 99 (not in catalogue),Apple,512GB / Imaginary,999000,950000,1

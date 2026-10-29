@@ -12,6 +12,7 @@ import {
   Currency,
   AdminTab,
   PriceChange,
+  PublishSnapshot,
 } from '../types';
 import {
   INITIAL_PRODUCTS,
@@ -96,6 +97,8 @@ interface StoreContextType {
   updateVariantStock: (productId: string, variantId: string, newStock: number) => void;
   resetDemoData: () => void;
   publishPriceChanges: (changes: PriceChange[]) => { applied: number; rejected: number };
+  lastPublish: PublishSnapshot | null;
+  undoLastPublish: () => { restored: number; skipped: number };
 
   // Client actions
   updateClientAccount: (clientId: string, updates: Partial<ClientAccount>) => void;
@@ -265,6 +268,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   ]);
 
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [lastPublish, setLastPublish] = useState<PublishSnapshot | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -560,11 +564,29 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Publish reviewed LKR price edits. Re-validates, touches only the targeted variant/product, leaves
   // historical orders alone, and re-prices matching cart lines so the cart never shows a stale price.
   const publishPriceChanges = (changes: PriceChange[]) => {
-    const valid = changes.filter(
-      (c) => Number.isFinite(c.newPriceLKR) && c.newPriceLKR > 0 && products.some((p) => p.id === c.productId)
-    );
+    // Only well-formed changes that actually differ from the current price are applied.
+    const entries: PublishSnapshot['entries'] = [];
+    const valid = changes.filter((c) => {
+      if (!Number.isFinite(c.newPriceLKR) || c.newPriceLKR <= 0) return false;
+      const p = products.find((x) => x.id === c.productId);
+      if (!p) return false;
+      const v = c.variantId ? p.variants?.find((x) => x.id === c.variantId) : undefined;
+      if (c.variantId && !v) return false;
+      const oldPrice = v ? v.priceLKR : p.priceLKR;
+      if (oldPrice === c.newPriceLKR) return false;
+      entries.push({
+        productId: p.id,
+        variantId: v?.id,
+        oldPriceLKR: oldPrice,
+        newPriceLKR: c.newPriceLKR,
+        oldUpdatedAt: v ? v.priceUpdatedAt : p.priceUpdatedAt,
+        oldOriginalPriceLKR: p.originalPriceLKR,
+      });
+      return true;
+    });
     if (valid.length === 0) return { applied: 0, rejected: changes.length };
     const now = new Date().toISOString();
+    setLastPublish({ at: now, entries });
 
     setProducts((prev) =>
       prev.map((p) => {
@@ -609,11 +631,56 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return { applied: valid.length, rejected: changes.length - valid.length };
   };
 
+  // Undo the last publish. Only rows still at the published price are restored, so edits made
+  // since then (by another publish or an order of events we don't know about) are never overwritten.
+  const undoLastPublish = () => {
+    if (!lastPublish) return { restored: 0, skipped: 0 };
+    const priceNow = (e: PublishSnapshot['entries'][number]) => {
+      const p = products.find((x) => x.id === e.productId);
+      const v = e.variantId ? p?.variants?.find((x) => x.id === e.variantId) : undefined;
+      return v ? v.priceLKR : p?.priceLKR;
+    };
+    const restorable = lastPublish.entries.filter((e) => priceNow(e) === e.newPriceLKR);
+
+    setProducts((prev) =>
+      prev.map((p) => {
+        const mine = restorable.filter((e) => e.productId === p.id);
+        if (mine.length === 0) return p;
+        let next: Product = hasVariants(p)
+          ? {
+              ...p,
+              variants: p.variants!.map((v) => {
+                const e = mine.find((m) => m.variantId === v.id);
+                return e ? { ...v, priceLKR: e.oldPriceLKR, priceUpdatedAt: e.oldUpdatedAt } : v;
+              }),
+            }
+          : { ...p, priceLKR: mine[0].oldPriceLKR, priceUpdatedAt: mine[0].oldUpdatedAt };
+        next = normalizeProduct(next);
+        if (next.originalPriceLKR === undefined && mine[0].oldOriginalPriceLKR !== undefined) {
+          next = { ...next, originalPriceLKR: mine[0].oldOriginalPriceLKR };
+        }
+        return next;
+      })
+    );
+    setCart((prev) =>
+      prev.map((item) => {
+        const e = restorable.find(
+          (m) => m.productId === item.productId && (m.variantId ?? undefined) === (item.variantId ?? undefined)
+        );
+        return e ? { ...item, priceLKR: e.oldPriceLKR } : item;
+      })
+    );
+    setLastPublish(null);
+    triggerNotification('task', 'Price Publish Undone', `${restorable.length} price(s) restored in this browser.`);
+    return { restored: restorable.length, skipped: lastPublish.entries.length - restorable.length };
+  };
+
   const resetDemoData = () => {
     setProducts(normalizeProducts(INITIAL_PRODUCTS));
     setOrders(INITIAL_ORDERS);
     setClients(INITIAL_CLIENTS);
     setCart([]);
+    setLastPublish(null);
     setSelectedProductForDetail(null);
   };
 
@@ -901,6 +968,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateVariantStock,
         resetDemoData,
         publishPriceChanges,
+        lastPublish,
+        undoLastPublish,
         updateClientAccount,
         addClientAccount,
         addProductReview,
