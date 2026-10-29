@@ -7,13 +7,13 @@ export const Testimonials: React.FC = () => {
     <section className="py-10 border-t border-slate-200">
       <div className="max-w-3xl mb-8">
         <span className="text-xs font-bold uppercase tracking-wider text-[#E11D48]">
-          Client Feedback &amp; Enterprise Procurement
+          DEMO · Fictional sample testimonials
         </span>
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans mt-1">
-          Why Sri Lanka Chooses y5Hut.lk
+          What customers might say
         </h2>
         <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-          Trusted by top enterprise corporate IT fleets, creative agencies, and over 50,000 satisfied tech lovers across the island.
+          Fictional sample quotes for the concept demo. They are not real customer reviews.
         </p>
       </div>
 

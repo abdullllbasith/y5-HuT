@@ -5,6 +5,7 @@ import { AdminShell } from './AdminShell';
 import { OverviewPage } from './pages/OverviewPage';
 import { ComingSoonPage } from './pages/ComingSoonPage';
 import { InventoryPage } from './inventory/InventoryPage';
+import { PriceHistoryPage } from './price-history/PriceHistoryPage';
 import { ProductsPage } from './products/ProductsPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
@@ -41,17 +42,7 @@ export const AdminDashboard: React.FC = () => {
       case 'inventory':
         return <InventoryPage />;
       case 'price-history':
-        return (
-          <ComingSoonPage
-            title="Price History"
-            phase={6}
-            icon={History}
-            summary="A log of every price change: old price, new price, when and how."
-            planned={['Single, bulk and CSV changes recorded', 'Filter by product and date']}
-            onBack={backToOverview}
-            backLabel="Back to Overview"
-          />
-        );
+        return <PriceHistoryPage />;
       case 'import-export':
         return <ImportExportPage />;
       case 'orders':

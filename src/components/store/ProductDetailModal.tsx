@@ -131,7 +131,7 @@ export const ProductDetailModal: React.FC = () => {
             <span>·</span>
             <span>SKU: {product.id}</span>
             <span>·</span>
-            <span className="text-emerald-700 font-semibold">TRCSL Approved</span>
+            <span className="text-emerald-700 font-semibold">Sample warranty info (demo)</span>
           </div>
 
           <button
@@ -167,7 +167,7 @@ export const ProductDetailModal: React.FC = () => {
               </div>
               <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>100% Genuine Sri Lankan Warranty</span>
+                <span>Sample warranty (demo content)</span>
               </div>
             </div>
           </div>

@@ -13,7 +13,7 @@ interface CatalogViewProps {
 export const CatalogView: React.FC<CatalogViewProps> = ({
   initialCategory = 'all',
   title = 'Trending Tech & Gadgets in Sri Lanka',
-  subtitle = '100% Genuine electronics with manufacturer warranty & islandwide delivery.',
+  subtitle = 'Sample catalogue for the demo. Prices, stock, warranty and delivery details are illustrative.',
 }) => {
   const { storefrontProducts: products } = useStore();
 
