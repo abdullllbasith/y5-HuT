@@ -20,6 +20,8 @@ export const usePriceDraft = () => {
   const { products, publishPriceChanges } = useStore();
   const rows = useMemo(() => buildPriceRows(products), [products]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  // Rows whose draft came from a reviewed bulk action (so history can say "bulk").
+  const [bulkKeys, setBulkKeys] = useState<Set<string>>(new Set());
   // Explicit selection of rows for bulk actions. Filters never add to it by themselves.
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -42,13 +44,23 @@ export const usePriceDraft = () => {
       Object.entries(prices).forEach(([k, v]) => (next[k] = String(v)));
       return next;
     });
+    setBulkKeys((prev) => new Set([...prev, ...Object.keys(prices)]));
   }, []);
 
   const setDraft = useCallback((key: string, raw: string) => {
     setDrafts((prev) => ({ ...prev, [key]: raw }));
+    setBulkKeys((prev) => {
+      if (!prev.has(key)) return prev;
+      const next = new Set(prev); // a hand edit on top of a bulk draft is a quick edit
+      next.delete(key);
+      return next;
+    });
   }, []);
 
-  const clear = useCallback(() => setDrafts({}), []);
+  const clear = useCallback(() => {
+    setDrafts({});
+    setBulkKeys(new Set());
+  }, []);
 
   const entries = useMemo<DraftEntry[]>(() => {
     const byKey = new Map(rows.map((r) => [r.key, r]));
@@ -79,11 +91,17 @@ export const usePriceDraft = () => {
 
   const publish = useCallback(() => {
     const result = publishPriceChanges(
-      changes.map((e) => ({ productId: e.row.productId, variantId: e.row.variantId, newPriceLKR: e.newPrice! }))
+      changes.map((e) => ({
+        productId: e.row.productId,
+        variantId: e.row.variantId,
+        newPriceLKR: e.newPrice!,
+        source: bulkKeys.has(e.row.key) ? ('bulk' as const) : ('quick-edit' as const),
+      }))
     );
     setDrafts({});
+    setBulkKeys(new Set());
     return result;
-  }, [changes, publishPriceChanges]);
+  }, [changes, bulkKeys, publishPriceChanges]);
 
   return { rows, drafts, setDraft, clear, selected, selectedRows, toggleSelected, selectMany, clearSelection, stageMany, entries, entryByKey, changes, invalid, publish };
 };

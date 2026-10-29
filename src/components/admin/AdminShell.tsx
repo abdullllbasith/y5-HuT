@@ -2,6 +2,7 @@ import React from 'react';
 import { FlaskConical, Store } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { AdminTab } from '../../types';
+import { ResetDemoButton } from './ResetDemoButton';
 import { ALL_NAV, AdminNavItem, PRIMARY_NAV, SECONDARY_NAV } from './adminNav';
 
 interface NavButtonProps {
@@ -45,6 +46,9 @@ export const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }
           Changes you make here are saved in this browser's local storage, are not sent to any server, and
           will not appear on other devices. No real orders, payments or messages are involved.
         </p>
+        <div className="ml-auto shrink-0">
+          <ResetDemoButton />
+        </div>
       </div>
 
       {/* Top bar */}

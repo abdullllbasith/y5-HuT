@@ -36,7 +36,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
   // Shipping details (Sri Lankan standard address fields)
   const [customerName, setCustomerName] = useState(currentUser.name);
   const [customerEmail, setCustomerEmail] = useState(currentUser.email);
-  const [customerPhone, setCustomerPhone] = useState('+94 77 341 9022');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [customerCompany, setCustomerCompany] = useState(currentUser.company || '');
   const [street, setStreet] = useState('No. 45/2, Galle Road, Bambalapitiya');
   const [city, setCity] = useState('Colombo 04');
@@ -126,7 +126,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
           <div className="flex items-center gap-3">
             <span className="text-base font-black text-slate-900 font-sans">
-              simply<span className="text-[#E11D48]">tek</span> Checkout
+              y5<span className="text-[#E11D48]">Hut</span> Checkout <span className="ml-1 text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300 align-middle">DEMO</span>
             </span>
             <span className="text-slate-300">|</span>
             <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
@@ -148,6 +148,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
 
         {/* Modal Body */}
         <div className="overflow-y-auto p-6">
+          <div role="note" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[11px] text-amber-900">
+            <strong>DEMO checkout.</strong> No payment is taken, no real order is placed, and no email or SMS is sent. Do not enter real card details.
+          </div>
           {step === 'details' && (
             <form onSubmit={handleDetailsSubmit} className="space-y-4">
               <div>
@@ -155,7 +158,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
                   Islandwide Delivery Address &amp; Contact Info
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Courier tracking manifests and SMS milestone notifications will be sent to this number.
+                  Demo only: no courier is booked and no SMS or email is sent.
                 </p>
               </div>
 
@@ -206,7 +209,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Dialog Axiata, MAS Holdings"
+                    placeholder="e.g. Sample Telecom, Sample Holdings"
                     value={customerCompany}
                     onChange={(e) => setCustomerCompany(e.target.value)}
                     className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-[#E11D48] focus:outline-none"
@@ -293,7 +296,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
                     onChange={(e) => setNotifySms(e.target.checked)}
                     className="rounded text-[#E11D48] focus:ring-[#E11D48]"
                   />
-                  <span>Send Pronto Express courier waybill SMS updates</span>
+                  <span>Send Sample Courier courier waybill SMS updates</span>
                 </label>
               </div>
 
@@ -520,7 +523,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
                     <strong className="text-slate-950 font-mono">
                       {formatPrice(totalLKR, totalUSD)}
                     </strong>{' '}
-                    for the Pronto Express delivery officer. You will receive an SMS prior to delivery.
+                    for the Sample Courier delivery officer. You will receive an SMS prior to delivery.
                   </p>
                 </div>
               )}
@@ -640,7 +643,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
                       id: `confirm-${completedOrder.id}`,
                       type: 'milestone' as const,
                       title: `y5Hut.lk Order Confirmation #${completedOrder.id}`,
-                      message: `Order authorized via ${completedOrder.paymentMethod}.`,
+                      message: `DEMO order. Simulated ${completedOrder.paymentMethod} payment, no money taken.`,
                       timestamp: 'Just now',
                       read: true,
                       orderId: completedOrder.id,
@@ -650,7 +653,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onClose }) => {
                           <h2 style="color: #E11D48; margin: 0 0 10px 0;">y5<span style="color: #0F172A;">Hut</span>.lk Sri Lanka</h2>
                           <p>Thank you for shopping with us, <strong>${completedOrder.customerName}</strong>!</p>
                           <p>Total: <strong>${completedOrder.currency === 'LKR' ? `Rs. ${completedOrder.totalLKR.toLocaleString()}` : `$${completedOrder.totalUSD.toLocaleString()}`}</strong></p>
-                          <p>Your hardware items have passed serial verification and are being packed for Pronto Express courier handover from y5Hut.lk Colombo central hub.</p>
+                          <p>Your hardware items have passed serial verification and are being packed for Sample Courier courier handover from y5Hut.lk Colombo central hub.</p>
                         </div>
                       `,
                     };

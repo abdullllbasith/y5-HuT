@@ -198,11 +198,30 @@ export interface MonthlySalesMetric {
   accessoriesCount: number;
 }
 
+export type PriceSource = 'quick-edit' | 'bulk' | 'csv' | 'restore' | 'undo';
+
 /** One published price edit. variantId is omitted for products without variants. */
 export interface PriceChange {
   productId: string;
   variantId?: string;
   newPriceLKR: number;
+  source?: PriceSource; // defaults to quick-edit
+}
+
+/** Browser-local record of a price change. A demo log, not a secure audit trail. */
+export interface PriceHistoryEntry {
+  id: string;
+  batchId: string; // rows published together share a batch
+  at: string; // ISO time
+  productId: string;
+  variantId?: string;
+  productName: string;
+  sku: string;
+  label: string;
+  oldPriceLKR: number;
+  newPriceLKR: number;
+  source: PriceSource;
+  by: string; // simulated demo role label
 }
 
 export type StockReason =

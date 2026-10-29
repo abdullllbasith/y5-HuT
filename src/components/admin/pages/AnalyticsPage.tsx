@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../../../context/StoreContext';
 import { MONTHLY_METRICS } from '../../../data/mockData';
+import { DemoNotice } from '../../common/DemoNotice';
 import { TrendingUp, Package, Layers, Users, Shield, Search, Plus, Mail, ChevronRight, Download, AlertTriangle, CheckCircle, Truck, DollarSign, ArrowUpRight } from 'lucide-react';
 
 export const AnalyticsPage: React.FC = () => {
@@ -30,6 +31,7 @@ export const AnalyticsPage: React.FC = () => {
 
   return (
     <>
+      <DemoNotice className="mb-4">Mock analytics. These figures are static sample data and do not come from real sales or from the orders in this demo.</DemoNotice>
             <div className="space-y-6">
               {!canViewAnalytics ? (
                 <div className="bg-white rounded-xl border border-slate-200 p-8 text-center space-y-4 shadow-xs">

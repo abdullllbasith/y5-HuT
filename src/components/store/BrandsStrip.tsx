@@ -2,8 +2,8 @@ import React from 'react';
 
 export const BrandsStrip: React.FC = () => {
   const topBrands = [
-    { name: 'Apple', tag: 'Authorized Reseller' },
-    { name: 'Samsung', tag: 'Official Local Partner' },
+    { name: 'Apple', tag: 'Sample listing' },
+    { name: 'Samsung', tag: 'Sample listing' },
     { name: 'Anker', tag: 'Soundcore & GaN' },
     { name: 'Soundpeats', tag: 'Hi-Res Audio' },
     { name: 'UGREEN', tag: 'Nexode Power' },
@@ -17,10 +17,10 @@ export const BrandsStrip: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Authorized Brand Partners
+            Brands in this demo
           </span>
           <span className="text-xs font-semibold text-slate-400">
-            100% Genuine Sri Lankan Warranty
+            Sample content, not a real offer
           </span>
         </div>
 
