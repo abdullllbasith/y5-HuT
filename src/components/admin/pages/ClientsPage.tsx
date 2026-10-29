@@ -79,7 +79,7 @@ export const ClientsPage: React.FC = () => {
                     Corporate Client Accounts &amp; Net-30 Portfolios
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Corporate procurement ledgers across Dialog Axiata, MAS Holdings, John Keells, and enterprise partners.
+                    Corporate procurement ledgers across fictional sample companies (demo data).
                   </p>
                 </div>
 
@@ -192,7 +192,7 @@ export const ClientsPage: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Brandix Lanka, Hayleys PLC"
+                  placeholder="e.g. Sample Company Ltd"
                   value={newCompanyName}
                   onChange={(e) => setNewCompanyName(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#E11D48]"
@@ -216,7 +216,7 @@ export const ClientsPage: React.FC = () => {
                 <input
                   type="email"
                   required
-                  placeholder="e.g. accounts@brandix.com"
+                  placeholder="e.g. accounts@example.lk"
                   value={newClientEmail}
                   onChange={(e) => setNewClientEmail(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#E11D48]"

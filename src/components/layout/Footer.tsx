@@ -71,7 +71,7 @@ export const Footer: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              y5Hut.lk is Sri Lanka's leading online tech store and genuine gadget destination featuring AppleHuT. Official warranty, islandwide delivery, and 0% installments.
+              y5Hut.lk is Sri Lanka's leading online tech store and genuine gadget destination featuring AppleHuT. This is a concept demo: warranty, delivery and installment details are sample content.
             </p>
 
             <div className="space-y-2 text-xs text-slate-300">
@@ -81,8 +81,8 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#E11D48] shrink-0" />
-                <a href="tel:+94117555888" className="hover:text-white font-semibold">
-                  +94 117 555 888 (Hotline)
+                <a href="tel:+94110000000" className="hover:text-white font-semibold">
+                  +94 11 000 0000 (sample) (Hotline)
                 </a>
               </div>
               <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export const Footer: React.FC = () => {
                   }}
                   className="hover:text-white transition-colors"
                 >
-                  AppleHuT (Official Apple)
+                  AppleHuT (sample)
                 </button>
               </li>
               <li>
@@ -216,7 +216,7 @@ export const Footer: React.FC = () => {
             <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/80 text-xs space-y-1.5">
               <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
                 <CheckCircle className="w-4 h-4" />
-                <span>TRCSL Approved Devices</span>
+                <span>Sample device listings</span>
               </div>
               <p className="text-[11px] text-slate-400 leading-tight">
                 All mobile smartphones imported into Sri Lanka are legally registered with the Telecommunications Regulatory Commission.
@@ -226,10 +226,10 @@ export const Footer: React.FC = () => {
             <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/80 text-xs space-y-1.5">
               <div className="flex items-center gap-1.5 text-rose-400 font-bold">
                 <CheckCircle className="w-4 h-4" />
-                <span>Genxt Authorized Warranty</span>
+                <span>Sample warranty info (demo)</span>
               </div>
               <p className="text-[11px] text-slate-400 leading-tight">
-                Authorized Apple service and hardware support across Sri Lanka.
+                Illustrative text only. No real service or authorization is claimed.
               </p>
             </div>
           </div>

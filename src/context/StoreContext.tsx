@@ -15,6 +15,8 @@ import {
   PublishSnapshot,
   StockAdjustment,
   StockReason,
+  PriceHistoryEntry,
+  PriceSource,
 } from '../types';
 import {
   INITIAL_PRODUCTS,
@@ -51,6 +53,7 @@ interface StoreContextType {
   /** Products visible to shoppers (archived ones removed). Admin screens use `products`. */
   storefrontProducts: Product[];
   stockLog: StockAdjustment[];
+  priceHistory: PriceHistoryEntry[];
   orders: Order[];
   clients: ClientAccount[];
   cart: CartItem[];
@@ -180,6 +183,7 @@ const STORAGE_KEYS = {
   LEGACY_PRODUCTS: 'y5hut_products_v3',
   DEMO_VERSION: 'y5hut_demo_data_version',
   STOCK_LOG: 'y5hut_stock_log_v1',
+  PRICE_HISTORY: 'y5hut_price_history_v1',
   ORDERS: 'y5hut_orders_v3',
   CLIENTS: 'y5hut_clients_v3',
   NOTIFICATIONS: 'y5hut_notifications_v3',
@@ -249,8 +253,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     {
       id: 'notif-1',
       type: 'milestone',
-      title: 'Dispatched via Pronto Express: Order #Y5-90412',
-      message: 'Waybill PRT-LK-994821 assigned. Scheduled for priority handover in Colombo today.',
+      title: 'Dispatched via Sample Courier: Order #Y5-90412',
+      message: 'Waybill DEMO-994821 assigned. Scheduled for priority handover in Colombo today.',
       timestamp: 'Today, 09:00',
       read: false,
       orderId: 'Y5-90412',
@@ -263,9 +267,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           </div>
           <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; margin-bottom: 20px;">
             <p style="margin: 0 0 6px 0; font-size: 14px;"><strong>Order ID:</strong> #Y5-90412</p>
-            <p style="margin: 0 0 6px 0; font-size: 14px;"><strong>Courier Partner:</strong> Pronto Islandwide Express</p>
-            <p style="margin: 0 0 6px 0; font-size: 14px;"><strong>Waybill Tracking:</strong> PRT-LK-994821</p>
-            <p style="margin: 0; font-size: 14px;"><strong>TRCSL Status:</strong> Approved & Registered</p>
+            <p style="margin: 0 0 6px 0; font-size: 14px;"><strong>Courier Partner:</strong> Sample Courier</p>
+            <p style="margin: 0 0 6px 0; font-size: 14px;"><strong>Waybill Tracking:</strong> DEMO-994821</p>
+            <p style="margin: 0; font-size: 14px;"><strong>Status:</strong> Demo sample (nothing real)</p>
           </div>
           <p style="font-size: 14px; color: #334155; line-height: 1.6;">
             Your items have been safely dispatched with tamper-evident security packaging and authentic warranty documentation from y5Hut.lk.
@@ -287,6 +291,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   ]);
 
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [priceHistory, setPriceHistory] = useState<PriceHistoryEntry[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRICE_HISTORY) ?? '[]');
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
   const [stockLog, setStockLog] = useState<StockAdjustment[]>(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.STOCK_LOG) ?? '[]');
@@ -345,6 +357,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error(e);
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.PRICE_HISTORY, JSON.stringify(priceHistory));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [priceHistory]);
 
   useEffect(() => {
     try {
@@ -604,6 +624,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const publishPriceChanges = (changes: PriceChange[]) => {
     // Only well-formed changes that actually differ from the current price are applied.
     const entries: PublishSnapshot['entries'] = [];
+    const history: PriceHistoryEntry[] = [];
+    const batchId = `batch-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const nowIso = new Date().toISOString();
     const valid = changes.filter((c) => {
       if (!Number.isFinite(c.newPriceLKR) || c.newPriceLKR <= 0) return false;
       const p = products.find((x) => x.id === c.productId);
@@ -612,6 +635,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (c.variantId && !v) return false;
       const oldPrice = v ? v.priceLKR : p.priceLKR;
       if (oldPrice === c.newPriceLKR) return false;
+      history.push({
+        id: `ph-${Date.now()}-${history.length}-${Math.floor(Math.random() * 1000)}`,
+        batchId,
+        at: nowIso,
+        productId: p.id,
+        variantId: v?.id,
+        productName: p.name,
+        sku: v?.sku ?? p.id,
+        label: v ? [v.storage, v.color].filter(Boolean).join(' / ') : '',
+        oldPriceLKR: oldPrice,
+        newPriceLKR: c.newPriceLKR,
+        source: c.source ?? 'quick-edit',
+        by: `${currentUser.name} (demo role)`,
+      });
       entries.push({
         productId: p.id,
         variantId: v?.id,
@@ -625,6 +662,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (valid.length === 0) return { applied: 0, rejected: changes.length };
     const now = new Date().toISOString();
     setLastPublish({ at: now, entries });
+    setPriceHistory((prev) => [...history, ...prev].slice(0, 500));
 
     setProducts((prev) =>
       prev.map((p) => {
@@ -679,6 +717,30 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return v ? v.priceLKR : p?.priceLKR;
     };
     const restorable = lastPublish.entries.filter((e) => priceNow(e) === e.newPriceLKR);
+    const undoBatch = `batch-${Date.now()}-undo`;
+    setPriceHistory((prev) =>
+      [
+        ...restorable.map((e, i): PriceHistoryEntry => {
+          const p = products.find((x) => x.id === e.productId);
+          const v = e.variantId ? p?.variants?.find((x) => x.id === e.variantId) : undefined;
+          return {
+            id: `ph-${Date.now()}-u${i}-${Math.floor(Math.random() * 1000)}`,
+            batchId: undoBatch,
+            at: new Date().toISOString(),
+            productId: e.productId,
+            variantId: e.variantId,
+            productName: p?.name ?? e.productId,
+            sku: v?.sku ?? e.productId,
+            label: v ? [v.storage, v.color].filter(Boolean).join(' / ') : '',
+            oldPriceLKR: e.newPriceLKR,
+            newPriceLKR: e.oldPriceLKR,
+            source: 'undo' as PriceSource,
+            by: `${currentUser.name} (demo role)`,
+          };
+        }),
+        ...prev,
+      ].slice(0, 500)
+    );
 
     setProducts((prev) =>
       prev.map((p) => {
@@ -777,6 +839,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const resetDemoData = () => {
     setStockLog([]);
+    setPriceHistory([]);
     setProducts(normalizeProducts(INITIAL_PRODUCTS));
     setOrders(INITIAL_ORDERS);
     setClients(INITIAL_CLIENTS);
@@ -798,19 +861,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         stage: 'confirmed' as OrderStatus,
         label: 'Order Confirmed',
         timestamp: nowFormatted,
-        description: `Payment authorized via ${orderData.paymentMethod.toUpperCase()}. Inventory allocated.`,
+        description: `DEMO: simulated ${orderData.paymentMethod.toUpperCase()} payment (no money taken). Stock reserved in this browser.`,
         completed: true,
       },
       {
         stage: 'processing' as OrderStatus,
-        label: 'Quality Audit & TRCSL Registration',
+        label: 'Quality Audit (simulated)',
         timestamp: 'Estimated within 2 hours',
-        description: 'Serial number verified with official warranty stamp.',
+        description: 'Simulated step. Nothing is verified or registered in this demo.',
         completed: false,
       },
       {
         stage: 'dispatched' as OrderStatus,
-        label: 'Dispatched via Pronto Express',
+        label: 'Dispatched via Sample Courier',
         timestamp: 'Pending Handover',
         description: 'Handover to priority courier for Islandwide delivery.',
         completed: false,
@@ -895,7 +958,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     triggerNotification(
       'milestone',
       `Order Confirmed: #${orderId}`,
-      `Total ${orderData.currency === 'LKR' ? `Rs. ${orderData.totalLKR.toLocaleString()}` : `$${orderData.totalUSD.toLocaleString()}`} authorized. Milestone email sent to ${orderData.customerEmail}.`,
+      `Total ${orderData.currency === 'LKR' ? `Rs. ${orderData.totalLKR.toLocaleString()}` : `$${orderData.totalUSD.toLocaleString()}`} confirmed (simulated). Demo email preview for ${orderData.customerEmail} (nothing is actually sent).`,
       orderId,
       emailSubject,
       emailBodyHtml
@@ -931,11 +994,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           milestones: updatedMilestones,
           trackingNumber:
             newStatus === 'dispatched' && !ord.trackingNumber
-              ? `PRT-LK-${Math.floor(100000 + Math.random() * 900000)}`
+              ? `DEMO-${Math.floor(100000 + Math.random() * 900000)}`
               : ord.trackingNumber,
           carrier:
             newStatus === 'dispatched' && !ord.carrier
-              ? 'Pronto Islandwide Express'
+              ? 'Sample Courier'
               : ord.carrier,
         };
 
@@ -945,7 +1008,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             <h2 style="color: #0F172A; margin: 0 0 10px 0;">y5<span style="color: #E11D48;">Hut</span>.lk Milestone Log</h2>
             <p>Order Reference: <strong>#${orderId}</strong></p>
             <p>New Status: <strong style="color: #E11D48;">${newStatus.toUpperCase()}</strong></p>
-            ${updatedOrder.trackingNumber ? `<p>Pronto Express Tracking: <strong>${updatedOrder.trackingNumber}</strong></p>` : ''}
+            ${updatedOrder.trackingNumber ? `<p>Sample Courier Tracking: <strong>${updatedOrder.trackingNumber}</strong></p>` : ''}
             <div style="margin-top: 20px; font-size: 12px; color: #94A3B8;">
               y5Hut.lk Automated Fulfillment Center · Colombo, Sri Lanka
             </div>
@@ -955,7 +1018,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         triggerNotification(
           'milestone',
           `Order #${orderId}: ${newStatus.toUpperCase()}`,
-          `Milestone updated to ${newStatus}. Notification sent to ${ord.customerEmail}.`,
+          `Milestone updated to ${newStatus}. Demo preview for ${ord.customerEmail} (nothing is actually sent).`,
           orderId,
           emailSubject,
           emailBodyHtml
@@ -1028,6 +1091,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         products,
         storefrontProducts,
         stockLog,
+        priceHistory,
         orders,
         clients,
         cart,

@@ -14,7 +14,7 @@ import {
 import { ImportPreview } from './ImportPreview';
 
 const MAX_FILE_BYTES = 1_000_000;
-const SAMPLE_URL = `${import.meta.env.BASE_URL}demo/y5hut-sample-price-update.csv`;
+const SAMPLE_URL = `${import.meta.env?.BASE_URL ?? "/"}demo/y5hut-sample-price-update.csv`;
 
 interface Loaded {
   name: string;
@@ -66,7 +66,7 @@ export const ImportExportPage: React.FC = () => {
   const apply = () => {
     const picked = rows.filter((r) => r.status === 'change' && !excluded.has(r.line));
     const { applied } = publishPriceChanges(
-      picked.map((r) => ({ productId: r.target!.productId, variantId: r.target!.variantId, newPriceLKR: r.newPrice! }))
+      picked.map((r) => ({ productId: r.target!.productId, variantId: r.target!.variantId, newPriceLKR: r.newPrice!, source: 'csv' as const }))
     );
     const skipped = rows.length - applied;
     reset();

@@ -179,13 +179,13 @@ export const FeaturedDeals: React.FC = () => {
         <div className="bg-slate-950 text-white rounded-2xl p-6 sm:p-8 flex items-center justify-between gap-4 border border-slate-800 relative overflow-hidden">
           <div className="space-y-2 max-w-[70%] z-10">
             <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
-              AUTHORISED RESELLER · APPLEHUT
+              DEMO SAMPLE · APPLEHUT
             </span>
             <h4 className="text-lg sm:text-xl font-bold font-sans">
-              AppleHuT Official Sri Lanka Lineup
+              AppleHuT Sample Apple Lineup
             </h4>
             <p className="text-xs text-slate-300">
-              TRCSL approved iPhones, iPads, MacBooks, and Apple Watches with 1-Year Genxt warranty.
+              Sample listing only. Approval and warranty details shown in this demo are illustrative.
             </p>
             <button
               onClick={() => {

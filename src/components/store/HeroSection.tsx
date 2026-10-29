@@ -24,8 +24,8 @@ export const HeroSection: React.FC = () => {
   const heroSlides = [
     {
       title: 'Apple iPhone 16 Pro Max',
-      badge: 'APPLEHUT · OFFICIAL SRI LANKA',
-      subtitle: 'Grade 5 Titanium with Camera Control & A18 Pro chip. Genuine Genxt Warranty with TRCSL Approval.',
+      badge: 'APPLEHUT · DEMO SAMPLE',
+      subtitle: 'Grade 5 Titanium with Camera Control & A18 Pro chip. Sample warranty details (demo).',
       priceLKR: 425000,
       priceUSD: 1199,
       kokoInstallment: 'or 3 installments of Rs. 141,666 with Koko',
@@ -38,7 +38,7 @@ export const HeroSection: React.FC = () => {
     {
       title: 'Anker Prime & 140W GaN Power',
       badge: 'FAST CHARGING ECOSYSTEM',
-      subtitle: 'Charge laptops, smartphones, and smartwatches simultaneously. 18 Months Official Anker Warranty.',
+      subtitle: 'Charge laptops, smartphones, and smartwatches simultaneously. Sample warranty details (demo).',
       priceLKR: 42900,
       priceUSD: 129,
       kokoInstallment: 'or 3 installments of Rs. 14,300 with Mintpay',
@@ -226,7 +226,7 @@ export const HeroSection: React.FC = () => {
                   Split in 3 with Koko &amp; Mintpay
                 </h4>
                 <p className="text-[11px] text-slate-300 leading-tight">
-                  Use your Commercial, Sampath, HNB or debit card with zero extra fees.
+                  Sample promotion text (demo). No real installment offer is made.
                 </p>
               </div>
               <div className="w-16 h-16 bg-white/10 rounded-xl flex flex-col items-center justify-center p-2 text-center shrink-0 border border-white/10">
@@ -255,8 +255,8 @@ export const HeroSection: React.FC = () => {
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h5 className="text-xs font-bold text-slate-900">100% Genuine Tech</h5>
-              <p className="text-[11px] text-slate-500">Official Local Warranty</p>
+              <h5 className="text-xs font-bold text-slate-900">Demo Showcase</h5>
+              <p className="text-[11px] text-slate-500">Sample Content</p>
             </div>
           </div>
 
@@ -276,7 +276,7 @@ export const HeroSection: React.FC = () => {
             </div>
             <div>
               <h5 className="text-xs font-bold text-slate-900">Dedicated Support</h5>
-              <p className="text-[11px] text-slate-500">+94 117 555 888 / WhatsApp</p>
+              <p className="text-[11px] text-slate-500">+94 11 000 0000 (sample) / WhatsApp</p>
             </div>
           </div>
         </div>

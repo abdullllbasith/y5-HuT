@@ -91,11 +91,11 @@ export const Navbar: React.FC = () => {
           {/* Left: Hotline & Islandwide Delivery */}
           <div className="flex items-center gap-4 sm:gap-6 text-slate-300">
             <a
-              href="tel:+94117555888"
+              href="tel:+94110000000"
               className="flex items-center gap-1.5 hover:text-white transition-colors"
             >
               <Phone className="w-3.5 h-3.5 text-[#E11D48]" />
-              <span className="font-semibold text-white">Hotline: +94 117 555 888</span>
+              <span className="font-semibold text-white">Hotline: +94 11 000 0000 (sample)</span>
             </a>
             <div className="hidden md:flex items-center gap-1.5 text-slate-400">
               <Truck className="w-3.5 h-3.5 text-emerald-400" />
@@ -219,8 +219,8 @@ export const Navbar: React.FC = () => {
             </div>
             <div className="flex flex-col text-left">
               <span className="text-[10px] uppercase font-bold text-slate-400">Call Us Anytime</span>
-              <a href="tel:+94117555888" className="text-xs font-bold text-slate-900 hover:text-[#E11D48]">
-                +94 117 555 888
+              <a href="tel:+94110000000" className="text-xs font-bold text-slate-900 hover:text-[#E11D48]">
+                +94 11 000 0000 (sample)
               </a>
             </div>
           </div>
@@ -340,7 +340,7 @@ export const Navbar: React.FC = () => {
               >
                 <span>AppleHuT</span>
                 <span className="text-[9px] bg-slate-900 text-white px-1.5 py-0.5 rounded font-mono font-semibold">
-                  OFFICIAL
+                  DEMO
                 </span>
               </button>
 
