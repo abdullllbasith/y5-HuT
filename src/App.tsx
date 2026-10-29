@@ -101,7 +101,7 @@ const MainContent: React.FC = () => {
       </div>
 
       {/* y5Hut.lk Official Footer */}
-      <Footer />
+      {activeView !== 'admin' && <Footer />}
 
       {/* Global Modals & Slide-out Drawers */}
       <ProductDetailModal />

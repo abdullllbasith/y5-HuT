@@ -8,14 +8,13 @@ interface QuickAction {
   tab: AdminTab;
   label: string;
   hint: string;
-  status: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { tab: 'price-manager', label: 'Change prices', hint: 'Edit one or many prices', status: 'Available now', icon: Tags },
-  { tab: 'products', label: 'Add a product', hint: 'List a new phone or accessory', status: 'Available now', icon: Smartphone },
-  { tab: 'inventory', label: 'Adjust stock', hint: 'Update stock counts', status: 'Available now', icon: Boxes },
+  { tab: 'price-manager', label: 'Change Prices', hint: 'Edit one price or many at once', icon: Tags },
+  { tab: 'products', label: 'Add Product', hint: 'List a new phone or accessory', icon: Smartphone },
+  { tab: 'inventory', label: 'Update Stock', hint: 'Set or adjust stock counts', icon: Boxes },
 ];
 
 export const OverviewPage: React.FC = () => {
@@ -32,6 +31,29 @@ export const OverviewPage: React.FC = () => {
 
   return (
     <>
+      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-xs">
+        <h2 className="text-base font-bold text-slate-900">Owner Quick Actions</h2>
+        <p className="text-xs text-slate-500 mt-0.5">The three things you do most often.</p>
+        <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+          {QUICK_ACTIONS.map(({ tab, label, hint, icon: Icon }) => (
+            <button
+              key={tab}
+              onClick={() => setActiveAdminTab(tab)}
+              className="group flex md:block items-center gap-3 text-left min-h-16 p-3 md:p-4 rounded-xl border border-slate-200 hover:border-[#E11D48] hover:bg-rose-50/40 active:bg-rose-50 transition-colors cursor-pointer"
+            >
+              <span className="w-11 h-11 md:w-9 md:h-9 shrink-0 rounded-lg bg-rose-50 text-[#E11D48] flex items-center justify-center">
+                <Icon className="w-5 h-5 md:w-4 md:h-4" />
+              </span>
+              <span className="flex-1 min-w-0 md:block md:mt-3">
+                <span className="block text-sm font-bold text-slate-900">{label}</span>
+                <span className="block text-xs text-slate-500">{hint}</span>
+              </span>
+              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#E11D48] md:hidden" />
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
         {stats.map(({ label, value, icon: Icon }) => (
           <div key={label} className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs">
@@ -42,36 +64,6 @@ export const OverviewPage: React.FC = () => {
             <div className="mt-2 text-2xl font-black text-slate-900 font-mono">{value}</div>
           </div>
         ))}
-      </div>
-
-      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-        <h2 className="text-base font-bold text-slate-900">Owner Quick Actions</h2>
-        <p className="text-xs text-slate-500 mt-0.5">The three things you do most often.</p>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-          {QUICK_ACTIONS.map(({ tab, label, hint, status, icon: Icon }) => (
-            <button
-              key={tab}
-              onClick={() => setActiveAdminTab(tab)}
-              className="group text-left p-4 rounded-xl border border-slate-200 hover:border-[#E11D48] hover:bg-rose-50/40 transition-colors cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <span className="w-9 h-9 rounded-lg bg-rose-50 text-[#E11D48] flex items-center justify-center">
-                  <Icon className="w-4 h-4" />
-                </span>
-                <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#E11D48] group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="mt-3 text-sm font-bold text-slate-900">{label}</div>
-              <div className="text-xs text-slate-500">{hint}</div>
-              <span
-                className={`inline-block mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  status === 'Available now' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
-                }`}
-              >
-                {status}
-              </span>
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4">
