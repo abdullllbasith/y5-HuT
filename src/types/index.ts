@@ -172,3 +172,15 @@ export interface MonthlySalesMetric {
   smartphonesCount: number;
   accessoriesCount: number;
 }
+
+export type AdminTab =
+  | 'overview'
+  | 'price-manager'
+  | 'products'
+  | 'inventory'
+  | 'price-history'
+  | 'import-export'
+  | 'orders'
+  | 'analytics'
+  | 'clients'
+  | 'rbac';

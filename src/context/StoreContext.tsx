@@ -10,6 +10,7 @@ import {
   OrderStatus,
   ProductReview,
   Currency,
+  AdminTab,
 } from '../types';
 import {
   INITIAL_PRODUCTS,
@@ -37,7 +38,7 @@ interface StoreContextType {
   isNotificationOpen: boolean;
   selectedProductForDetail: Product | null;
   activeView: 'store' | 'deals' | 'admin' | 'reviews' | 'apple-store';
-  activeAdminTab: 'analytics' | 'orders' | 'inventory' | 'clients' | 'rbac';
+  activeAdminTab: AdminTab;
   previewingEmail: NotificationAlert | null;
   
   // Actions
@@ -47,7 +48,7 @@ interface StoreContextType {
   toggleWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
   setActiveView: (view: 'store' | 'deals' | 'admin' | 'reviews' | 'apple-store') => void;
-  setActiveAdminTab: (tab: 'analytics' | 'orders' | 'inventory' | 'clients' | 'rbac') => void;
+  setActiveAdminTab: (tab: AdminTab) => void;
   setIsCartOpen: (open: boolean) => void;
   setIsWishlistOpen: (open: boolean) => void;
   setIsNotificationOpen: (open: boolean) => void;
@@ -227,7 +228,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [selectedProductForDetail, setSelectedProductForDetail] = useState<Product | null>(null);
   const [previewingEmail, setPreviewingEmail] = useState<NotificationAlert | null>(null);
   const [activeView, setActiveView] = useState<'store' | 'deals' | 'admin' | 'reviews' | 'apple-store'>('store');
-  const [activeAdminTab, setActiveAdminTab] = useState<'analytics' | 'orders' | 'inventory' | 'clients' | 'rbac'>('analytics');
+  const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>('overview');
 
   // Sync to LocalStorage
   useEffect(() => {
