@@ -1,7 +1,7 @@
 import { hasPriceRange } from '../../lib/variants';
 import React from 'react';
 import { Product } from '../../types';
-import { DeviceGraphic } from '../common/DeviceGraphic';
+import { ProductImage } from '../common/ProductImage';
 import { useStore } from '../../context/StoreContext';
 import { Star, Heart, ShoppingBag, Eye } from 'lucide-react';
 
@@ -76,10 +76,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Device Vector Illustration */}
         <div className="w-full h-full flex items-center justify-center">
-          <DeviceGraphic
-            deviceType={product.deviceType}
+          <ProductImage
+            product={product}
             colorHex={product.colorOptions[0]?.hex || '#1E293B'}
-            brand={product.brand}
             className="max-h-44"
           />
         </div>

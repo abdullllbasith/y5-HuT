@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import {
   Product,
   OrderItem,
@@ -13,6 +13,8 @@ import {
   AdminTab,
   PriceChange,
   PublishSnapshot,
+  StockAdjustment,
+  StockReason,
 } from '../types';
 import {
   INITIAL_PRODUCTS,
@@ -29,13 +31,26 @@ import {
   normalizeProducts,
   setVariantStock,
 } from '../lib/variants';
+import { computeStock, StockMode } from '../lib/stock';
 
 interface CartItem extends OrderItem {
   maxStock: number;
 }
 
+export interface AdjustStockInput {
+  productId: string;
+  variantId?: string;
+  mode: StockMode;
+  value: string;
+  reason: StockReason;
+  note?: string;
+}
+
 interface StoreContextType {
   products: Product[];
+  /** Products visible to shoppers (archived ones removed). Admin screens use `products`. */
+  storefrontProducts: Product[];
+  stockLog: StockAdjustment[];
   orders: Order[];
   clients: ClientAccount[];
   cart: CartItem[];
@@ -96,6 +111,9 @@ interface StoreContextType {
   restockProduct: (productId: string, delta: number) => void;
   updateVariantStock: (productId: string, variantId: string, newStock: number) => void;
   resetDemoData: () => void;
+  upsertProduct: (product: Product) => void;
+  setProductArchived: (productId: string, archived: boolean) => void;
+  adjustStock: (input: AdjustStockInput) => { ok: true; before: number; after: number } | { ok: false; error: string };
   publishPriceChanges: (changes: PriceChange[]) => { applied: number; rejected: number };
   lastPublish: PublishSnapshot | null;
   undoLastPublish: () => { restored: number; skipped: number };
@@ -161,6 +179,7 @@ const STORAGE_KEYS = {
   PRODUCTS: 'y5hut_products_v4',
   LEGACY_PRODUCTS: 'y5hut_products_v3',
   DEMO_VERSION: 'y5hut_demo_data_version',
+  STOCK_LOG: 'y5hut_stock_log_v1',
   ORDERS: 'y5hut_orders_v3',
   CLIENTS: 'y5hut_clients_v3',
   NOTIFICATIONS: 'y5hut_notifications_v3',
@@ -268,6 +287,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   ]);
 
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [stockLog, setStockLog] = useState<StockAdjustment[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.STOCK_LOG) ?? '[]');
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
   const [lastPublish, setLastPublish] = useState<PublishSnapshot | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
@@ -318,6 +345,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error(e);
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.STOCK_LOG, JSON.stringify(stockLog));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [stockLog]);
+
+  const storefrontProducts = useMemo(() => products.filter((p) => !p.archived), [products]);
 
   // Price formatting
   const formatPrice = (priceLKR: number, priceUSD: number) => {
@@ -407,6 +444,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   ) => {
     // Always price/limit from the latest catalogue entry, and from the selected variant when there is one.
     const live = products.find((p) => p.id === product.id) ?? product;
+    if (live.archived) return; // hidden products cannot be bought
     const variant = hasVariants(live)
       ? getSelectedVariant(live, color, storage) ?? getDefaultVariant(live)
       : undefined;
@@ -675,7 +713,70 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return { restored: restorable.length, skipped: lastPublish.entries.length - restorable.length };
   };
 
+  // Add or edit a product. Variants stay the source of truth; totals are re-derived here.
+  const upsertProduct = (product: Product) => {
+    const next = normalizeProduct(product);
+    const isNew = !products.some((p) => p.id === next.id);
+    setProducts((prev) =>
+      normalizeProducts(isNew ? [next, ...prev] : prev.map((p) => (p.id === next.id ? next : p)))
+    );
+    triggerNotification(
+      'task',
+      isNew ? 'Demo Product Added' : 'Product Updated',
+      `${next.name} ${isNew ? 'added' : 'saved'} (${next.archived ? 'hidden from storefront' : 'visible on storefront'}).`
+    );
+  };
+
+  // Products are archived, never deleted, so order history keeps pointing at real records.
+  const setProductArchived = (productId: string, archived: boolean) => {
+    setProducts((prev) => prev.map((p) => (p.id === productId ? { ...p, archived } : p)));
+    setWishlist((prev) => (archived ? prev.filter((id) => id !== productId) : prev));
+    if (archived) setCart((prev) => prev.filter((i) => i.productId !== productId));
+  };
+
+  // One audited entry point for manual stock changes. Rejects negative results.
+  const adjustStock = (input: AdjustStockInput) => {
+    const p = products.find((x) => x.id === input.productId);
+    if (!p) return { ok: false as const, error: 'Product not found' };
+    const v = input.variantId ? p.variants?.find((x) => x.id === input.variantId) : undefined;
+    if (input.variantId && !v) return { ok: false as const, error: 'Variant not found' };
+    const before = v ? v.stock : p.stock;
+    const check = computeStock(before, input.mode, input.value);
+    if (!check.ok) return { ok: false as const, error: check.error };
+    const after = check.after;
+    if (after === before) return { ok: false as const, error: 'That would not change the stock' };
+
+    setProducts((prev) =>
+      prev.map((x) => {
+        if (x.id !== p.id) return x;
+        return v ? setVariantStock(x, v.id, after) : { ...x, stock: after };
+      })
+    );
+    setStockLog((prev) =>
+      [
+        {
+          id: `stk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          at: new Date().toISOString(),
+          productId: p.id,
+          variantId: v?.id,
+          productName: p.name,
+          sku: v?.sku ?? p.id,
+          label: v ? [v.storage, v.color].filter(Boolean).join(' / ') : '',
+          before,
+          after,
+          reason: input.reason,
+          note: input.note?.trim() || undefined,
+          by: `${currentUser.name} (simulated role)`,
+        },
+        ...prev,
+      ].slice(0, 200)
+    );
+    notifyIfLow(`${p.name}${v ? ` ${v.sku}` : ''}`, after, p.lowStockThreshold);
+    return { ok: true as const, before, after };
+  };
+
   const resetDemoData = () => {
+    setStockLog([]);
     setProducts(normalizeProducts(INITIAL_PRODUCTS));
     setOrders(INITIAL_ORDERS);
     setClients(INITIAL_CLIENTS);
@@ -925,6 +1026,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <StoreContext.Provider
       value={{
         products,
+        storefrontProducts,
+        stockLog,
         orders,
         clients,
         cart,
@@ -968,6 +1071,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateVariantStock,
         resetDemoData,
         publishPriceChanges,
+        upsertProduct,
+        setProductArchived,
+        adjustStock,
         lastPublish,
         undoLastPublish,
         updateClientAccount,

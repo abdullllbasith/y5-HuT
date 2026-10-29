@@ -1,16 +1,18 @@
 import React from 'react';
-import { Smartphone, History, FileSpreadsheet } from 'lucide-react';
+import { Smartphone, History } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { AdminShell } from './AdminShell';
 import { OverviewPage } from './pages/OverviewPage';
 import { ComingSoonPage } from './pages/ComingSoonPage';
-import { InventoryPage } from './pages/InventoryPage';
+import { InventoryPage } from './inventory/InventoryPage';
+import { ProductsPage } from './products/ProductsPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { ClientsPage } from './pages/ClientsPage';
 import { RolesPage } from './pages/RolesPage';
 import { CustomerAccessGate } from './pages/CustomerAccessGate';
 import { PriceManagerPage } from './price-manager/PriceManagerPage';
+import { ImportExportPage } from './import-export/ImportExportPage';
 import { usePriceDraft } from './price-manager/usePriceDraft';
 
 export const AdminDashboard: React.FC = () => {
@@ -35,17 +37,7 @@ export const AdminDashboard: React.FC = () => {
       case 'price-manager':
         return <PriceManagerPage draft={priceDraft} />;
       case 'products':
-        return (
-          <ComingSoonPage
-            title="Products"
-            phase={2}
-            icon={Smartphone}
-            summary="A clearer product and variant model for adding and editing items."
-            planned={['Add / edit products and variants', 'LKR pricing with clear USD handling', 'Reset demo data']}
-            onBack={backToOverview}
-            backLabel="Back to Overview"
-          />
-        );
+        return <ProductsPage />;
       case 'inventory':
         return <InventoryPage />;
       case 'price-history':
@@ -61,17 +53,7 @@ export const AdminDashboard: React.FC = () => {
           />
         );
       case 'import-export':
-        return (
-          <ComingSoonPage
-            title="Import / Export"
-            phase={5}
-            icon={FileSpreadsheet}
-            summary="Export prices to CSV, edit in Excel, and import them back with validation."
-            planned={['CSV export', 'Import preview with row-by-row errors']}
-            onBack={backToOverview}
-            backLabel="Back to Overview"
-          />
-        );
+        return <ImportExportPage />;
       case 'orders':
         return <OrdersPage />;
       case 'analytics':

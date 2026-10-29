@@ -8,7 +8,7 @@ export const WishlistDrawer: React.FC = () => {
     isWishlistOpen,
     setIsWishlistOpen,
     wishlist,
-    products,
+    storefrontProducts: products,
     toggleWishlist,
     addToCart,
     formatPrice,
