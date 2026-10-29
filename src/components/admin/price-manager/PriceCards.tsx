@@ -15,7 +15,14 @@ export const PriceCards: React.FC<{ rows: PriceRow[]; draft: PriceDraft }> = ({ 
           className={`rounded-xl border p-3 shadow-xs ${entry ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200 bg-white'}`}
         >
           <div className="flex justify-between gap-2">
-            <div className="min-w-0">
+            <input
+              type="checkbox"
+              aria-label={`Select ${r.name} ${r.sku}`}
+              checked={draft.selected.has(r.key)}
+              onChange={() => draft.toggleSelected(r.key)}
+              className="w-5 h-5 mt-0.5 shrink-0 accent-[#E11D48]"
+            />
+            <div className="min-w-0 flex-1">
               <div className="text-sm font-bold text-slate-900 truncate">{r.name}</div>
               <div className="text-[11px] text-slate-500">
                 {r.brand}
