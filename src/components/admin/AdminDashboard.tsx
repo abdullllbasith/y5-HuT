@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tags, Smartphone, History, FileSpreadsheet } from 'lucide-react';
+import { Smartphone, History, FileSpreadsheet } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { AdminShell } from './AdminShell';
 import { OverviewPage } from './pages/OverviewPage';
@@ -10,9 +10,13 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import { ClientsPage } from './pages/ClientsPage';
 import { RolesPage } from './pages/RolesPage';
 import { CustomerAccessGate } from './pages/CustomerAccessGate';
+import { PriceManagerPage } from './price-manager/PriceManagerPage';
+import { usePriceDraft } from './price-manager/usePriceDraft';
 
 export const AdminDashboard: React.FC = () => {
   const { activeAdminTab, setActiveAdminTab, currentUser } = useStore();
+  // Held here so an unpublished draft survives switching between admin pages.
+  const priceDraft = usePriceDraft();
   const backToOverview = () => setActiveAdminTab('overview');
 
   // Role simulation: customers see the access gate instead of the console.
@@ -29,17 +33,7 @@ export const AdminDashboard: React.FC = () => {
       case 'overview':
         return <OverviewPage />;
       case 'price-manager':
-        return (
-          <ComingSoonPage
-            title="Price Manager"
-            phase={3}
-            icon={Tags}
-            summary="Filter by brand, model and variant, then change prices in one place."
-            planned={['Brand / model / variant filters', 'Quick price edits with publish to storefront', 'Bulk updates (Phase 4)']}
-            onBack={backToOverview}
-            backLabel="Back to Overview"
-          />
-        );
+        return <PriceManagerPage draft={priceDraft} />;
       case 'products':
         return (
           <ComingSoonPage

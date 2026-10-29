@@ -11,6 +11,7 @@ import {
   ProductReview,
   Currency,
   AdminTab,
+  PriceChange,
 } from '../types';
 import {
   INITIAL_PRODUCTS,
@@ -94,6 +95,7 @@ interface StoreContextType {
   restockProduct: (productId: string, delta: number) => void;
   updateVariantStock: (productId: string, variantId: string, newStock: number) => void;
   resetDemoData: () => void;
+  publishPriceChanges: (changes: PriceChange[]) => { applied: number; rejected: number };
 
   // Client actions
   updateClientAccount: (clientId: string, updates: Partial<ClientAccount>) => void;
@@ -555,6 +557,58 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
   };
 
+  // Publish reviewed LKR price edits. Re-validates, touches only the targeted variant/product, leaves
+  // historical orders alone, and re-prices matching cart lines so the cart never shows a stale price.
+  const publishPriceChanges = (changes: PriceChange[]) => {
+    const valid = changes.filter(
+      (c) => Number.isFinite(c.newPriceLKR) && c.newPriceLKR > 0 && products.some((p) => p.id === c.productId)
+    );
+    if (valid.length === 0) return { applied: 0, rejected: changes.length };
+    const now = new Date().toISOString();
+
+    setProducts((prev) =>
+      prev.map((p) => {
+        const mine = valid.filter((c) => c.productId === p.id);
+        if (mine.length === 0) return p;
+        let next: Product = p;
+        if (hasVariants(p)) {
+          next = {
+            ...p,
+            variants: p.variants!.map((v) => {
+              const c = mine.find((m) => m.variantId === v.id);
+              return c ? { ...v, priceLKR: c.newPriceLKR, priceUpdatedAt: now } : v;
+            }),
+          };
+        } else {
+          const c = mine.find((m) => !m.variantId);
+          if (c) next = { ...p, priceLKR: c.newPriceLKR, priceUpdatedAt: now };
+        }
+        next = normalizeProduct(next);
+        // A strike-through "was" price that is no longer higher would be misleading.
+        if (next.originalPriceLKR !== undefined && next.priceLKR >= next.originalPriceLKR) {
+          next = { ...next, originalPriceLKR: undefined };
+        }
+        return next;
+      })
+    );
+
+    setCart((prev) =>
+      prev.map((item) => {
+        const c = valid.find(
+          (m) => m.productId === item.productId && (m.variantId ?? undefined) === (item.variantId ?? undefined)
+        );
+        return c ? { ...item, priceLKR: c.newPriceLKR } : item;
+      })
+    );
+
+    triggerNotification(
+      'task',
+      'Prices Published',
+      `${valid.length} price change${valid.length === 1 ? '' : 's'} published to the storefront (this browser only).`
+    );
+    return { applied: valid.length, rejected: changes.length - valid.length };
+  };
+
   const resetDemoData = () => {
     setProducts(normalizeProducts(INITIAL_PRODUCTS));
     setOrders(INITIAL_ORDERS);
@@ -846,6 +900,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         restockProduct,
         updateVariantStock,
         resetDemoData,
+        publishPriceChanges,
         updateClientAccount,
         addClientAccount,
         addProductReview,

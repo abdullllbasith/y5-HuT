@@ -12,7 +12,7 @@ interface QuickAction {
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { tab: 'price-manager', label: 'Change prices', hint: 'Edit one or many prices', status: 'Coming in Phase 3', icon: Tags },
+  { tab: 'price-manager', label: 'Change prices', hint: 'Edit one or many prices', status: 'Available now', icon: Tags },
   { tab: 'products', label: 'Add a product', hint: 'List a new phone or accessory', status: 'Coming in Phase 2', icon: Smartphone },
   { tab: 'inventory', label: 'Adjust stock', hint: 'Update stock counts', status: 'Available now', icon: Boxes },
 ];
