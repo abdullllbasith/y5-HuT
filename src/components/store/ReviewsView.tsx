@@ -3,7 +3,7 @@ import { useStore } from '../../context/StoreContext';
 import { Star, CheckCircle } from 'lucide-react';
 
 export const ReviewsView: React.FC = () => {
-  const { products, setSelectedProductForDetail } = useStore();
+  const { storefrontProducts: products, setSelectedProductForDetail } = useStore();
   const [ratingFilter, setRatingFilter] = useState<number | 'all'>('all');
 
   // Collect all reviews from all products

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
-  const { products, setSelectedProductForDetail, setActiveView, formatPrice } = useStore();
+  const { storefrontProducts: products, setSelectedProductForDetail, setActiveView, formatPrice } = useStore();
   const [activeSlide, setActiveSlide] = useState(0);
 
   const heroSlides = [

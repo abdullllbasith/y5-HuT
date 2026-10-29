@@ -4,7 +4,7 @@ import { DeviceGraphic } from '../common/DeviceGraphic';
 import { Flame, Clock, ArrowRight, ShoppingBag } from 'lucide-react';
 
 export const FeaturedDeals: React.FC = () => {
-  const { products, setSelectedProductForDetail, addToCart, formatPrice, currency } = useStore();
+  const { storefrontProducts: products, setSelectedProductForDetail, addToCart, formatPrice, currency } = useStore();
 
   // Flash sale countdown timer simulation
   const [timeLeft, setTimeLeft] = useState({

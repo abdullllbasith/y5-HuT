@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
-import { DeviceGraphic } from '../common/DeviceGraphic';
+import { ProductImage } from '../common/ProductImage';
 import {
   hasVariants,
   getSelectedVariant,
@@ -148,12 +148,7 @@ export const ProductDetailModal: React.FC = () => {
           {/* Left: Device Graphic Stage */}
           <div className="flex flex-col">
             <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 flex items-center justify-center relative min-h-[300px]">
-              <DeviceGraphic
-                deviceType={product.deviceType}
-                colorHex={activeColorObj?.hex}
-                brand={product.brand}
-                className="max-h-72"
-              />
+              <ProductImage product={product} colorHex={activeColorObj?.hex} className="max-h-72" />
               <button
                 onClick={() => toggleWishlist(product.id)}
                 className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center shadow-xs cursor-pointer ${

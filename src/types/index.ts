@@ -10,18 +10,21 @@ export type ProductCategory =
   | 'drones-lifestyle'
   | 'accessories';
 
-export type BrandName = 
-  | 'Apple' 
-  | 'Samsung' 
+export type KnownBrand =
+  | 'Apple'
+  | 'Samsung'
   | 'Anker'
   | 'Soundpeats'
   | 'UGREEN'
   | 'Xiaomi'
   | 'Baseus'
-  | 'Sony' 
-  | 'Google' 
-  | 'OnePlus' 
+  | 'Sony'
+  | 'Google'
+  | 'OnePlus'
   | 'y5 HuT Certified';
+
+/** Known brands autocomplete, but owners can add any brand in the demo admin. */
+export type BrandName = KnownBrand | (string & {});
 
 export type Currency = 'LKR' | 'USD';
 
@@ -91,6 +94,8 @@ export interface Product {
   mintpayEligible?: boolean;
   variants?: ProductVariant[];
   priceUpdatedAt?: string; // ISO time of the last published price change (products without variants)
+  archived?: boolean; // hidden from the storefront; never deleted so order history stays valid
+  imageUrl?: string; // optional demo image URL (http/https); falls back to the built-in graphic
 }
 
 export type OrderStatus = 'confirmed' | 'processing' | 'dispatched' | 'delivered' | 'cancelled';
@@ -198,6 +203,29 @@ export interface PriceChange {
   productId: string;
   variantId?: string;
   newPriceLKR: number;
+}
+
+export type StockReason =
+  | 'received-shipment'
+  | 'store-sale'
+  | 'damaged'
+  | 'correction'
+  | 'customer-return'
+  | 'other';
+
+export interface StockAdjustment {
+  id: string;
+  at: string; // ISO time
+  productId: string;
+  variantId?: string;
+  productName: string;
+  sku: string;
+  label: string; // e.g. "256GB / Blue"
+  before: number;
+  after: number;
+  reason: StockReason;
+  note?: string;
+  by: string; // simulated role/user name (demo only)
 }
 
 /** What the most recent publish changed, so it can be undone safely. In memory only. */
