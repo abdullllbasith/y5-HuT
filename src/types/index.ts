@@ -61,6 +61,7 @@ export interface ProductVariant {
   priceLKR: number; // editable selling price (LKR)
   priceUSD?: number; // illustrative only, not exchange-synced
   stock: number;
+  priceUpdatedAt?: string; // ISO time of the last published price change
 }
 
 export interface Product {
@@ -89,6 +90,7 @@ export interface Product {
   kokoEligible?: boolean;
   mintpayEligible?: boolean;
   variants?: ProductVariant[];
+  priceUpdatedAt?: string; // ISO time of the last published price change (products without variants)
 }
 
 export type OrderStatus = 'confirmed' | 'processing' | 'dispatched' | 'delivered' | 'cancelled';
@@ -189,6 +191,13 @@ export interface MonthlySalesMetric {
   orders: number;
   smartphonesCount: number;
   accessoriesCount: number;
+}
+
+/** One published price edit. variantId is omitted for products without variants. */
+export interface PriceChange {
+  productId: string;
+  variantId?: string;
+  newPriceLKR: number;
 }
 
 export type AdminTab =
