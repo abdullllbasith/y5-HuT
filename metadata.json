@@ -1,0 +1,6 @@
+{
+  "name": "y5 HuT Mobile & Accessories",
+  "description": "Premium mobile smartphones, certified accessories, inventory tracking, secure checkout, and enterprise management portal for y5 HuT.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
