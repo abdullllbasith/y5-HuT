@@ -4,6 +4,7 @@ import { useStore } from '../../../context/StoreContext';
 import { BulkMode, previewBulk } from '../../../lib/bulkPricing';
 import { BulkToolbar } from './BulkToolbar';
 import { BulkPreviewDialog } from './BulkPreviewDialog';
+import { DraftActionBar } from './DraftActionBar';
 import { PriceDraft } from './usePriceDraft';
 import { EMPTY_FILTERS, PriceFilters, filterPriceRows } from '../../../lib/priceRows';
 import { PriceFiltersBar } from './PriceFiltersBar';
@@ -27,36 +28,38 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
   const visibleKeys = new Set(visible.map((r) => r.key));
   const hiddenSelected = draft.selectedRows.filter((r) => !visibleKeys.has(r.key)).length;
   const filteredProducts = new Set(visible.map((r) => r.productId)).size;
-  const bulkPreview = bulk
-    ? previewBulk(draft.selectedRows, bulk.mode, bulk.value, hiddenSelected)
-    : null;
+  const bulkPreview = bulk ? previewBulk(draft.selectedRows, bulk.mode, bulk.value, hiddenSelected) : null;
   if (bulkPreview) {
     const replaced = bulkPreview.changes.filter((c) => (draft.drafts[c.row.key] ?? '').trim() !== '').length;
     if (replaced > 0) {
       bulkPreview.warnings.push(`${replaced} row${replaced === 1 ? ' has' : 's have'} an unsaved draft edit that staging will replace.`);
     }
   }
-  const hasDraft = Object.values(draft.drafts).some((v) => v !== '');
+
+  // Phone spacer so the last rows can scroll clear of the fixed action dock.
+  const dockSpace = draft.selected.size > 0 ? 'h-80' : dirty > 0 ? 'h-24' : 'h-0';
+
+  const textBtn = 'min-h-10 px-1 text-xs font-bold text-slate-700 hover:text-[#E11D48] disabled:opacity-40 cursor-pointer';
 
   return (
     <>
-      <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-900">
+      <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 sm:px-4 py-2 sm:py-2.5 text-xs text-amber-900">
         <FlaskConical className="w-4 h-4 shrink-0 mt-0.5" />
         <p>
           Prices are in <strong>LKR</strong>. Published changes update the storefront in <strong>this browser only</strong>.
-          Prices are sample/demo values, and USD display prices are illustrative (not exchange-rate synced).
+          <span className="hidden sm:inline"> Prices are sample/demo values, and USD display prices are illustrative (not exchange-rate synced).</span>
         </p>
       </div>
 
       {publishedMsg && (
-        <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-xs text-emerald-900">
-          <CheckCircle className="w-4 h-4" />
-          {publishedMsg}
+        <div role="status" className="flex items-start gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-3 sm:px-4 py-2.5 text-xs text-emerald-900">
+          <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span>{publishedMsg}</span>
         </div>
       )}
 
       {lastPublish && (
-        <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-xs text-slate-700">
+        <div role="status" className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-slate-300 bg-slate-50 px-3 sm:px-4 py-2 text-xs text-slate-700">
           <span>
             Last publish: <strong>{lastPublish.entries.length}</strong> price{lastPublish.entries.length === 1 ? '' : 's'} changed at{' '}
             {new Date(lastPublish.at).toLocaleTimeString()}.
@@ -68,7 +71,7 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
                 `Undid last publish: ${restored} restored${skipped ? `, ${skipped} left alone because they changed since` : ''}.`
               );
             }}
-            className="inline-flex items-center gap-1 font-bold text-[#E11D48] hover:underline cursor-pointer"
+            className="min-h-11 md:min-h-0 inline-flex items-center gap-1 font-bold text-[#E11D48] hover:underline cursor-pointer"
           >
             <Undo2 className="w-3.5 h-3.5" /> Undo last publish
           </button>
@@ -78,88 +81,44 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
       <PriceFiltersBar rows={draft.rows} filters={filters} onChange={setFilters} />
 
       {/* Filtered count vs. explicit selection: filtering never selects anything */}
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-slate-600">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs">
+        <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-slate-600" aria-live="polite">
           <span>Filtered products: <strong>{filteredProducts}</strong> <span className="text-slate-400">({visible.length} variant rows)</span></span>
           <span>Selected variants: <strong className="text-[#E11D48]">{draft.selected.size}</strong></span>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={() => draft.selectMany(visible.map((r) => r.key))}
-            disabled={visible.length === 0}
-            className="font-bold text-slate-700 hover:text-[#E11D48] disabled:opacity-40 cursor-pointer"
-          >
+          <button onClick={() => draft.selectMany(visible.map((r) => r.key))} disabled={visible.length === 0} className={textBtn}>
             Select visible ({visible.length})
           </button>
-          <button
-            onClick={draft.clearSelection}
-            disabled={draft.selected.size === 0}
-            className="font-bold text-slate-700 hover:text-[#E11D48] disabled:opacity-40 cursor-pointer"
-          >
+          <button onClick={draft.clearSelection} disabled={draft.selected.size === 0} className={textBtn}>
             Clear selection
           </button>
         </div>
       </div>
 
-      <BulkToolbar
-        selectedCount={draft.selected.size}
-        hiddenCount={hiddenSelected}
-        onClear={draft.clearSelection}
-        onPreview={(mode, value) => setBulk({ mode, value })}
-      />
-      {draft.selected.size > 0 && <div className="h-40 md:hidden" aria-hidden />}
-
-      {/* Draft controls */}
-      <div className="sticky top-2 z-10 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white/95 backdrop-blur px-4 py-2.5 shadow-xs">
-        <div className="text-xs text-slate-600">
-          {dirty === 0 ? (
-            'Type a new price in any row. Nothing is saved until you publish.'
-          ) : (
-            <>
-              <strong className="text-amber-700">{draft.changes.length} unsaved change{draft.changes.length === 1 ? '' : 's'}</strong>
-              {draft.invalid.length > 0 && (
-                <span className="text-rose-600 font-bold"> · {draft.invalid.length} invalid</span>
-              )}
-            </>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              draft.clear();
-              setPublishedMsg(null);
-            }}
-            disabled={!hasDraft}
-            className="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-          >
-            Discard Draft
-          </button>
-          <button
-            onClick={() => {
-              setPublishedMsg(null);
-              setReviewing(true);
-            }}
-            disabled={dirty === 0}
-            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-900 text-white hover:bg-[#E11D48] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-          >
-            Review Changes
-          </button>
-          <button
-            onClick={() => {
-              setPublishedMsg(null);
-              setReviewing(true);
-            }}
-            disabled={draft.changes.length === 0 || draft.invalid.length > 0}
-            title="Opens the review step before anything is published"
-            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#E11D48] text-white hover:bg-[#BE123C] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-          >
-            Publish {draft.changes.length} Change{draft.changes.length === 1 ? '' : 's'}
-          </button>
-        </div>
+      {/* Action dock: on phones the bulk bar and the draft bar stack above the bottom navigation, so they never overlap. */}
+      <div className="fixed inset-x-0 z-30 px-2 flex flex-col gap-2 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:contents">
+        <BulkToolbar
+          selectedCount={draft.selected.size}
+          hiddenCount={hiddenSelected}
+          onClear={draft.clearSelection}
+          onPreview={(mode, value) => setBulk({ mode, value })}
+        />
+        <DraftActionBar
+          draft={draft}
+          onReview={() => {
+            setPublishedMsg(null);
+            setReviewing(true);
+          }}
+          onDiscard={() => {
+            draft.clear();
+            setPublishedMsg(null);
+          }}
+        />
       </div>
 
       {draft.rows.length === 0 ? (
-        <EmptyState icon={PackageOpen} title="No products yet" text="Reset demo data from the Overview page to restore the sample catalogue." />
+        <EmptyState icon={PackageOpen} title="No products yet" text="Reset demo data to restore the sample catalogue." />
       ) : visible.length === 0 ? (
         <EmptyState
           icon={SearchX}
@@ -169,13 +128,12 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
         />
       ) : (
         <>
-          <div className="text-[11px] text-slate-500">
-            Showing {visible.length} of {draft.rows.length} variants/products
-          </div>
           <PriceTable rows={visible} draft={draft} />
           <PriceCards rows={visible} draft={draft} />
         </>
       )}
+
+      <div className={`md:hidden ${dockSpace}`} aria-hidden />
 
       {bulk && bulkPreview && (
         <BulkPreviewDialog
@@ -190,7 +148,7 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
             draft.clearSelection();
             setBulk(null);
             setPublishedMsg(
-              `Staged ${bulkPreview.changes.length} bulk change${bulkPreview.changes.length === 1 ? '' : 's'} as draft. Use Review Changes to check and publish.`
+              `Staged ${bulkPreview.changes.length} bulk change${bulkPreview.changes.length === 1 ? '' : 's'} as draft. Use Review & Publish to check and publish.`
             );
           }}
         />
@@ -221,7 +179,7 @@ const EmptyState: React.FC<{
     <div className="mt-2 text-sm font-bold text-slate-800">{title}</div>
     <p className="text-xs text-slate-500">{text}</p>
     {action && (
-      <button onClick={action.onClick} className="mt-3 text-xs font-bold text-[#E11D48] hover:underline cursor-pointer">
+      <button onClick={action.onClick} className="mt-3 min-h-11 text-xs font-bold text-[#E11D48] hover:underline cursor-pointer">
         {action.label}
       </button>
     )}
