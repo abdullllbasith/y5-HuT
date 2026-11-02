@@ -1,6 +1,9 @@
 import React from 'react';
+import { useStore } from '../../context/StoreContext';
 
 export const BrandsStrip: React.FC = () => {
+  const { executeSearch } = useStore();
+
   const topBrands = [
     { name: 'Apple', tag: 'Sample listing' },
     { name: 'Samsung', tag: 'Sample listing' },
@@ -13,14 +16,14 @@ export const BrandsStrip: React.FC = () => {
   ];
 
   return (
-    <section className="py-5 sm:py-8 bg-white border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-3 sm:space-y-4">
+    <section className="py-6 sm:py-8 bg-white rounded-[18px] border border-[#E5E7EB] p-4 sm:p-6 shadow-2xs">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-1">
-          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
-            Brands in this demo
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            Demo Brand Directory
           </span>
-          <span className="text-[10px] sm:text-xs font-semibold text-slate-400">
-            Sample content · Not a real offer
+          <span className="text-[10px] font-mono text-slate-400">
+            Curated Sample Inventory
           </span>
         </div>
 
@@ -30,15 +33,14 @@ export const BrandsStrip: React.FC = () => {
               key={idx}
               type="button"
               onClick={() => {
-                const el = document.getElementById('catalog-section');
-                el?.scrollIntoView({ behavior: 'smooth' });
+                executeSearch(b.name);
               }}
-              className="p-2.5 sm:p-3 bg-slate-50 hover:bg-white rounded-xl border border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center justify-center text-center shadow-2xs group cursor-pointer"
+              className="p-3 bg-[#F7F8FA] hover:bg-slate-100 rounded-xl border border-[#E5E7EB] hover:border-slate-300 transition-all flex flex-col items-center justify-center text-center group cursor-pointer shadow-2xs min-h-[56px]"
             >
-              <span className="font-extrabold text-xs sm:text-sm text-slate-800 group-hover:text-[#E11D48] transition-colors font-sans">
+              <span className="font-bold text-xs sm:text-sm text-[#111827] group-hover:text-[#E11D48] transition-colors font-sans">
                 {b.name}
               </span>
-              <span className="text-[9px] text-slate-400 uppercase tracking-tight mt-0.5 truncate w-full">
+              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-tight mt-0.5 truncate w-full">
                 {b.tag}
               </span>
             </button>

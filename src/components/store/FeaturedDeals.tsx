@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { DeviceGraphic } from '../common/DeviceGraphic';
-import { Flame, ArrowRight, ShoppingBag, Sparkles } from 'lucide-react';
+import { Flame, ArrowRight, ShoppingBag, Sparkles, Tag, ChevronRight } from 'lucide-react';
 
 export const FeaturedDeals: React.FC = () => {
   const {
@@ -10,226 +10,221 @@ export const FeaturedDeals: React.FC = () => {
     addToCart,
     formatPrice,
     currency,
-    executeSearch,
   } = useStore();
 
   // Derive eligible products from actual demo state (unarchived, featured or discounted)
   const promoProducts = useMemo(() => {
-    const featured = products.filter((p) => !p.archived && (p.isFeaturedPromo || (p.originalPriceLKR && p.originalPriceLKR > p.priceLKR)));
+    const featured = products.filter(
+      (p) => !p.archived && (p.isFeaturedPromo || (p.originalPriceLKR && p.originalPriceLKR > p.priceLKR))
+    );
     if (featured.length >= 4) return featured.slice(0, 4);
     // If fewer than 4 explicitly flagged, pad with other active products
     const otherActive = products.filter((p) => !p.archived && !featured.some((f) => f.id === p.id));
     return [...featured, ...otherActive].slice(0, 4);
   }, [products]);
 
+  const heroDeal = promoProducts[0];
+  const sideDeals = promoProducts.slice(1, 4);
+
+  if (!heroDeal) return null;
+
+  const heroDiscount =
+    heroDeal.originalPriceLKR && heroDeal.originalPriceLKR > heroDeal.priceLKR
+      ? Math.round(((heroDeal.originalPriceLKR - heroDeal.priceLKR) / heroDeal.originalPriceLKR) * 100)
+      : heroDeal.promoDiscountPercent;
+
   return (
-    <section className="py-4 sm:py-6 space-y-4 sm:space-y-6">
+    <section className="py-6 sm:py-8 space-y-4 sm:space-y-6">
       
-      {/* Featured Deals Header Strip (Clean, Honest Demo Showcase) */}
-      <div className="bg-gradient-to-r from-[#E11D48] to-[#9F1239] text-white p-4 sm:p-6 rounded-2xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+      {/* Header: Editorial Ink Surface with Restrained Red Accent */}
+      <div className="bg-white rounded-[18px] border border-[#E5E7EB] p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-            <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-amber-300" />
+          <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center shrink-0 text-[#E11D48] border border-rose-100">
+            <Flame className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-black/30 px-2 py-0.5 rounded">
-                DEMO SHOWCASE
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#F7F8FA] px-2 py-0.5 rounded border border-[#E5E7EB]">
+                Curated Deals
               </span>
-              <span className="text-[11px] sm:text-xs font-semibold text-rose-100">
-                Live Data-Derived Highlights
+              <span className="text-[11px] font-mono text-emerald-700 font-semibold">
+                Live Storefront Prices
               </span>
             </div>
-            <h3 className="text-lg sm:text-2xl font-black tracking-tight font-sans mt-0.5 text-white">
-              y5Hut Featured Deals
-            </h3>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#111827] font-sans mt-0.5">
+              Featured Tech &amp; Flagship Offers
+            </h2>
           </div>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 text-xs text-rose-100 bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-xs self-stretch sm:self-auto justify-center sm:justify-start">
-          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-          <span>Derived from active store prices</span>
+        <div className="flex items-center gap-2 text-xs text-[#6B7280]">
+          <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+          <span>Transparent demo pricing updated directly from merchant dashboard</span>
         </div>
       </div>
 
-      {/* Responsive Deal Cards: 1 col on 320px, 2 col on >=360px, 4 col lg */}
-      <div className="grid grid-cols-1 min-[360px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-        {promoProducts.map((p) => {
-          const installmentThird =
-            currency === 'LKR'
-              ? Math.round(p.priceLKR / 3)
-              : Math.round(p.priceUSD / 3);
-
-          const isOutOfStock = p.stock === 0;
-
-          // Compute genuine discount percentage based on real prices
-          const hasDiscount = p.originalPriceLKR && p.originalPriceLKR > p.priceLKR;
-          const calculatedDiscountPercent = hasDiscount
-            ? Math.round(((p.originalPriceLKR! - p.priceLKR) / p.originalPriceLKR!) * 100)
-            : p.promoDiscountPercent;
-
-          return (
-            <article
-              key={p.id}
-              className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all group"
-            >
-              {/* Image & Discount */}
-              <div className="relative bg-slate-50 p-3 sm:p-4 aspect-[4/3] flex items-center justify-center border-b border-slate-100">
-                <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                  {calculatedDiscountPercent && calculatedDiscountPercent > 0 ? (
-                    <span className="text-[9px] font-black uppercase bg-[#E11D48] text-white px-2 py-0.5 rounded shadow-2xs">
-                      SAVE {calculatedDiscountPercent}%
-                    </span>
-                  ) : (
-                    <span className="text-[9px] font-bold bg-amber-400 text-slate-900 px-1.5 py-0.5 rounded">
-                      FEATURED
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedProductForDetail(p)}
-                  className="w-full h-full flex items-center justify-center focus:outline-none focus-visible:ring-1 focus-visible:ring-[#E11D48] cursor-pointer"
-                  aria-label={`View deal for ${p.name}`}
-                >
-                  <DeviceGraphic
-                    deviceType={p.deviceType}
-                    colorHex={p.colorOptions[0]?.hex}
-                    brand={p.brand}
-                    className="max-h-36 sm:max-h-40 group-hover:scale-105 transition-transform duration-300"
-                  />
-                </button>
+      {/* Bento Grid: 2x2 Hero Spotlight Tile on Left, Stacked Companion Tiles on Right */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
+        
+        {/* Hero Tile (spanning 7 cols on desktop) */}
+        <article className="md:col-span-7 bg-white rounded-[18px] border border-[#E5E7EB] p-6 sm:p-8 flex flex-col justify-between shadow-2xs hover:border-slate-300 transition-all">
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                {heroDiscount && heroDiscount > 0 ? (
+                  <span className="text-[10px] font-mono font-bold uppercase bg-[#E11D48] text-white px-2.5 py-1 rounded-full shadow-2xs">
+                    Save {heroDiscount}%
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-mono font-bold uppercase bg-[#111827] text-white px-2.5 py-1 rounded-full">
+                    Spotlight Deal
+                  </span>
+                )}
+                <span className="text-[11px] font-mono text-slate-500 uppercase">{heroDeal.brand}</span>
               </div>
+              <span className="text-[11px] font-mono text-slate-500">
+                Stock: <strong className="text-[#111827]">{heroDeal.stock}</strong>
+              </span>
+            </div>
 
-              {/* Info */}
-              <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2.5">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-[#E11D48]">
-                    {p.brand}
+            <div className="mt-4 space-y-1 text-left">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#111827] tracking-tight font-sans">
+                {heroDeal.name}
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6B7280] leading-relaxed">
+                {heroDeal.tagline || heroDeal.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Centered Render with generous whitespace */}
+          <div className="py-8 sm:py-12 flex items-center justify-center">
+            <button
+              type="button"
+              onClick={() => setSelectedProductForDetail(heroDeal)}
+              className="group focus:outline-none cursor-pointer"
+              aria-label={`View deal for ${heroDeal.name}`}
+            >
+              <DeviceGraphic
+                deviceType={heroDeal.deviceType}
+                colorHex={heroDeal.colorOptions[0]?.hex}
+                brand={heroDeal.brand}
+                className="max-h-48 sm:max-h-56 group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
+              />
+            </button>
+          </div>
+
+          {/* Price & Action Bar */}
+          <div className="pt-4 border-t border-[#E5E7EB] flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs text-[#6B7280] font-mono">LKR</span>
+                <span className="text-2xl sm:text-3xl font-bold text-[#111827] font-sans tabular-nums tracking-tight">
+                  {heroDeal.priceLKR.toLocaleString('en-LK')}
+                </span>
+                {heroDeal.originalPriceLKR && heroDeal.originalPriceLKR > heroDeal.priceLKR && (
+                  <span className="text-xs text-[#6B7280] line-through font-mono">
+                    {heroDeal.originalPriceLKR.toLocaleString('en-LK')}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedProductForDetail(p)}
-                    className="text-left w-full focus:outline-none cursor-pointer"
-                  >
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 mt-0.5 group-hover:text-[#E11D48] transition-colors leading-snug">
-                      {p.name}
-                    </h4>
-                  </button>
-                  <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
-                    {p.tagline}
-                  </p>
-                </div>
+                )}
+              </div>
+              <div className="text-[11px] text-emerald-700 font-medium">
+                {heroDeal.stock > 0 ? (
+                  <>⚡ 3x {Math.round(heroDeal.priceLKR / 3).toLocaleString('en-LK')} with Koko</>
+                ) : (
+                  <span className="text-rose-600 font-bold">Currently Sold Out</span>
+                )}
+              </div>
+            </div>
 
-                {/* Stock Tag */}
-                <div className="flex justify-between items-center text-[11px]">
-                  <span className="text-slate-500">
-                    Stock: <strong className="text-slate-800">{p.stock} units</strong>
-                  </span>
-                  {isOutOfStock ? (
-                    <span className="text-rose-600 font-bold">Sold Out</span>
-                  ) : p.stock <= p.lowStockThreshold ? (
-                    <span className="text-amber-600 font-bold">Low Stock</span>
-                  ) : (
-                    <span className="text-emerald-700 font-medium">In Stock</span>
-                  )}
-                </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedProductForDetail(heroDeal)}
+                className="px-4 py-2 text-xs font-semibold text-[#111827] bg-[#F7F8FA] hover:bg-slate-100 border border-[#E5E7EB] rounded-lg transition-colors cursor-pointer min-h-[40px]"
+              >
+                Inspect
+              </button>
+              <button
+                type="button"
+                disabled={heroDeal.stock === 0}
+                onClick={() => addToCart(heroDeal, 1)}
+                className="px-4 py-2 bg-[#E11D48] hover:bg-[#BE123C] disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs min-h-[40px]"
+              >
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>Add to Bag</span>
+              </button>
+            </div>
+          </div>
+        </article>
 
-                {/* Pricing & CTA */}
-                <div className="pt-2 border-t border-slate-100 space-y-1.5">
-                  <div className="flex items-baseline gap-1.5 flex-wrap">
-                    <span className="text-sm sm:text-base font-black font-mono text-slate-950 tabular-nums">
-                      {formatPrice(p.priceLKR, p.priceUSD)}
-                    </span>
-                    {hasDiscount && (
-                      <span className="text-[11px] text-slate-400 line-through font-mono tabular-nums">
-                        {formatPrice(p.originalPriceLKR || 0, p.originalPriceUSD || 0)}
+        {/* 3 Companion Tiles (spanning 5 cols on desktop) */}
+        <div className="md:col-span-5 flex flex-col gap-4">
+          {sideDeals.map((deal) => {
+            const discount =
+              deal.originalPriceLKR && deal.originalPriceLKR > deal.priceLKR
+                ? Math.round(((deal.originalPriceLKR - deal.priceLKR) / deal.originalPriceLKR) * 100)
+                : deal.promoDiscountPercent;
+
+            return (
+              <article
+                key={deal.id}
+                className="flex-1 bg-white rounded-[18px] border border-[#E5E7EB] p-4 sm:p-5 flex items-center justify-between gap-4 shadow-2xs hover:border-slate-300 transition-all group"
+              >
+                <div className="space-y-1.5 flex-1 min-w-0 text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-slate-500 uppercase">{deal.brand}</span>
+                    {discount && discount > 0 ? (
+                      <span className="text-[9px] font-mono font-bold uppercase bg-rose-50 text-[#E11D48] px-2 py-0.5 rounded-full border border-rose-100">
+                        -{discount}%
                       </span>
-                    )}
-                  </div>
-                  <div className="text-[10px] text-slate-500 truncate">
-                    or 3x <strong className="text-slate-700 font-mono">{currency === 'LKR' ? `Rs. ${installmentThird.toLocaleString()}` : `$${installmentThird}`}</strong> with Koko
+                    ) : null}
                   </div>
 
+                  <h4 className="text-sm sm:text-base font-bold text-[#111827] tracking-tight truncate font-sans">
+                    {deal.name}
+                  </h4>
+
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-[10px] text-[#6B7280] font-mono">LKR</span>
+                    <span className="text-base sm:text-lg font-bold text-[#111827] tabular-nums font-sans">
+                      {deal.priceLKR.toLocaleString('en-LK')}
+                    </span>
+                  </div>
+
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProductForDetail(deal)}
+                      className="text-xs font-semibold text-[#E11D48] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>View Specifications</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="w-24 sm:w-28 shrink-0 flex items-center justify-center p-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      if (!isOutOfStock) addToCart(p, 1);
-                    }}
-                    disabled={isOutOfStock}
-                    className="w-full mt-2 py-2 px-3 bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer min-h-[36px] disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label={isOutOfStock ? `${p.name} is sold out` : `Claim deal for ${p.name}`}
+                    onClick={() => setSelectedProductForDetail(deal)}
+                    className="focus:outline-none cursor-pointer"
+                    aria-label={`View ${deal.name}`}
                   >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>{isOutOfStock ? 'Sold Out' : 'Claim Deal'}</span>
+                    <DeviceGraphic
+                      deviceType={deal.deviceType}
+                      colorHex={deal.colorOptions[0]?.hex}
+                      brand={deal.brand}
+                      className="max-h-24 sm:max-h-28 group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
+                    />
                   </button>
                 </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-
-      {/* Promotional Double Banners - Responsive */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 pt-2">
-        {/* Banner 1: AppleHuT Showcase */}
-        <div className="bg-slate-950 text-white rounded-2xl p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800 relative overflow-hidden">
-          <div className="space-y-1.5 sm:space-y-2 text-center sm:text-left z-10">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase text-amber-400 tracking-wider">
-              DEMO SAMPLE · APPLEHUT
-            </span>
-            <h4 className="text-base sm:text-xl font-bold font-sans">
-              AppleHuT Lineup Showcase
-            </h4>
-            <p className="text-xs text-slate-300 max-w-sm">
-              Explore sample iPhones, Apple Watches, AirPods, and MagSafe accessories in this demonstration.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                executeSearch('', 'apple-store');
-              }}
-              className="mt-1 text-xs font-bold text-white hover:text-amber-400 inline-flex items-center gap-1 cursor-pointer"
-            >
-              <span>Explore AppleHuT</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0">
-            <DeviceGraphic deviceType="phone" colorHex="#CDB19B" />
-          </div>
+              </article>
+            );
+          })}
         </div>
 
-        {/* Banner 2: Fast Charging & Ecosystem */}
-        <div className="bg-gradient-to-br from-slate-900 to-rose-950 text-white rounded-2xl p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800 relative overflow-hidden">
-          <div className="space-y-1.5 sm:space-y-2 text-center sm:text-left z-10">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase text-rose-300 tracking-wider">
-              POWER &amp; AUDIO
-            </span>
-            <h4 className="text-base sm:text-xl font-bold font-sans">
-              Anker, Soundpeats &amp; UGREEN
-            </h4>
-            <p className="text-xs text-slate-300 max-w-sm">
-              GaN fast chargers, high-capacity laptop power banks, and Hi-Res wireless audio gear.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                executeSearch('', 'power-banks');
-              }}
-              className="mt-1 text-xs font-bold text-white hover:text-rose-300 inline-flex items-center gap-1 cursor-pointer"
-            >
-              <span>Shop Power &amp; Audio</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0">
-            <DeviceGraphic deviceType="powerbank" colorHex="#1E293B" />
-          </div>
-        </div>
       </div>
-
     </section>
   );
 };
