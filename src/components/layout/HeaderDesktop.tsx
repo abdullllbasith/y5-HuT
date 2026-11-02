@@ -45,7 +45,7 @@ export const HeaderDesktop: React.FC<HeaderDesktopProps> = ({ onOpenSearch }) =>
   }, [storefrontProducts]);
 
   return (
-    <header className="hidden md:block bg-paper border-b border-line select-none">
+    <header className="hidden md:block bg-surface border-b border-line select-none sticky top-0 z-40 backdrop-blur-md">
       {/* 1. Main Header Row (64px) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
         {/* Left: Authentic SVG Logo */}
@@ -62,21 +62,21 @@ export const HeaderDesktop: React.FC<HeaderDesktopProps> = ({ onOpenSearch }) =>
         <button
           type="button"
           onClick={onOpenSearch}
-          className="flex-1 max-w-md bg-card hover:bg-paper-sunk border border-line hover:border-ink rounded-full px-4 py-2 flex items-center justify-between text-xs text-ink-soft transition-all cursor-pointer shadow-2xs group"
+          className="flex-1 max-w-md bg-soft-surface hover:bg-surface border border-line hover:border-ink/40 rounded-xl px-4 py-2 flex items-center justify-between text-xs text-ink-soft transition-all cursor-pointer shadow-xs group"
           aria-label="Open search command palette"
         >
           <div className="flex items-center gap-2.5">
             <Search className="w-4 h-4 text-ink-soft group-hover:text-red transition-colors shrink-0" />
-            <span className="font-ui text-ink/80 group-hover:text-ink">
+            <span className="font-ui text-body group-hover:text-ink">
               Search phones, models, AirPods, chargers...
             </span>
           </div>
-          <kbd className="hidden lg:inline-flex items-center gap-0.5 px-2 py-0.5 rounded font-data text-[10px] uppercase font-bold text-ink-soft bg-paper border border-line">
+          <kbd className="hidden lg:inline-flex items-center gap-0.5 px-2 py-0.5 rounded font-data text-[10px] uppercase font-semibold text-ink-soft bg-surface border border-line">
             ⌘K
           </kbd>
         </button>
 
-        {/* Right Controls: LKR|USD, Wishlist, Bag Tag, Owner Console */}
+        {/* Right Controls: LKR|USD, Wishlist, Bag, Owner Console */}
         <div className="flex items-center gap-3 lg:gap-4 shrink-0">
           {/* LKR / USD Switcher */}
           <SegmentedControl
@@ -93,34 +93,30 @@ export const HeaderDesktop: React.FC<HeaderDesktopProps> = ({ onOpenSearch }) =>
           <button
             type="button"
             onClick={() => setIsWishlistOpen(true)}
-            className="relative w-10 h-10 rounded-full border border-line bg-card hover:bg-paper-sunk hover:border-ink flex items-center justify-center text-ink transition-colors cursor-pointer"
+            className="relative w-10 h-10 rounded-xl border border-line bg-surface hover:bg-soft-surface hover:border-ink/40 flex items-center justify-center text-ink transition-colors cursor-pointer shadow-xs"
             aria-label={`Wishlist (${wishlist.length} saved)`}
             title="Saved Tags (Wishlist)"
           >
-            <Heart className="w-4 h-4" />
+            <Heart className="w-4 h-4 text-body" />
             {wishlist.length > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-ink text-paper font-data text-[9px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-ink text-white font-data text-[9px] font-bold flex items-center justify-center">
                 {wishlist.length}
               </span>
             )}
           </button>
 
-          {/* Shopping Bag drawn as a mini Hang-Tag with count on red Dot */}
+          {/* Shopping Bag Button */}
           <button
             type="button"
             onClick={() => setIsCartOpen(true)}
-            className="group relative inline-flex items-center gap-2 bg-card hover:bg-paper-sunk border-[1.5px] border-ink rounded-lg px-3 py-1.5 min-h-[40px] shadow-2xs hover:shadow-hard transition-all cursor-pointer"
+            className="group relative inline-flex items-center gap-2 bg-surface hover:bg-soft-surface border border-line hover:border-ink/40 rounded-xl px-3 py-1.5 min-h-[40px] shadow-xs transition-all cursor-pointer"
             aria-label={`Shopping Bag (${cartTotalCount} items)`}
           >
-            {/* Tag notch on left edge */}
-            <span className="w-2 h-2 rounded-full border border-ink bg-paper -ml-1 shrink-0" />
-            <span className="font-data text-xs font-bold text-ink uppercase tracking-wide">
+            <span className="font-ui text-xs font-semibold text-ink">
               Bag
             </span>
-            <span className="relative flex items-center justify-center">
-              <span className="min-w-[20px] h-[20px] px-1.5 rounded-full bg-red text-white font-data text-[10px] font-extrabold flex items-center justify-center leading-none">
-                {cartTotalCount}
-              </span>
+            <span className="min-w-[20px] h-[20px] px-1.5 rounded-full bg-red text-white font-data text-[10px] font-extrabold flex items-center justify-center leading-none">
+              {cartTotalCount}
             </span>
           </button>
 
@@ -129,23 +125,23 @@ export const HeaderDesktop: React.FC<HeaderDesktopProps> = ({ onOpenSearch }) =>
             type="button"
             onClick={() => setActiveView(activeView === 'admin' ? 'store' : 'admin')}
             className={`
-              inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-ui text-xs font-bold transition-all cursor-pointer border-[1.5px]
+              inline-flex items-center gap-2 px-3.5 py-2 rounded-xl font-ui text-xs font-semibold transition-all cursor-pointer border
               ${
                 activeView === 'admin'
-                  ? 'bg-red text-white border-ink shadow-hard hover:bg-red-ink'
-                  : 'bg-card text-ink border-ink hover:bg-paper-sunk shadow-2xs hover:shadow-hard'
+                  ? 'bg-red text-white border-red shadow-sm hover:bg-red-ink'
+                  : 'bg-surface text-ink border-line hover:bg-soft-surface hover:border-ink/40 shadow-xs'
               }
             `}
             title="Open merchant pricing and stock dashboard"
           >
-            <Shield className="w-4 h-4 text-red group-hover:scale-110 transition-transform" />
+            <Shield className="w-4 h-4 text-red group-hover:scale-105 transition-transform" />
             <span>{activeView === 'admin' ? '← Back to Store' : 'Owner Console'}</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Desktop Shelf-Label Category Rail */}
-      <div className="border-t border-line bg-paper/70">
+      {/* 2. Desktop Category Rail */}
+      <div className="border-t border-line bg-surface/90">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto scrollbar-none">
           <nav className="flex items-center gap-1 py-1.5" aria-label="Product categories rail">
             {/* All Products Tab */}
