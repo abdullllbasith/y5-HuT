@@ -35,8 +35,11 @@ export const ProductsPage: React.FC = () => {
   }
 
   const chip = (on: boolean) =>
-    `px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${on ? 'bg-[#E11D48] text-white border-[#E11D48]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#E11D48]'}`;
-  const iconBtn = 'inline-flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 text-[11px] font-bold text-slate-600 hover:border-[#E11D48] hover:text-[#E11D48] cursor-pointer';
+    `px-3 py-1.5 rounded-full text-xs font-bold border transition-colors cursor-pointer min-h-[32px] flex items-center ${
+      on ? 'bg-[#E11D48] text-white border-[#E11D48]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#E11D48]'
+    }`;
+  const iconBtn =
+    'inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-[#E11D48] hover:text-[#E11D48] transition-colors cursor-pointer min-h-[38px] flex-1 sm:flex-initial';
 
   return (
     <>
@@ -46,25 +49,30 @@ export const ProductsPage: React.FC = () => {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
         <p className="text-xs text-slate-600">
           Add a model, add its variants, then publish it. Archiving hides a product from the storefront without deleting it.
         </p>
         <button
           onClick={() => setEditing({ form: emptyProductForm() })}
           disabled={!canEdit}
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-h-[44px] shadow-xs transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" /> Add new model
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-2 shadow-xs">
+      <div className="bg-white rounded-[18px] border border-slate-200 p-3.5 space-y-3 shadow-2xs text-left">
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name or SKU…" className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search model name or SKU…"
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 min-h-[42px]"
+          />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <button className={chip(brand === 'all')} onClick={() => setBrand('all')}>All brands</button>
           {brands.map((b) => <button key={b} className={chip(brand === b)} onClick={() => setBrand(b)}>{b}</button>)}
           <span className="mx-1 text-slate-300">|</span>
@@ -85,25 +93,25 @@ export const ProductsPage: React.FC = () => {
           {visible.map((p) => {
             const range = getPriceRangeLKR(p);
             return (
-              <li key={p.id} className={`bg-white rounded-xl border p-3 shadow-xs flex flex-col md:flex-row md:items-center gap-3 ${p.archived ? 'border-slate-200 opacity-75' : 'border-slate-200'}`}>
+              <li key={p.id} className={`bg-white rounded-[18px] border p-4 shadow-2xs flex flex-col md:flex-row md:items-center gap-3 text-left ${p.archived ? 'border-slate-200 bg-slate-50/60 opacity-80' : 'border-[#E5E7EB]'}`}>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900">{p.name}</span>
+                    <span className="text-sm font-bold text-[#111827]">{p.name}</span>
                     {p.archived && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Archived · hidden</span>}
                   </div>
-                  <div className="text-[11px] text-slate-500">
+                  <div className="text-[11px] text-[#6B7280] mt-0.5">
                     {p.brand} · {CATEGORY_LABELS[p.category] ?? p.category} · {hasVariants(p) ? `${p.variants!.length} variant${p.variants!.length === 1 ? '' : 's'}` : 'no variants (sample product)'}
                   </div>
                 </div>
                 <div className="text-xs font-mono tabular-nums text-slate-700 md:text-right">
-                  {range.min === range.max ? formatLKR(range.min) : `${formatLKR(range.min)} – ${formatLKR(range.max)}`}
-                  <div className="text-[11px] text-slate-500 font-sans">{p.stock} in stock</div>
+                  <div className="font-bold text-[#111827]">{range.min === range.max ? formatLKR(range.min) : `${formatLKR(range.min)} – ${formatLKR(range.max)}`}</div>
+                  <div className="text-[11px] text-slate-500 font-sans mt-0.5">{p.stock} in stock</div>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  <button className={iconBtn} disabled={!canEdit} onClick={() => setEditing({ form: toProductForm(p), existing: p })}><Pencil className="w-3 h-3" /> Edit</button>
-                  <button className={iconBtn} disabled={!canEdit || !hasVariants(p)} title={hasVariants(p) ? 'Create a hidden copy' : 'Only products with variants can be duplicated'} onClick={() => setEditing({ form: duplicateForm(p, takenSkus(products)) })}><Copy className="w-3 h-3" /> Duplicate</button>
+                <div className="flex flex-wrap gap-2 pt-2 md:pt-0 border-t border-slate-100 md:border-t-0">
+                  <button className={iconBtn} disabled={!canEdit} onClick={() => setEditing({ form: toProductForm(p), existing: p })}><Pencil className="w-3.5 h-3.5" /> Edit</button>
+                  <button className={iconBtn} disabled={!canEdit || !hasVariants(p)} title={hasVariants(p) ? 'Create a hidden copy' : 'Only products with variants can be duplicated'} onClick={() => setEditing({ form: duplicateForm(p, takenSkus(products)) })}><Copy className="w-3.5 h-3.5" /> Duplicate</button>
                   <button className={iconBtn} disabled={!canEdit} onClick={() => setProductArchived(p.id, !p.archived)}>
-                    {p.archived ? <><ArchiveRestore className="w-3 h-3" /> Unarchive</> : <><Archive className="w-3 h-3" /> Archive</>}
+                    {p.archived ? <><ArchiveRestore className="w-3.5 h-3.5" /> Unarchive</> : <><Archive className="w-3.5 h-3.5" /> Archive</>}
                   </button>
                 </div>
               </li>
