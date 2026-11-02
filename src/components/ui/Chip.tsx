@@ -115,3 +115,4 @@ export function SegmentedControl<T extends string | number>({
     </div>
   );
 }
+

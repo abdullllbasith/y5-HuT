@@ -114,11 +114,15 @@ export const HeroSection: React.FC = () => {
         <div className="relative rounded-3xl bg-card border border-line p-6 sm:p-10 md:p-14 overflow-hidden shadow-hard">
           
           {/* THE RED SUN DISC: Centered behind device on right, bleeding across background */}
-          <div
+          <motion.div
+            animate={{ scale: [1, 1.08, 1], opacity: [0.12, 0.22, 0.12] }}
+            transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
             className="absolute -right-20 sm:-right-10 -bottom-20 sm:-bottom-10 w-[300px] h-[300px] sm:w-[480px] sm:h-[480px] md:w-[560px] md:h-[560px] rounded-full bg-red/15 blur-2xl pointer-events-none"
             aria-hidden="true"
           />
-          <div
+          <motion.div
+            animate={{ scale: [1, 1.04, 1] }}
+            transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
             className="absolute right-4 sm:right-12 top-1/2 -translate-y-1/2 w-[240px] h-[240px] sm:w-[380px] sm:h-[380px] md:w-[460px] md:h-[460px] rounded-full bg-red pointer-events-none opacity-90 transition-transform duration-700"
             aria-hidden="true"
           />
@@ -251,18 +255,24 @@ export const HeroSection: React.FC = () => {
                   }}
                   className="relative z-10 flex flex-col items-center justify-center cursor-pointer group"
                 >
-                  {/* Device Render */}
-                  <div className="relative transform transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-1">
+                  {/* Floating Device Render */}
+                  <motion.div
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
+                    className="relative transform transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-1"
+                  >
                     <ProductImage
                       product={currentHero.liveProduct}
                       colorHex={currentHero.colorHex}
                       className="max-h-56 sm:max-h-72 md:max-h-80 object-contain drop-shadow-2xl"
                     />
-                  </div>
+                  </motion.div>
 
-                  {/* Soft Floor Shadow */}
-                  <div
-                    className="w-40 sm:w-56 h-4 bg-ink/25 rounded-full blur-md mt-2 transition-transform duration-300 group-hover:scale-90"
+                  {/* Soft Floor Shadow Breathing with the float */}
+                  <motion.div
+                    animate={{ scale: [1, 0.9, 1], opacity: [0.25, 0.15, 0.25] }}
+                    transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
+                    className="w-40 sm:w-56 h-4 bg-ink rounded-full blur-md mt-2 transition-transform duration-300"
                     aria-hidden="true"
                   />
                 </motion.div>

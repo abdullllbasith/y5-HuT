@@ -163,3 +163,4 @@ export const CatalogFilterRail: React.FC<CatalogFilterRailProps> = ({
     </aside>
   );
 };
+

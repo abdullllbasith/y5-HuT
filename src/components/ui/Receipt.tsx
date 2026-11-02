@@ -191,3 +191,4 @@ export const Receipt: React.FC<ReceiptProps> = ({
     </div>
   );
 };
+

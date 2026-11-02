@@ -141,3 +141,4 @@ export const CheckoutConfirmationStep: React.FC<CheckoutConfirmationStepProps> =
     </div>
   );
 };
+

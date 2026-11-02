@@ -49,3 +49,4 @@ export const Dot: React.FC<DotProps> = ({
     </span>
   );
 };
+

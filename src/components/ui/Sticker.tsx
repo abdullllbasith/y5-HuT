@@ -118,3 +118,4 @@ export const Sticker: React.FC<StickerProps> = ({
     </span>
   );
 };
+

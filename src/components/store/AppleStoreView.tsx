@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { ProductImage } from '../common/ProductImage';
 import { CatalogView } from './CatalogView';
@@ -88,18 +89,27 @@ export const AppleStoreView: React.FC = () => {
 
             </div>
 
-            {/* Right: Device on pale disc */}
+            {/* Right: Device on pale disc with gentle floating animation */}
             <div className="lg:col-span-5 flex items-center justify-center p-4">
               {heroAppleProduct && (
                 <div
                   onClick={() => setSelectedProductForDetail(heroAppleProduct)}
                   className="relative group cursor-pointer"
                 >
-                  <ProductImage
-                    product={heroAppleProduct}
-                    className="max-h-64 sm:max-h-80 md:max-h-96 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                  <motion.div
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+                  >
+                    <ProductImage
+                      product={heroAppleProduct}
+                      className="max-h-64 sm:max-h-80 md:max-h-96 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </motion.div>
+                  <motion.div
+                    animate={{ scale: [1, 0.9, 1], opacity: [0.5, 0.35, 0.5] }}
+                    transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+                    className="w-48 h-4 bg-black/60 rounded-full blur-md mx-auto mt-4"
                   />
-                  <div className="w-48 h-4 bg-black/50 rounded-full blur-md mx-auto mt-4" />
                 </div>
               )}
             </div>
@@ -161,3 +171,4 @@ export const AppleStoreView: React.FC = () => {
     </div>
   );
 };
+

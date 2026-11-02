@@ -85,3 +85,4 @@ export const DealsView: React.FC = () => {
     </div>
   );
 };
+

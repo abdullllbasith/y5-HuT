@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { ProductImage } from '../common/ProductImage';
 import { Flame, ArrowRight, ShoppingBag } from 'lucide-react';
@@ -71,8 +72,9 @@ export const FeaturedDeals: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
         
         {/* Left: Spotlight Deal (Double size, 7 cols) */}
-        <article
+        <motion.article
           onClick={() => setSelectedProductForDetail(spotlightDeal)}
+          whileHover={{ y: -4, transition: { duration: 0.2 } }}
           className="lg:col-span-7 bg-card border border-line rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-hard hover:border-ink transition-all cursor-pointer relative overflow-hidden group"
         >
           {/* Top Bar with Sticker & Live Dot */}
@@ -139,16 +141,17 @@ export const FeaturedDeals: React.FC = () => {
               SKU: <span className="font-bold text-ink">{spotlightDeal.variants?.[0]?.sku || spotlightDeal.id}</span>
             </div>
 
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.94 }}
               onClick={(e) => handleQuickAdd(spotlightDeal, e)}
               className="px-5 py-2.5 bg-ink text-paper hover:bg-red hover:text-white rounded-full font-ui text-xs font-bold border border-ink flex items-center gap-2 transition-all cursor-pointer shadow-hard-sm min-h-[44px]"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               <span>Claim Tag</span>
-            </button>
+            </motion.button>
           </div>
-        </article>
+        </motion.article>
 
         {/* Right: Companion Hanging Tags (5 cols) - Scroll snap on mobile */}
         <div className="lg:col-span-5 flex flex-col gap-3 sm:gap-4">
@@ -159,10 +162,12 @@ export const FeaturedDeals: React.FC = () => {
                 : deal.promoDiscountPercent;
 
             return (
-              <div
+              <motion.div
                 key={deal.id}
+                whileHover={{ x: 4, transition: { duration: 0.2 } }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setSelectedProductForDetail(deal)}
-                className="bg-card border border-line rounded-2xl p-4 flex items-center justify-between gap-4 hover:border-ink hover:shadow-hard-sm transition-all cursor-pointer group"
+                className="bg-card border border-line rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 hover:border-ink hover:shadow-hard-sm transition-all cursor-pointer group"
               >
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-paper-sunk border border-line p-1 flex items-center justify-center shrink-0">
                   <ProductImage
@@ -207,16 +212,17 @@ export const FeaturedDeals: React.FC = () => {
                   className="shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <button
+                  <motion.button
                     type="button"
+                    whileTap={{ scale: 0.85 }}
                     onClick={(e) => handleQuickAdd(deal, e)}
                     className="w-10 h-10 rounded-full border border-line bg-paper hover:bg-ink hover:text-paper hover:border-ink flex items-center justify-center transition-colors cursor-pointer min-w-[44px] min-h-[44px]"
                     aria-label={`Add ${deal.name}`}
                   >
                     <ShoppingBag className="w-4 h-4" />
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

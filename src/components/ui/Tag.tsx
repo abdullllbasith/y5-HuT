@@ -40,7 +40,7 @@ export const Tag: React.FC<TagProps> = ({
     >
       {/* Top Hanging Hole & String Detail */}
       {showHole && (
-        <div className="pt-3 pb-1 flex items-center justify-center relative z-20">
+        <div className="pt-2 sm:pt-3 pb-0.5 sm:pb-1 flex items-center justify-center relative z-20">
           <div className="tag-hole" title="Authentic store price tag" />
         </div>
       )}
@@ -51,14 +51,15 @@ export const Tag: React.FC<TagProps> = ({
 };
 
 export const TagPerforation: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`relative w-full py-1.5 flex items-center justify-between overflow-hidden select-none ${className}`}>
+  <div className={`relative w-full py-1 sm:py-1.5 flex items-center justify-between overflow-hidden select-none ${className}`}>
     {/* Left Notch */}
-    <div className="w-3.5 h-3.5 rounded-r-full bg-paper border-r-[1.5px] border-y-[1.5px] border-ink -ml-[2px] shrink-0" />
+    <div className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-r-full bg-paper border-r-[1.5px] border-y-[1.5px] border-ink -ml-[2px] shrink-0" />
     
     {/* Dashed Tear Line */}
-    <div className="flex-1 border-b-[1.5px] border-dashed border-ink/30 mx-1.5" />
+    <div className="flex-1 border-b-[1.5px] border-dashed border-ink/30 mx-1 sm:mx-1.5" />
     
     {/* Right Notch */}
-    <div className="w-3.5 h-3.5 rounded-l-full bg-paper border-l-[1.5px] border-y-[1.5px] border-ink -mr-[2px] shrink-0" />
+    <div className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-l-full bg-paper border-l-[1.5px] border-y-[1.5px] border-ink -mr-[2px] shrink-0" />
   </div>
 );
+

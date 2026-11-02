@@ -224,3 +224,4 @@ export const HeaderDesktop: React.FC<HeaderDesktopProps> = ({ onOpenSearch }) =>
     </header>
   );
 };
+

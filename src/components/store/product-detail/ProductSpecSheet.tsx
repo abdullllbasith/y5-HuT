@@ -173,3 +173,4 @@ export const ProductSpecSheet: React.FC<ProductSpecSheetProps> = ({ product }) =
     </div>
   );
 };
+

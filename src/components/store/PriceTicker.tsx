@@ -104,3 +104,4 @@ export const PriceTicker: React.FC = () => {
     </div>
   );
 };
+

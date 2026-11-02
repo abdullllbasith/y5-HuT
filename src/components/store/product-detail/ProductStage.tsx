@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Product } from '../../../types';
 import { ProductImage } from '../../common/ProductImage';
 import { Heart, Truck, ShieldCheck } from 'lucide-react';
@@ -30,15 +31,22 @@ export const ProductStage: React.FC<ProductStageProps> = ({ product, activeColor
           aria-hidden="true"
         />
 
-        <ProductImage
-          product={product}
-          colorHex={colorHex}
-          className="max-h-60 sm:max-h-80 object-contain drop-shadow-xl relative z-10 group-hover:scale-105 transition-transform duration-300"
-        />
+        <motion.div
+          animate={{ y: [0, -6, 0] }}
+          transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+          className="relative z-10 flex items-center justify-center"
+        >
+          <ProductImage
+            product={product}
+            colorHex={colorHex}
+            className="max-h-60 sm:max-h-80 object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-300"
+          />
+        </motion.div>
 
-        {/* Wishlist Button */}
-        <button
+        {/* Wishlist Button with Motion Bounce */}
+        <motion.button
           type="button"
+          whileTap={{ scale: 0.75 }}
           onClick={() => toggleWishlist(product.id)}
           className={`absolute top-4 right-4 w-11 h-11 rounded-full border flex items-center justify-center transition-colors cursor-pointer min-w-[44px] min-h-[44px] z-20 ${
             wishlisted
@@ -48,7 +56,7 @@ export const ProductStage: React.FC<ProductStageProps> = ({ product, activeColor
           aria-label={wishlisted ? 'Remove from saved tags' : 'Save tag'}
         >
           <Heart className={`w-5 h-5 ${wishlisted ? 'fill-current' : ''}`} />
-        </button>
+        </motion.button>
       </div>
 
       {/* Trust & Dispatch Mini Tickets */}
@@ -71,3 +79,4 @@ export const ProductStage: React.FC<ProductStageProps> = ({ product, activeColor
     </div>
   );
 };
+

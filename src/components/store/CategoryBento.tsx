@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { motion } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { ArrowUpRight } from 'lucide-react';
 import { Dot } from '../ui/Dot';
@@ -50,7 +51,9 @@ export const CategoryBento: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 auto-rows-[140px] sm:auto-rows-[160px]">
         
         {/* 1. AppleHuT Tile (2x2, Night Theme) */}
-        <div
+        <motion.div
+          whileHover={{ y: -4, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => handleNavigate('apple-store')}
           className="col-span-2 row-span-2 rounded-2xl bg-night text-paper p-6 sm:p-8 flex flex-col justify-between border border-night-card hover:border-red transition-all duration-200 cursor-pointer group shadow-hard relative overflow-hidden"
         >
@@ -84,10 +87,12 @@ export const CategoryBento: React.FC = () => {
               <span>&rarr;</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* 2. Smartphones (2x1, Paper-sunk) */}
-        <div
+        <motion.div
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => handleNavigate('smartphones')}
           className="col-span-2 row-span-1 rounded-2xl bg-paper-sunk border border-line p-4 sm:p-5 flex flex-col justify-between hover:border-ink hover:shadow-hard-sm transition-all cursor-pointer group"
         >
@@ -107,10 +112,12 @@ export const CategoryBento: React.FC = () => {
               Apple, Samsung Galaxy, Xiaomi &amp; Pixel with factory warranties.
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* 3. Smartwatches (1x1, Highlighter Wash) */}
-        <div
+        <motion.div
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => handleNavigate('smartwatches')}
           className="col-span-1 row-span-1 rounded-2xl bg-highlighter/20 border border-line p-4 flex flex-col justify-between hover:border-ink hover:shadow-hard-sm transition-all cursor-pointer group"
         >
@@ -126,10 +133,12 @@ export const CategoryBento: React.FC = () => {
             </h3>
             <span className="font-data text-[10px] text-ink-soft block mt-0.5">Retina AMOLED</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* 4. Audio (1x1, Red Wash) */}
-        <div
+        <motion.div
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => handleNavigate('audio')}
           className="col-span-1 row-span-1 rounded-2xl bg-red-wash/40 border border-line p-4 flex flex-col justify-between hover:border-ink hover:shadow-hard-sm transition-all cursor-pointer group"
         >
@@ -145,10 +154,12 @@ export const CategoryBento: React.FC = () => {
             </h3>
             <span className="font-data text-[10px] text-red-ink font-semibold block mt-0.5">ANC &amp; LDAC</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* 5. Power Banks (1x2 on Desktop, 2x1 on Mobile, with Giant 20,000 mAh Numeral) */}
-        <div
+        <motion.div
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => handleNavigate('power-banks')}
           className="col-span-1 sm:col-span-1 md:row-span-2 rounded-2xl bg-card border border-line p-4 sm:p-5 flex flex-col justify-between hover:border-ink hover:shadow-hard-sm transition-all cursor-pointer group relative overflow-hidden"
         >
@@ -176,10 +187,12 @@ export const CategoryBento: React.FC = () => {
               Anker, Baseus, UGREEN
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* 6. Fast Chargers (1x1, with 65W GaN Badge) */}
-        <div
+        <motion.div
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => handleNavigate('charging')}
           className="col-span-1 row-span-1 rounded-2xl bg-card border border-line p-4 flex flex-col justify-between hover:border-ink hover:shadow-hard-sm transition-all cursor-pointer group"
         >
@@ -197,10 +210,12 @@ export const CategoryBento: React.FC = () => {
               {counts['charging'] || 0} Models
             </span>
           </div>
-        </div>
+        </motion.div>
 
         {/* 7. Cases & Protection (2x1 on mobile, 2x1 on desktop) */}
-        <div
+        <motion.div
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => handleNavigate('cases-protection')}
           className="col-span-2 row-span-1 rounded-2xl bg-paper-sunk border border-line p-4 sm:p-5 flex items-center justify-between hover:border-ink hover:shadow-hard-sm transition-all cursor-pointer group"
         >
@@ -222,9 +237,10 @@ export const CategoryBento: React.FC = () => {
           <div className="w-9 h-9 rounded-full bg-card border border-line flex items-center justify-center shrink-0 group-hover:bg-red group-hover:text-white transition-colors">
             <ArrowUpRight className="w-4 h-4" />
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>
   );
 };
+

@@ -119,3 +119,4 @@ export const Price: React.FC<PriceProps> = ({
     </div>
   );
 };
+

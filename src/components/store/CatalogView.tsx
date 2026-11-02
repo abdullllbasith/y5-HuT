@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../../context/StoreContext';
 import { ProductCard } from './ProductCard';
 import { CatalogListView } from './CatalogListView';
@@ -275,11 +276,24 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               </button>
             </div>
           ) : viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
-              {filteredProducts.map((p) => (
-                <ProductCard key={p.id} product={p} />
+            <motion.div
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5"
+            >
+              {filteredProducts.map((p, idx) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(idx * 0.03, 0.25), duration: 0.2 }}
+                >
+                  <ProductCard product={p} />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
             <CatalogListView products={filteredProducts} />
           )}
