@@ -4,13 +4,14 @@ import { AdjustStockInput, useStore } from '../../../context/StoreContext';
 import { STOCK_REASONS, StockMode, computeStock, stockLevel } from '../../../lib/stock';
 import { StockReason } from '../../../types';
 import { InventoryRow } from './inventoryRows';
+import { Button } from '../../ui/Button';
+import { Dot } from '../../ui/Dot';
 
 interface Props {
   row: InventoryRow;
   onClose: () => void;
 }
 
-/** Set an exact count, or add/remove units, with a reason. Shows the storefront result before saving. */
 export const StockDialog: React.FC<Props> = ({ row, onClose }) => {
   const { adjustStock } = useStore();
   const [mode, setMode] = useState<StockMode>('delta');
@@ -33,7 +34,7 @@ export const StockDialog: React.FC<Props> = ({ row, onClose }) => {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reason) return setError('Choose a reason');
+    if (!reason) return setError('Choose an adjustment reason');
     const input: AdjustStockInput = { productId: row.productId, variantId: row.variantId, mode, value, reason, note };
     const result = adjustStock(input);
     if (!result.ok) return setError(result.error);
@@ -41,32 +42,39 @@ export const StockDialog: React.FC<Props> = ({ row, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-ink/70 backdrop-blur-xs font-ui text-left">
       <form
         onSubmit={submit}
         role="dialog"
         aria-modal="true"
         aria-labelledby="stock-dialog-title"
-        className="bg-white rounded-t-[24px] sm:rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 p-5 sm:p-6 space-y-3.5 max-h-[92vh] overflow-y-auto text-left"
+        className="bg-paper rounded-t-3xl sm:rounded-3xl shadow-hard max-w-md w-full border border-line p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto"
       >
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between border-b border-line pb-3">
           <div>
-            <h3 id="stock-dialog-title" className="text-base font-bold text-slate-900 font-sans">Adjust Stock</h3>
-            <p className="text-xs text-slate-600 mt-0.5">{row.name}{row.label && ` · ${row.label}`}</p>
-            <p className="text-[11px] font-mono text-slate-400 mt-0.5">{row.sku}</p>
+            <div className="flex items-center gap-1.5 font-data text-[10px] font-bold uppercase tracking-wider text-red">
+              <Dot tone="red" size="xs" />
+              <span>Counter Stock Adjustment</span>
+            </div>
+            <h3 id="stock-dialog-title" className="font-display text-lg font-bold text-ink mt-0.5">
+              {row.name}
+            </h3>
+            <p className="font-data text-xs text-ink-soft">
+              {row.label ? `${row.label} · ` : ''}{row.sku}
+            </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-ink-soft hover:text-ink hover:bg-paper-sunk cursor-pointer transition-colors min-w-[36px] min-h-[36px]"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-bold" role="tablist">
-          {([['delta', 'Add / Remove'], ['set', 'Set Exact Stock']] as [StockMode, string][]).map(([m, label]) => (
+        <div className="flex rounded-xl bg-card border border-line p-1 text-xs font-bold" role="tablist">
+          {([['delta', 'Add / Remove Units'], ['set', 'Set Exact Count']] as [StockMode, string][]).map(([m, label]) => (
             <button
               key={m}
               type="button"
@@ -74,7 +82,7 @@ export const StockDialog: React.FC<Props> = ({ row, onClose }) => {
               aria-selected={mode === m}
               onClick={() => { setMode(m); setError(null); }}
               className={`flex-1 py-2 rounded-lg cursor-pointer transition-all text-xs font-semibold ${
-                mode === m ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                mode === m ? 'bg-ink text-paper shadow-hard-sm' : 'text-ink-soft hover:text-ink'
               }`}
             >
               {label}
@@ -84,8 +92,8 @@ export const StockDialog: React.FC<Props> = ({ row, onClose }) => {
 
         {/* Quick adjustment buttons for fast mobile adjustments */}
         <div>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block mb-1.5 font-bold">
-            Quick Adjustments
+          <span className="font-data text-[10px] uppercase tracking-wider text-ink-soft block mb-1.5 font-bold">
+            Quick Counter Adjustments
           </span>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
             {[
@@ -105,10 +113,10 @@ export const StockDialog: React.FC<Props> = ({ row, onClose }) => {
                   if (!reason) setReason(q.r);
                   setError(null);
                 }}
-                className={`py-2 px-1 rounded-xl border text-xs font-mono font-bold transition-all min-h-[38px] flex items-center justify-center cursor-pointer ${
+                className={`py-2 px-1 rounded-xl border text-xs font-data font-bold transition-all min-h-[38px] flex items-center justify-center cursor-pointer ${
                   mode === q.m && value === q.v
-                    ? 'border-[#E11D48] bg-rose-50 text-[#E11D48]'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    ? 'border-ink bg-highlighter text-ink shadow-hard-sm'
+                    : 'border-line bg-card text-ink hover:border-ink'
                 }`}
               >
                 {q.label}
@@ -117,8 +125,8 @@ export const StockDialog: React.FC<Props> = ({ row, onClose }) => {
           </div>
         </div>
 
-        <label className="block text-xs font-bold text-slate-700 space-y-1">
-          <span>{mode === 'delta' ? 'Units to add (use minus to remove, e.g. -2)' : 'New stock count'}</span>
+        <label className="block text-xs font-bold text-ink space-y-1">
+          <span>{mode === 'delta' ? 'Units to add (use minus to deduct, e.g. -2)' : 'New target stock count'}</span>
           <input
             ref={inputRef}
             inputMode="numeric"
@@ -126,73 +134,76 @@ export const StockDialog: React.FC<Props> = ({ row, onClose }) => {
             onChange={(e) => { setValue(e.target.value); setError(null); }}
             placeholder={mode === 'delta' ? '+10 or -2' : 'e.g. 0'}
             aria-invalid={check?.ok === false}
-            className={`w-full px-3 py-2.5 rounded-xl border text-sm font-mono min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 ${
-              check?.ok === false ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-white'
+            className={`w-full px-3.5 py-2.5 rounded-xl border font-data text-sm min-h-[42px] focus:outline-none focus:border-ink ${
+              check?.ok === false ? 'border-red bg-red-wash text-red' : 'border-line bg-card text-ink'
             }`}
           />
         </label>
 
         {/* Real-time stock change preview */}
-        <div aria-live="polite" className="rounded-xl bg-[#F7F8FA] border border-[#E5E7EB] p-3 text-xs space-y-1">
+        <div aria-live="polite" className="rounded-2xl bg-card border border-line p-3.5 text-xs space-y-1.5 shadow-2xs">
           {check === null ? (
-            <span className="text-slate-500">Current stock: <strong className="text-slate-900 font-mono">{row.stock} units</strong></span>
+            <span className="font-data text-ink-soft">
+              Current inventory: <strong className="text-ink">{row.stock} units</strong>
+            </span>
           ) : check.ok ? (
             <>
               <div className="flex items-center justify-between">
-                <span className="text-slate-600 font-medium">Stock Preview:</span>
-                <span className="font-mono text-xs font-bold text-slate-900">
-                  {row.stock} → <span className="text-[#E11D48]">{check.after} units</span>
+                <span className="font-ui font-semibold text-ink-soft">Stock Transition:</span>
+                <span className="font-data text-xs font-bold text-ink">
+                  {row.stock} &rarr; <span className="text-red font-extrabold">{check.after} units</span>
                 </span>
               </div>
-              <div className={`text-xs font-bold ${level === 'out' ? 'text-rose-600' : level === 'low' ? 'text-amber-700' : 'text-emerald-700'}`}>
-                Storefront shows: {level === 'out' ? '● Out of Stock' : level === 'low' ? `⚠ Low Stock (${check.after} left)` : '✓ In Stock'}
+              <div className={`font-data text-xs font-bold flex items-center gap-1.5 ${level === 'out' ? 'text-ink line-through' : level === 'low' ? 'text-low' : 'text-go'}`}>
+                <Dot tone={level === 'out' ? 'ink' : level === 'low' ? 'low' : 'go'} size="xs" />
+                <span>Storefront displays: {level === 'out' ? 'Sold Out' : level === 'low' ? `Low Stock (${check.after} left)` : 'In Stock'}</span>
               </div>
             </>
           ) : (
-            <span className="text-rose-600 font-bold">{check.error}</span>
+            <span className="text-red font-bold font-data">{check.error}</span>
           )}
         </div>
 
-        <label className="block text-xs font-bold text-slate-700 space-y-1">
-          <span>Reason *</span>
+        <label className="block text-xs font-bold text-ink space-y-1">
+          <span>Audit Reason *</span>
           <select
             value={reason}
             onChange={(e) => { setReason(e.target.value as StockReason); setError(null); }}
-            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-line text-xs font-ui bg-card text-ink min-h-[42px] cursor-pointer"
           >
             <option value="">Choose an adjustment reason…</option>
             {STOCK_REASONS.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
           </select>
         </label>
 
-        <label className="block text-xs font-bold text-slate-700 space-y-1">
-          <span>Note (optional)</span>
+        <label className="block text-xs font-bold text-ink space-y-1">
+          <span>Log Note (optional)</span>
           <input
             value={note}
             maxLength={120}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="e.g. Received weekly container"
-            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm min-h-[42px] focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30"
+            placeholder="e.g. Received weekly shipment from supplier"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-line text-xs font-ui bg-card text-ink min-h-[42px] focus:outline-none focus:border-ink"
           />
         </label>
 
-        {error && <p role="alert" className="text-xs font-bold text-rose-600 bg-rose-50 p-2 rounded-lg border border-rose-200">{error}</p>}
+        {error && <p role="alert" className="text-xs font-bold text-red bg-red-wash p-2.5 rounded-xl border border-red/30">{error}</p>}
 
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
-          <button
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 pt-2">
+          <Button
+            variant="ghost"
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer min-h-[44px] flex items-center justify-center transition-colors"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
             type="submit"
             disabled={!check?.ok}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-h-[44px] flex items-center justify-center transition-colors shadow-xs"
           >
             Save Stock
-          </button>
+          </Button>
         </div>
       </form>
     </div>

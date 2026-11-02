@@ -7,12 +7,11 @@ import { formatLKR } from '../../../lib/priceValidation';
 
 const stockBadge = (stock: number) =>
   stock === 0
-    ? ['Out of stock', 'bg-rose-100 text-rose-800']
+    ? ['Out of stock', 'bg-red-wash text-red border border-red/20 font-bold']
     : stock <= 3
-      ? [`${stock} left`, 'bg-amber-100 text-amber-800']
-      : [`${stock} in stock`, 'bg-slate-100 text-slate-700'];
+    ? [`${stock} left`, 'bg-highlighter/30 text-ink border border-line font-bold']
+    : [`${stock} in stock`, 'bg-paper-sunk text-ink-soft border border-line font-medium'];
 
-/** Phone layout: variants grouped under their model, one roomy card per variant. */
 export const PriceCards: React.FC<{ rows: PriceRow[]; draft: PriceDraft }> = ({ rows, draft }) => {
   const groups = useMemo(() => {
     const map = new Map<string, PriceRow[]>();
@@ -22,13 +21,13 @@ export const PriceCards: React.FC<{ rows: PriceRow[]; draft: PriceDraft }> = ({ 
   let index = 0;
 
   return (
-    <div className="md:hidden space-y-4">
+    <div className="md:hidden space-y-4 text-left font-ui">
       {groups.map((group) => (
         <section key={group[0].productId} aria-label={group[0].name} className="space-y-2">
           <header className="px-1">
-            <h3 className="text-sm font-black text-slate-900 leading-snug">{group[0].name}</h3>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              {group[0].brand} · {group.length} variant{group.length === 1 ? '' : 's'}
+            <h3 className="font-display text-base font-bold text-ink leading-snug">{group[0].name}</h3>
+            <p className="font-data text-[10px] font-bold uppercase tracking-wider text-ink-soft">
+              {group[0].brand} · {group.length} variant tag{group.length === 1 ? '' : 's'}
             </p>
           </header>
 
@@ -41,44 +40,56 @@ export const PriceCards: React.FC<{ rows: PriceRow[]; draft: PriceDraft }> = ({ 
             return (
               <article
                 key={r.key}
-                className={`rounded-xl border bg-white shadow-xs ${entry ? 'border-amber-300 bg-amber-50/40' : selected ? 'border-[#E11D48]/50' : 'border-slate-200'}`}
+                className={`rounded-2xl border bg-card shadow-hard-sm transition-all ${
+                  entry
+                    ? 'border-ink bg-highlighter/20'
+                    : selected
+                    ? 'border-red ring-1 ring-red'
+                    : 'border-line'
+                }`}
               >
                 <div className="flex items-start">
-                  {/* Whole left column is the tap target for selecting this variant */}
+                  {/* Tap target for selecting this variant */}
                   <label className="shrink-0 w-12 min-h-12 flex items-center justify-center cursor-pointer">
                     <input
                       type="checkbox"
                       aria-label={`Select ${r.name} ${variant || r.sku}`}
                       checked={selected}
                       onChange={() => draft.toggleSelected(r.key)}
-                      className="w-5 h-5 accent-[#E11D48]"
+                      className="w-5 h-5 rounded text-red accent-red cursor-pointer"
                     />
                   </label>
-                  <div className="flex-1 min-w-0 py-3 pr-3 space-y-3">
+                  <div className="flex-1 min-w-0 py-3.5 pr-3.5 space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <div className="text-sm font-bold text-slate-900 break-words">{variant || 'Standard'}</div>
-                        <div className="text-[10px] font-mono text-slate-400 break-all">{r.sku}</div>
+                        <div className="font-ui font-bold text-sm text-ink break-words">{variant || 'Standard Spec'}</div>
+                        <div className="font-data text-[10px] text-ink-soft break-all">{r.sku}</div>
                       </div>
-                      <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${stockTone}`}>{stockText}</span>
+                      <span className={`shrink-0 font-data text-[10px] px-2 py-0.5 rounded-full ${stockTone}`}>
+                        {stockText}
+                      </span>
                     </div>
 
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-[11px] font-bold uppercase tracking-wide text-slate-400">Current price</span>
-                      <span className="text-base font-black font-mono tabular-nums text-slate-900">{formatLKR(r.priceLKR)}</span>
+                    <div className="flex items-baseline justify-between pt-1 border-t border-line/60">
+                      <span className="font-data text-[10px] uppercase font-bold text-ink-soft">Current Tag</span>
+                      <span className="font-data text-base font-bold tabular-nums text-ink">{formatLKR(r.priceLKR)}</span>
                     </div>
 
                     <div>
-                      <span className="block mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-500">New price (LKR)</span>
+                      <span className="block mb-1 font-data text-[10px] font-bold uppercase text-ink-soft">New Rupee Price</span>
                       <PriceInput block row={r} index={i} value={draft.drafts[r.key]} entry={entry} onChange={draft.setDraft} />
                     </div>
 
                     {entry && (
-                      <div className="rounded-lg bg-white/80 border border-amber-200 px-3 py-2">
+                      <div className="rounded-xl bg-card border border-line px-3 py-2 shadow-2xs">
                         <ChangeStatus entry={entry} current={r.priceLKR} />
                       </div>
                     )}
-                    {r.updatedAt && <div className="text-[10px] text-slate-400">Last updated {formatUpdated(r.updatedAt)}</div>}
+                    {r.updatedAt && (
+                      <div className="font-data text-[9px] text-ink-soft/70">
+                        Last updated {formatUpdated(r.updatedAt)}
+                      </div>
+                    )}
                   </div>
                 </div>
               </article>
