@@ -12,7 +12,7 @@ export const HeaderMobile: React.FC<HeaderMobileProps> = ({ onOpenSearch }) => {
   const { activeView, setActiveView, cartTotalCount, setIsCartOpen, currency, setCurrency } = useStore();
 
   return (
-    <header className="md:hidden bg-paper/95 backdrop-blur-md border-b border-line px-3 h-14 flex items-center justify-between gap-2 select-none sticky top-0 z-40 transition-all">
+    <header className="md:hidden bg-surface/95 backdrop-blur-md border-b border-line px-3.5 h-14 flex items-center justify-between gap-2 select-none sticky top-0 z-40 transition-all">
       {/* Left: Authentic SVG Logo */}
       <motion.button
         type="button"
@@ -31,7 +31,7 @@ export const HeaderMobile: React.FC<HeaderMobileProps> = ({ onOpenSearch }) => {
           type="button"
           whileTap={{ scale: 0.9 }}
           onClick={() => setCurrency(currency === 'LKR' ? 'USD' : 'LKR')}
-          className="px-2 py-1 rounded-md bg-card border border-line font-data text-[10px] font-bold text-ink uppercase tracking-wider cursor-pointer shadow-xs"
+          className="px-2 py-1 rounded-lg bg-soft-surface border border-line font-data text-[10px] font-semibold text-ink uppercase tracking-wider cursor-pointer shadow-xs min-h-[34px]"
           aria-label={`Toggle currency, currently ${currency}`}
         >
           {currency}
@@ -42,10 +42,10 @@ export const HeaderMobile: React.FC<HeaderMobileProps> = ({ onOpenSearch }) => {
           type="button"
           whileTap={{ scale: 0.9 }}
           onClick={onOpenSearch}
-          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-line bg-card flex items-center justify-center text-ink hover:bg-paper-sunk hover:border-ink transition-colors cursor-pointer shadow-xs"
+          className="w-9 h-9 rounded-lg border border-line bg-surface flex items-center justify-center text-ink hover:bg-soft-surface hover:border-ink/40 transition-colors cursor-pointer shadow-xs min-w-[36px] min-h-[36px]"
           aria-label="Search catalog"
         >
-          <Search className="w-3.5 h-3.5" />
+          <Search className="w-4 h-4 text-body" />
         </motion.button>
 
         {/* Direct Admin Console Trigger on Mobile */}
@@ -53,22 +53,22 @@ export const HeaderMobile: React.FC<HeaderMobileProps> = ({ onOpenSearch }) => {
           type="button"
           whileTap={{ scale: 0.92 }}
           onClick={() => setActiveView(activeView === 'admin' ? 'store' : 'admin')}
-          className={`px-2 py-1 rounded-xl border-[1.5px] font-ui text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-xs ${
+          className={`px-2.5 py-1.5 rounded-lg border font-ui text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs min-h-[36px] ${
             activeView === 'admin'
-              ? 'bg-red text-white border-ink'
-              : 'bg-card text-ink border-ink hover:bg-paper-sunk'
+              ? 'bg-red text-white border-red'
+              : 'bg-surface text-ink border-line hover:bg-soft-surface'
           }`}
           aria-label="Toggle Owner Console"
           title="Toggle Admin Console / Storefront"
         >
           {activeView === 'admin' ? (
             <>
-              <Store className="w-3 h-3" />
+              <Store className="w-3.5 h-3.5" />
               <span>Store</span>
             </>
           ) : (
             <>
-              <Shield className="w-3 h-3 text-red" />
+              <Shield className="w-3.5 h-3.5 text-red" />
               <span>Admin</span>
             </>
           )}
@@ -79,15 +79,15 @@ export const HeaderMobile: React.FC<HeaderMobileProps> = ({ onOpenSearch }) => {
           type="button"
           whileTap={{ scale: 0.92 }}
           onClick={() => setIsCartOpen(true)}
-          className="relative inline-flex items-center gap-1 bg-card border-[1.5px] border-ink rounded-xl px-2 py-1 min-h-[34px] shadow-xs cursor-pointer hover:shadow-hard-sm transition-all"
+          className="relative inline-flex items-center gap-1.5 bg-surface border border-line rounded-lg px-2.5 py-1 min-h-[36px] shadow-xs cursor-pointer hover:bg-soft-surface transition-all"
           aria-label={`Shopping Bag (${cartTotalCount} items)`}
         >
-          <span className="font-data text-[11px] font-bold text-ink uppercase">Bag</span>
+          <span className="font-ui text-xs font-semibold text-ink">Bag</span>
           <motion.span
             key={cartTotalCount}
             initial={{ scale: 1.4 }}
             animate={{ scale: 1 }}
-            className="min-w-[16px] h-[16px] px-1 rounded-full bg-red text-white font-data text-[8px] font-extrabold flex items-center justify-center leading-none"
+            className="min-w-[16px] h-[16px] px-1 rounded-full bg-red text-white font-data text-[9px] font-extrabold flex items-center justify-center leading-none"
           >
             {cartTotalCount}
           </motion.span>

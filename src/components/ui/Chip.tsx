@@ -34,8 +34,8 @@ export const Chip: React.FC<ChipProps> = ({
         ${sizeStyles[size]}
         ${
           active
-            ? 'bg-ink text-paper border-ink shadow-2xs font-bold'
-            : 'bg-card text-ink-soft border-line hover:border-ink hover:text-ink hover:bg-paper-sunk'
+            ? 'bg-ink text-white border-ink shadow-xs font-semibold'
+            : 'bg-surface text-body border-line hover:border-ink/30 hover:text-ink hover:bg-soft-surface'
         }
         ${disabled ? 'opacity-40 cursor-not-allowed border-line/40' : ''}
         ${className}

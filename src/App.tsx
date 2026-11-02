@@ -33,10 +33,10 @@ const MainContent: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen flex flex-col bg-paper text-ink selection:bg-red selection:text-white font-ui">
+    <main className="min-h-screen flex flex-col bg-canvas text-ink selection:bg-brand-red selection:text-white font-ui">
       {activeView !== 'admin' && (
-        <div className="bg-highlighter/30 border-b border-line px-4 py-2">
-          <DemoNotice compact className="max-w-7xl mx-auto border-0 bg-transparent p-0 font-data text-xs text-ink">
+        <div className="bg-soft-surface border-b border-line px-4 py-2">
+          <DemoNotice compact className="max-w-7xl mx-auto border-0 bg-transparent p-0 font-data text-xs text-muted">
             Concept preview. Products, prices, stock, promotions, warranty, delivery and contact details are sample content. Checkout, notifications and analytics are simulated. Data is stored only in this browser.
           </DemoNotice>
         </div>
@@ -57,13 +57,13 @@ const MainContent: React.FC = () => {
             {/* In-Page Quick Jump Rail to make all sections immediately visible & accessible */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
-                <span className="font-data text-[10px] uppercase font-bold text-ink-soft tracking-wider mr-1 shrink-0">
+                <span className="font-data text-[10px] uppercase font-semibold text-muted tracking-wider mr-1 shrink-0">
                   Quick Jump:
                 </span>
                 <a
                   href="#deals"
                   onClick={(e) => handleSmoothScroll(e, 'deals')}
-                  className="px-3 py-1 rounded-full bg-card hover:bg-paper-sunk border border-line hover:border-ink font-ui font-semibold text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  className="px-3 py-1 rounded-lg bg-surface hover:bg-soft-surface border border-line hover:border-ink/40 font-ui font-medium text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-xs cursor-pointer"
                 >
                   <Flame className="w-3.5 h-3.5 text-red" />
                   <span>Today's Deals</span>
@@ -71,23 +71,23 @@ const MainContent: React.FC = () => {
                 <a
                   href="#departments"
                   onClick={(e) => handleSmoothScroll(e, 'departments')}
-                  className="px-3 py-1 rounded-full bg-card hover:bg-paper-sunk border border-line hover:border-ink font-ui font-semibold text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  className="px-3 py-1 rounded-lg bg-surface hover:bg-soft-surface border border-line hover:border-ink/40 font-ui font-medium text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-xs cursor-pointer"
                 >
-                  <LayoutGrid className="w-3.5 h-3.5 text-ink-soft" />
+                  <LayoutGrid className="w-3.5 h-3.5 text-muted" />
                   <span>Departments</span>
                 </a>
                 <a
                   href="#catalog"
                   onClick={(e) => handleSmoothScroll(e, 'catalog')}
-                  className="px-3 py-1 rounded-full bg-card hover:bg-paper-sunk border border-line hover:border-ink font-ui font-semibold text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  className="px-3 py-1 rounded-lg bg-surface hover:bg-soft-surface border border-line hover:border-ink/40 font-ui font-medium text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-xs cursor-pointer"
                 >
-                  <TagIcon className="w-3.5 h-3.5 text-ink-soft" />
+                  <TagIcon className="w-3.5 h-3.5 text-muted" />
                   <span>Product Catalog</span>
                 </a>
                 <a
                   href="#customer-reviews"
                   onClick={(e) => handleSmoothScroll(e, 'customer-reviews')}
-                  className="px-3 py-1 rounded-full bg-card hover:bg-paper-sunk border border-line hover:border-ink font-ui font-semibold text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  className="px-3 py-1 rounded-lg bg-surface hover:bg-soft-surface border border-line hover:border-ink/40 font-ui font-medium text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-xs cursor-pointer"
                 >
                   <Star className="w-3.5 h-3.5 text-low" />
                   <span>Customer Reviews</span>
