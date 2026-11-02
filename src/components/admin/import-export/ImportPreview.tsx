@@ -110,8 +110,8 @@ export const ImportPreview: React.FC<Props> = ({
         <Tile label="Duplicate rows" value={summary.duplicateRow} tone={summary.duplicateRow ? 'bg-amber-50 text-amber-800 border-amber-200' : undefined} />
       </div>
 
-      {/* Table Preview */}
-      <div className="overflow-x-auto border border-[#E5E7EB] rounded-xl">
+      {/* Table Preview (Desktop / Tablet) */}
+      <div className="hidden md:block overflow-x-auto border border-[#E5E7EB] rounded-xl">
         <table className="w-full text-xs">
           <thead className="bg-[#F7F8FA] text-slate-600 uppercase tracking-wider text-[10px] font-mono">
             <tr>
@@ -187,6 +187,111 @@ export const ImportPreview: React.FC<Props> = ({
         </table>
       </div>
 
+      {/* Cards Preview (Mobile < 768px) */}
+      <div className="md:hidden space-y-3">
+        {rows.map((r) => {
+          const off = r.status === 'change' && excluded.has(r.line);
+          return (
+            <div
+              key={r.line}
+              className={`rounded-xl border p-3.5 space-y-2.5 transition-colors ${
+                off
+                  ? 'border-slate-200 bg-slate-50/50 opacity-60'
+                  : r.status === 'invalid' || r.status === 'unknown-sku'
+                  ? 'border-rose-200 bg-rose-50/40'
+                  : r.status === 'change'
+                  ? 'border-[#E5E7EB] bg-white shadow-2xs'
+                  : 'border-slate-200 bg-slate-50/40'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  {r.status === 'change' ? (
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        aria-label={`Apply line ${r.line} (${r.sku})`}
+                        checked={!excluded.has(r.line)}
+                        onChange={() => onToggle(r.line)}
+                        className="w-4 h-4 accent-[#E11D48] cursor-pointer rounded"
+                      />
+                      <span className="font-mono text-[11px] font-bold text-slate-400">Line {r.line}</span>
+                    </label>
+                  ) : (
+                    <span className="font-mono text-[11px] font-bold text-slate-400">Line {r.line}</span>
+                  )}
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${BADGE[r.status]}`}>
+                    {STATUS_LABEL[r.status]}
+                  </span>
+                </div>
+                {r.status === 'change' && r.large && (
+                  <span className="text-[10px] font-bold text-[#DC2626] bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full shrink-0">
+                    &gt;25% shift
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <div className="font-mono font-bold text-xs text-[#111827]">{r.sku || 'No SKU'}</div>
+                {r.target ? (
+                  <div className="text-xs text-[#4B5563] mt-0.5 font-medium">{r.target.name}</div>
+                ) : (
+                  <div className="text-xs text-slate-400 italic mt-0.5">Unmatched product SKU</div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                <div className="bg-[#F7F8FA] p-2 rounded-lg border border-[#E5E7EB]">
+                  <span className="text-[10px] font-mono uppercase tracking-wide text-slate-500 block">Current</span>
+                  <span className="font-mono tabular-nums text-xs font-semibold text-[#111827]">
+                    {r.target ? formatLKR(r.target.priceLKR) : '—'}
+                  </span>
+                </div>
+
+                <div className="bg-[#F7F8FA] p-2 rounded-lg border border-[#E5E7EB]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase tracking-wide text-slate-500 block">New Price</span>
+                    {r.status === 'change' && (
+                      <span className={`text-[10px] font-mono font-bold ${r.large ? 'text-[#DC2626]' : 'text-slate-600'}`}>
+                        {formatPercent(r.pct!)}
+                      </span>
+                    )}
+                  </div>
+                  {r.target ? (
+                    <input
+                      inputMode="decimal"
+                      aria-label={`New price for line ${r.line}`}
+                      value={r.rawPrice}
+                      onChange={(e) => onEditPrice(r.line, e.target.value)}
+                      placeholder="e.g. 245000"
+                      className={`mt-1 w-full px-2 py-1 rounded-md border text-xs font-mono tabular-nums font-bold ${
+                        r.status === 'invalid'
+                          ? 'border-rose-400 bg-rose-50 text-rose-900 focus:outline-rose-500'
+                          : 'border-[#E5E7EB] bg-white text-[#111827] focus:border-[#E11D48] focus:outline-none'
+                      }`}
+                    />
+                  ) : (
+                    <span className="mt-1 block font-mono text-xs text-slate-400">{r.rawPrice || '—'}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Error messages / warnings */}
+              {r.message && (
+                <div className="text-[11px] text-rose-700 font-medium bg-rose-50/80 p-2.5 rounded-lg border border-rose-200">
+                  {r.message}
+                </div>
+              )}
+              {r.warnings.map((w) => (
+                <div key={w} className="text-[11px] text-amber-800 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200">
+                  ⚠ {w}
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
       {/* Problem Callout with Error Export */}
       {problems > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-900">
@@ -227,7 +332,7 @@ export const ImportPreview: React.FC<Props> = ({
         <button
           onClick={onApply}
           disabled={blocked}
-          className="px-5 py-2.5 rounded-lg bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs transition-colors"
+          className="w-full sm:w-auto px-5 py-3 sm:py-2.5 rounded-xl sm:rounded-lg bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs transition-colors min-h-[44px] flex items-center justify-center text-center"
         >
           Apply {applicable.length} Price Update{applicable.length === 1 ? '' : 's'} to Store
         </button>

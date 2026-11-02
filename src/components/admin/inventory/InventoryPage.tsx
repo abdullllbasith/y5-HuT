@@ -49,28 +49,34 @@ export const InventoryPage: React.FC = () => {
   const lowCount = live.filter((r) => stockLevel(r.stock, r.threshold) === 'low').length;
   const target: InventoryRow | undefined = rows.find((r) => r.key === adjusting);
 
-  const select = 'px-2 py-2 rounded-lg border border-slate-200 bg-white text-xs text-slate-700';
+  const select =
+    'px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 min-h-[40px] focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30';
 
   return (
-    <>
+    <div className="space-y-4 text-left">
       <div className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-xs text-slate-700">
         Demo: stock changes are saved in this browser and update the storefront immediately. The role selector is a
         <strong> simulation</strong>, not real security{!canAdjust && <>; the simulated <strong>{currentUser.role.replace('_', ' ')}</strong> role is view-only here</>}.
       </div>
 
       {(outCount > 0 || lowCount > 0) && (
-        <div role="status" className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-900">
-          <AlertTriangle className="w-4 h-4" />
-          {outCount > 0 && <button className="font-bold underline cursor-pointer" onClick={() => setLevel('out')}>{outCount} out of stock</button>}
-          {lowCount > 0 && <button className="font-bold underline cursor-pointer" onClick={() => setLevel('low')}>{lowCount} low on stock</button>}
+        <div role="status" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-900 shadow-2xs">
+          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+          {outCount > 0 && <button className="font-bold underline cursor-pointer hover:text-amber-950" onClick={() => setLevel('out')}>{outCount} out of stock</button>}
+          {lowCount > 0 && <button className="font-bold underline cursor-pointer hover:text-amber-950" onClick={() => setLevel('low')}>{lowCount} low on stock</button>}
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 p-3 space-y-2 shadow-xs">
-        <div className="flex flex-col md:flex-row gap-2">
-          <div className="relative flex-1">
+      <div className="bg-white rounded-[18px] border border-[#E5E7EB] p-3.5 space-y-3 shadow-2xs text-left">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="relative sm:col-span-2 lg:col-span-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, SKU or variant…" className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name, SKU or variant…"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 min-h-[40px]"
+            />
           </div>
           <select aria-label="Brand" value={brand} onChange={(e) => setBrand(e.target.value)} className={select}>
             <option value="all">All brands</option>
@@ -86,33 +92,49 @@ export const InventoryPage: React.FC = () => {
             <option value="out">Out of stock</option>
           </select>
         </div>
-        <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
-          <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} /> Include archived products
+        <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer pt-0.5">
+          <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} className="w-4 h-4 accent-[#E11D48] rounded" />
+          <span>Include archived products</span>
         </label>
       </div>
 
-      <div className="text-[11px] text-slate-500">Showing {visible.length} of {rows.length} stock lines</div>
+      <div className="text-[11px] text-slate-500 font-medium">Showing {visible.length} of {rows.length} stock lines</div>
 
       {visible.length === 0 ? (
-        <div className="bg-white rounded-xl border border-dashed border-slate-300 p-10 text-center text-xs text-slate-500">No stock lines match your filters.</div>
+        <div className="bg-white rounded-[18px] border border-dashed border-slate-300 p-10 text-center text-xs text-slate-500">
+          No stock lines match your filters.
+        </div>
       ) : (
-        <ul className="space-y-2">
+        <ul className="space-y-2.5">
           {visible.map((r) => {
             const l = stockLevel(r.stock, r.threshold);
             return (
-              <li key={r.key} className={`bg-white rounded-xl border border-slate-200 p-3 shadow-xs flex flex-col sm:flex-row sm:items-center gap-3 ${r.archived ? 'opacity-70' : ''}`}>
+              <li
+                key={r.key}
+                className={`bg-white rounded-[18px] border border-[#E5E7EB] p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left transition-colors ${
+                  r.archived ? 'opacity-70 bg-slate-50/50' : 'hover:border-slate-300'
+                }`}
+              >
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-bold text-slate-900">{r.name}{r.archived && <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Archived</span>}</div>
-                  <div className="text-[11px] text-slate-500">{[r.brand, r.label].filter(Boolean).join(' · ')} <span className="font-mono text-slate-400">{r.sku}</span></div>
+                  <div className="text-sm font-bold text-[#111827]">
+                    {r.name}
+                    {r.archived && <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Archived</span>}
+                  </div>
+                  <div className="text-[11px] text-[#6B7280] mt-0.5">
+                    {[r.brand, r.label].filter(Boolean).join(' · ')} <span className="font-mono text-slate-400">{r.sku}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-mono tabular-nums text-lg font-black text-slate-900 w-12 text-right">{r.stock}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${BADGE[l][1]}`}>{BADGE[l][0]}</span>
+                <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t border-slate-100 sm:border-t-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="font-mono tabular-nums text-lg font-black text-[#111827]">{r.stock}</span>
+                    <span className="text-[11px] text-slate-500 font-sans">units</span>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap ml-1 ${BADGE[l][1]}`}>{BADGE[l][0]}</span>
+                  </div>
                   <button
                     onClick={() => setAdjusting(r.key)}
                     disabled={!canAdjust}
                     title={canAdjust ? 'Set or change stock' : 'View only for this simulated role'}
-                    className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-[#E11D48] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-[#E11D48] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-h-[38px] transition-colors"
                   >
                     Adjust
                   </button>
@@ -126,6 +148,6 @@ export const InventoryPage: React.FC = () => {
       <StockLog />
 
       {target && <StockDialog row={target} onClose={() => setAdjusting(null)} />}
-    </>
+    </div>
   );
 };

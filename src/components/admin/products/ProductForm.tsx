@@ -20,13 +20,17 @@ interface Props {
 }
 
 const field = (bad?: string) =>
-  `w-full px-3 py-2 rounded-lg border text-sm ${bad ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-white'} focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30`;
+  `w-full px-3 py-2.5 rounded-xl border text-xs sm:text-sm min-h-[42px] ${
+    bad ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-white'
+  } focus:outline-none focus:ring-2 focus:ring-[#E11D48]/30 transition-colors`;
 
 const Step: React.FC<{ n: number; title: string; children: React.ReactNode }> = ({ n, title, children }) => (
-  <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-3">
-    <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-      <span className="w-6 h-6 rounded-full bg-[#E11D48] text-white text-xs flex items-center justify-center">{n}</span>
-      {title}
+  <section className="bg-white rounded-[18px] border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3.5 text-left">
+    <h3 className="flex items-center gap-2.5 text-sm font-bold text-slate-900 font-sans">
+      <span className="w-6 h-6 rounded-full bg-[#E11D48] text-white text-xs font-mono font-bold flex items-center justify-center shrink-0">
+        {n}
+      </span>
+      <span>{title}</span>
     </h3>
     {children}
   </section>
@@ -137,9 +141,18 @@ export const ProductForm: React.FC<Props> = ({ initial, existing, onDone }) => {
         </p>
       </Step>
 
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-        <button type="button" onClick={onDone} className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer">Cancel</button>
-        <button type="submit" className="px-5 py-2 rounded-lg bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] cursor-pointer">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 pt-2">
+        <button
+          type="button"
+          onClick={onDone}
+          className="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer min-h-[44px] flex items-center justify-center transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] cursor-pointer min-h-[44px] flex items-center justify-center shadow-xs transition-colors"
+        >
           {isNew ? (form.archived ? 'Save hidden demo product' : 'Publish demo product') : 'Save changes'}
         </button>
       </div>
