@@ -40,17 +40,25 @@ export const Navbar: React.FC = () => {
     setIsNotificationOpen,
     currentUser,
     switchUserRole,
+    searchQuery,
+    executeSearch,
+    setSelectedCategory,
   } = useStore();
 
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobileSearchVisible, setIsMobileSearchVisible] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-  const [headerSearchQuery, setHeaderSearchQuery] = useState('');
+  const [headerSearchQuery, setHeaderSearchQuery] = useState(searchQuery);
   const [selectedHeaderCategory, setSelectedHeaderCategory] = useState<string>('all');
 
+  // Keep local header search input in sync if cleared externally
+  React.useEffect(() => {
+    setHeaderSearchQuery(searchQuery);
+  }, [searchQuery]);
+
   const categoriesList: { id: ProductCategory; label: string; icon: any }[] = [
-    { id: 'apple-store', label: 'AppleHuT (Official Apple)', icon: Smartphone },
+    { id: 'apple-store', label: 'AppleHuT (Apple Showcase)', icon: Smartphone },
     { id: 'smartphones', label: 'Mobile Phones & Flagships', icon: Smartphone },
     { id: 'smartwatches', label: 'Smartwatches & Wearables', icon: Watch },
     { id: 'audio', label: 'Earphones & Headphones (ANC)', icon: Headphones },
@@ -84,15 +92,9 @@ export const Navbar: React.FC = () => {
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (activeView !== 'store') {
-      setActiveView('store');
-    }
+    executeSearch(headerSearchQuery, selectedHeaderCategory as any);
     setMobileMenuOpen(false);
     setIsMobileSearchVisible(false);
-    setTimeout(() => {
-      const catalogEl = document.getElementById('catalog-section');
-      catalogEl?.scrollIntoView({ behavior: 'smooth' });
-    }, 50);
   };
 
   return (
@@ -123,7 +125,7 @@ export const Navbar: React.FC = () => {
           {/* Right: Currency Toggle, Role Selector, Installment Teaser */}
           <div className="flex items-center gap-2 sm:gap-4 text-slate-300 shrink-0">
             <span className="hidden xl:inline text-amber-400 font-medium">
-              ⚡ 0% Interest Installments with Koko &amp; Mintpay
+              ⚡ 0% Installment Demo Preview (Koko &amp; Mintpay)
             </span>
 
             {/* Currency Selector */}
@@ -384,10 +386,9 @@ export const Navbar: React.FC = () => {
                         key={cat.id}
                         type="button"
                         onClick={() => {
-                          setActiveView('store');
                           setIsCategoryMenuOpen(false);
-                          const el = document.getElementById('catalog-section');
-                          el?.scrollIntoView({ behavior: 'smooth' });
+                          setSelectedHeaderCategory(cat.id);
+                          executeSearch('', cat.id);
                         }}
                         className="w-full text-left px-4 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-[#E11D48] flex items-center gap-3 transition-colors cursor-pointer"
                       >
@@ -591,10 +592,9 @@ export const Navbar: React.FC = () => {
                     key={cat.id}
                     type="button"
                     onClick={() => {
-                      setActiveView('store');
                       setMobileMenuOpen(false);
-                      const el = document.getElementById('catalog-section');
-                      el?.scrollIntoView({ behavior: 'smooth' });
+                      setSelectedHeaderCategory(cat.id);
+                      executeSearch('', cat.id);
                     }}
                     className="p-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-left text-xs font-semibold text-slate-700 flex items-center gap-2 transition-colors"
                   >

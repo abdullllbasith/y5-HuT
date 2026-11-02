@@ -10,6 +10,7 @@ import {
   OrderStatus,
   ProductReview,
   Currency,
+  ProductCategory,
   AdminTab,
   PriceChange,
   PublishSnapshot,
@@ -69,6 +70,14 @@ interface StoreContextType {
   activeView: 'store' | 'deals' | 'admin' | 'reviews' | 'apple-store';
   activeAdminTab: AdminTab;
   previewingEmail: NotificationAlert | null;
+  
+  // Search & Filter State
+  searchQuery: string;
+  selectedCategory: ProductCategory | 'all';
+  setSearchQuery: (query: string) => void;
+  setSelectedCategory: (category: ProductCategory | 'all') => void;
+  executeSearch: (query: string, category?: ProductCategory | 'all') => void;
+  clearSearch: () => void;
   
   // Actions
   setCurrency: (c: Currency) => void;
@@ -315,6 +324,25 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [previewingEmail, setPreviewingEmail] = useState<NotificationAlert | null>(null);
   const [activeView, setActiveView] = useState<'store' | 'deals' | 'admin' | 'reviews' | 'apple-store'>('store');
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>('overview');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>('all');
+
+  const executeSearch = (query: string, category: ProductCategory | 'all' = 'all') => {
+    setSearchQuery(query);
+    if (category !== 'all') {
+      setSelectedCategory(category);
+    }
+    setActiveView('store');
+    setTimeout(() => {
+      const el = document.getElementById('catalog-section');
+      el?.scrollIntoView({ behavior: 'smooth' });
+    }, 60);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+  };
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -846,6 +874,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCart([]);
     setLastPublish(null);
     setSelectedProductForDetail(null);
+    setSearchQuery('');
+    setSelectedCategory('all');
   };
 
   // Order creation with milestones
@@ -1107,6 +1137,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         activeView,
         activeAdminTab,
         previewingEmail,
+        searchQuery,
+        selectedCategory,
+        setSearchQuery,
+        setSelectedCategory,
+        executeSearch,
+        clearSearch,
         setCurrency,
         formatPrice,
         formatInstallment,

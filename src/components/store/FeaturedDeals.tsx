@@ -1,17 +1,31 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { DeviceGraphic } from '../common/DeviceGraphic';
 import { Flame, ArrowRight, ShoppingBag, Sparkles } from 'lucide-react';
 
 export const FeaturedDeals: React.FC = () => {
-  const { storefrontProducts: products, setSelectedProductForDetail, addToCart, formatPrice, currency } = useStore();
+  const {
+    storefrontProducts: products,
+    setSelectedProductForDetail,
+    addToCart,
+    formatPrice,
+    currency,
+    executeSearch,
+  } = useStore();
 
-  const promoProducts = products.filter((p) => p.isFeaturedPromo).slice(0, 4);
+  // Derive eligible products from actual demo state (unarchived, featured or discounted)
+  const promoProducts = useMemo(() => {
+    const featured = products.filter((p) => !p.archived && (p.isFeaturedPromo || (p.originalPriceLKR && p.originalPriceLKR > p.priceLKR)));
+    if (featured.length >= 4) return featured.slice(0, 4);
+    // If fewer than 4 explicitly flagged, pad with other active products
+    const otherActive = products.filter((p) => !p.archived && !featured.some((f) => f.id === p.id));
+    return [...featured, ...otherActive].slice(0, 4);
+  }, [products]);
 
   return (
     <section className="py-4 sm:py-6 space-y-4 sm:space-y-6">
       
-      {/* Featured Deals Header Strip (Clean, Authentic, No False Urgency) */}
+      {/* Featured Deals Header Strip (Clean, Honest Demo Showcase) */}
       <div className="bg-gradient-to-r from-[#E11D48] to-[#9F1239] text-white p-4 sm:p-6 rounded-2xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
@@ -23,18 +37,18 @@ export const FeaturedDeals: React.FC = () => {
                 DEMO SHOWCASE
               </span>
               <span className="text-[11px] sm:text-xs font-semibold text-rose-100">
-                Sample Promotional Highlights
+                Live Data-Derived Highlights
               </span>
             </div>
             <h3 className="text-lg sm:text-2xl font-black tracking-tight font-sans mt-0.5 text-white">
-              y5Hut Featured Offers
+              y5Hut Featured Deals
             </h3>
           </div>
         </div>
 
         <div className="inline-flex items-center gap-1.5 text-xs text-rose-100 bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-xs self-stretch sm:self-auto justify-center sm:justify-start">
           <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-          <span>Illustrative demo prices &amp; stock</span>
+          <span>Derived from active store prices</span>
         </div>
       </div>
 
@@ -46,6 +60,14 @@ export const FeaturedDeals: React.FC = () => {
               ? Math.round(p.priceLKR / 3)
               : Math.round(p.priceUSD / 3);
 
+          const isOutOfStock = p.stock === 0;
+
+          // Compute genuine discount percentage based on real prices
+          const hasDiscount = p.originalPriceLKR && p.originalPriceLKR > p.priceLKR;
+          const calculatedDiscountPercent = hasDiscount
+            ? Math.round(((p.originalPriceLKR! - p.priceLKR) / p.originalPriceLKR!) * 100)
+            : p.promoDiscountPercent;
+
           return (
             <article
               key={p.id}
@@ -54,14 +76,15 @@ export const FeaturedDeals: React.FC = () => {
               {/* Image & Discount */}
               <div className="relative bg-slate-50 p-3 sm:p-4 aspect-[4/3] flex items-center justify-center border-b border-slate-100">
                 <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                  {p.promoDiscountPercent && (
+                  {calculatedDiscountPercent && calculatedDiscountPercent > 0 ? (
                     <span className="text-[9px] font-black uppercase bg-[#E11D48] text-white px-2 py-0.5 rounded shadow-2xs">
-                      SAVE {p.promoDiscountPercent}%
+                      SAVE {calculatedDiscountPercent}%
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-bold bg-amber-400 text-slate-900 px-1.5 py-0.5 rounded">
+                      FEATURED
                     </span>
                   )}
-                  <span className="text-[9px] font-bold bg-amber-400 text-slate-900 px-1.5 py-0.5 rounded">
-                    FEATURED
-                  </span>
                 </div>
 
                 <button
@@ -100,9 +123,17 @@ export const FeaturedDeals: React.FC = () => {
                 </div>
 
                 {/* Stock Tag */}
-                <div className="flex justify-between items-center text-[11px] text-slate-500">
-                  <span>Stock: <strong className="text-slate-800">{p.stock} units</strong></span>
-                  <span className="text-emerald-700 font-medium">In Stock</span>
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-slate-500">
+                    Stock: <strong className="text-slate-800">{p.stock} units</strong>
+                  </span>
+                  {isOutOfStock ? (
+                    <span className="text-rose-600 font-bold">Sold Out</span>
+                  ) : p.stock <= p.lowStockThreshold ? (
+                    <span className="text-amber-600 font-bold">Low Stock</span>
+                  ) : (
+                    <span className="text-emerald-700 font-medium">In Stock</span>
+                  )}
                 </div>
 
                 {/* Pricing & CTA */}
@@ -111,7 +142,7 @@ export const FeaturedDeals: React.FC = () => {
                     <span className="text-sm sm:text-base font-black font-mono text-slate-950 tabular-nums">
                       {formatPrice(p.priceLKR, p.priceUSD)}
                     </span>
-                    {(p.originalPriceLKR || p.originalPriceUSD) && (
+                    {hasDiscount && (
                       <span className="text-[11px] text-slate-400 line-through font-mono tabular-nums">
                         {formatPrice(p.originalPriceLKR || 0, p.originalPriceUSD || 0)}
                       </span>
@@ -123,12 +154,15 @@ export const FeaturedDeals: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={() => addToCart(p, 1)}
-                    className="w-full mt-2 py-2 px-3 bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer min-h-[36px]"
-                    aria-label={`Claim deal for ${p.name}`}
+                    onClick={() => {
+                      if (!isOutOfStock) addToCart(p, 1);
+                    }}
+                    disabled={isOutOfStock}
+                    className="w-full mt-2 py-2 px-3 bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer min-h-[36px] disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label={isOutOfStock ? `${p.name} is sold out` : `Claim deal for ${p.name}`}
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>Claim Deal</span>
+                    <span>{isOutOfStock ? 'Sold Out' : 'Claim Deal'}</span>
                   </button>
                 </div>
               </div>
@@ -146,16 +180,15 @@ export const FeaturedDeals: React.FC = () => {
               DEMO SAMPLE · APPLEHUT
             </span>
             <h4 className="text-base sm:text-xl font-bold font-sans">
-              AppleHuT Sample Showcase
+              AppleHuT Lineup Showcase
             </h4>
             <p className="text-xs text-slate-300 max-w-sm">
-              Explore sample iPhones, Apple Watches, AirPods, and accessories configured for this preview.
+              Explore sample iPhones, Apple Watches, AirPods, and MagSafe accessories in this demonstration.
             </p>
             <button
               type="button"
               onClick={() => {
-                const el = document.getElementById('catalog-section');
-                el?.scrollIntoView({ behavior: 'smooth' });
+                executeSearch('', 'apple-store');
               }}
               className="mt-1 text-xs font-bold text-white hover:text-amber-400 inline-flex items-center gap-1 cursor-pointer"
             >
@@ -183,12 +216,11 @@ export const FeaturedDeals: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                const el = document.getElementById('catalog-section');
-                el?.scrollIntoView({ behavior: 'smooth' });
+                executeSearch('', 'power-banks');
               }}
               className="mt-1 text-xs font-bold text-white hover:text-rose-300 inline-flex items-center gap-1 cursor-pointer"
             >
-              <span>Shop Accessories</span>
+              <span>Shop Power &amp; Audio</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

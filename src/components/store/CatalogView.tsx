@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { ProductCard } from './ProductCard';
 import { ProductCategory, BrandName } from '../../types';
@@ -11,14 +11,26 @@ interface CatalogViewProps {
 }
 
 export const CatalogView: React.FC<CatalogViewProps> = ({
-  initialCategory = 'all',
+  initialCategory,
   title = 'Trending Tech & Gadgets in Sri Lanka',
   subtitle = 'Sample catalogue for the demo. Prices, stock, warranty and delivery details are illustrative.',
 }) => {
-  const { storefrontProducts: products } = useStore();
+  const {
+    storefrontProducts: products,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    clearSearch,
+  } = useStore();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>(initialCategory);
+  // If a view passes a specific initialCategory (e.g. apple-store), initialize it
+  useEffect(() => {
+    if (initialCategory && initialCategory !== 'all') {
+      setSelectedCategory(initialCategory);
+    }
+  }, [initialCategory, setSelectedCategory]);
+
   const [selectedBrand, setSelectedBrand] = useState<BrandName | 'all'>('all');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
@@ -41,18 +53,37 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   );
 
   const filteredProducts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+
     return products
       .filter((p) => {
+        // Category match
         if (selectedCategory !== 'all' && p.category !== selectedCategory) return false;
+
+        // Brand match
         if (selectedBrand !== 'all' && p.brand !== selectedBrand) return false;
+
+        // In-stock match
         if (inStockOnly && p.stock === 0) return false;
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
+
+        // Keyword query match (Name, Brand, Tagline, Category, ID, SKU, Variant options)
+        if (q) {
           const matchName = p.name.toLowerCase().includes(q);
           const matchBrand = p.brand.toLowerCase().includes(q);
           const matchTagline = p.tagline.toLowerCase().includes(q);
-          if (!matchName && !matchBrand && !matchTagline) return false;
+          const matchId = p.id.toLowerCase().includes(q);
+          const matchCategory = p.category.toLowerCase().includes(q);
+          const matchVariants = p.variants?.some((v) =>
+            v.sku.toLowerCase().includes(q) ||
+            (v.storage && v.storage.toLowerCase().includes(q)) ||
+            (v.color && v.color.toLowerCase().includes(q))
+          );
+
+          if (!matchName && !matchBrand && !matchTagline && !matchId && !matchCategory && !matchVariants) {
+            return false;
+          }
         }
+
         return true;
       })
       .sort((a, b) => {
@@ -70,9 +101,8 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     searchQuery.trim().length > 0;
 
   const handleResetFilters = () => {
-    setSelectedCategory('all');
+    clearSearch();
     setSelectedBrand('all');
-    setSearchQuery('');
     setInStockOnly(false);
     setSortBy('featured');
   };
@@ -95,7 +125,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           </p>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar - Shared End-to-End with Header */}
         <div className="relative w-full sm:w-72 shrink-0">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
           <input
@@ -140,7 +170,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       {/* Brand Filters & Sort Toolbar */}
       <div className="space-y-3 bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 shadow-2xs">
         
-        {/* Brand Chips (scrollable/wrappable on mobile) */}
+        {/* Brand Chips */}
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none sm:flex-wrap">
           <span className="font-bold text-slate-900 text-xs shrink-0 mr-1 flex items-center gap-1">
             <Filter className="w-3 h-3 text-slate-400" />
@@ -169,6 +199,9 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-slate-700">
               Showing <strong className="text-slate-900">{filteredProducts.length}</strong> {filteredProducts.length === 1 ? 'product' : 'products'}
+              {searchQuery.trim() ? (
+                <> for &ldquo;<span className="text-[#E11D48] font-bold">{searchQuery}</span>&rdquo;</>
+              ) : null}
             </span>
             {hasActiveFilters && (
               <button
@@ -176,7 +209,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                 onClick={handleResetFilters}
                 className="text-[11px] text-[#E11D48] hover:underline font-bold inline-flex items-center gap-1 cursor-pointer ml-1"
               >
-                <span>Reset filters</span>
+                <span>Reset all filters</span>
                 <X className="w-3 h-3" />
               </button>
             )}
@@ -212,14 +245,14 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
         </div>
       </div>
 
-      {/* Responsive Product Grid: 1 col on <= 350px (e.g. 320px), 2 cols on >= 360px phones, 3 cols md, 4 cols lg */}
+      {/* Responsive Product Grid */}
       {filteredProducts.length === 0 ? (
         <div className="py-12 sm:py-16 text-center bg-white border border-dashed border-slate-200 rounded-xl px-4">
           <p className="text-sm font-bold text-slate-800">No tech items match your criteria</p>
           <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
             {searchQuery
-              ? `No results found for "${searchQuery}". Try checking for spelling errors or removing filters.`
-              : 'No products currently match the selected brand or stock criteria.'}
+              ? `No results found for "${searchQuery}". Check your spelling or clear filters.`
+              : 'No products currently match the selected category, brand, or stock filters.'}
           </p>
           <button
             type="button"

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { DeviceGraphic } from '../common/DeviceGraphic';
+import { hasPriceRange } from '../../lib/variants';
 import {
   ArrowRight,
   Truck,
@@ -16,56 +17,107 @@ import {
   Layers,
   Sparkles,
 } from 'lucide-react';
+import { ProductCategory } from '../../types';
 
 export const HeroSection: React.FC = () => {
-  const { storefrontProducts: products, setSelectedProductForDetail } = useStore();
+  const {
+    storefrontProducts: products,
+    setSelectedProductForDetail,
+    formatPrice,
+    executeSearch,
+  } = useStore();
+
   const [activeSlide, setActiveSlide] = useState(0);
 
-  const heroSlides = [
-    {
-      title: 'Apple iPhone 16 Pro Max',
-      badge: 'APPLEHUT · CONCEPT SHOWCASE',
-      subtitle: 'Grade 5 Titanium with Camera Control & A18 Pro chip. Sample warranty & demo details.',
-      bgGradient: 'from-slate-900 via-slate-800 to-rose-950',
-      deviceType: 'phone' as const,
-      colorHex: '#CDB19B',
-      brand: 'Apple',
-      productId: 'prod-iphone16promax',
-      ctaText: 'Explore Flagship',
-    },
-    {
-      title: 'Anker Prime 200W GaN Ecosystem',
-      badge: 'FAST CHARGING ECOSYSTEM',
-      subtitle: 'Charge laptops, smartphones, and smartwatches simultaneously at maximum speeds.',
-      bgGradient: 'from-slate-950 via-zinc-900 to-slate-900',
-      deviceType: 'powerbank' as const,
-      colorHex: '#1E293B',
-      brand: 'Anker',
-      productId: 'prod-anker-prime-20k',
-      ctaText: 'Explore Charging',
-    },
-    {
-      title: 'Soundpeats Capsule3 Pro+ Hi-Res',
-      badge: 'MEMS ACOUSTIC TRANSDUCERS',
-      subtitle: 'Pure studio fidelity with -45dB Hybrid ANC, LDAC lossless codec, and 43h playback.',
-      bgGradient: 'from-neutral-900 via-rose-950 to-slate-950',
-      deviceType: 'earbuds' as const,
-      colorHex: '#111827',
-      brand: 'Soundpeats',
-      productId: 'prod-soundpeats-capsule3',
-      ctaText: 'Explore Audio',
-    },
-  ];
+  const heroSlideTemplates = useMemo(
+    () => [
+      {
+        title: 'Apple iPhone 16 Pro Max',
+        badge: 'APPLEHUT · FLAGSHIP SHOWCASE',
+        subtitle: 'Grade 5 Titanium with Camera Control & A18 Pro chip. Concept demo preview.',
+        bgGradient: 'from-slate-900 via-slate-800 to-rose-950',
+        deviceType: 'phone' as const,
+        colorHex: '#CDB19B',
+        brand: 'Apple',
+        productId: 'prod-iphone16promax',
+        category: 'apple-store' as ProductCategory,
+        ctaText: 'Explore Flagship',
+      },
+      {
+        title: 'Anker Prime 200W GaN Ecosystem',
+        badge: 'FAST CHARGING ECOSYSTEM',
+        subtitle: 'Simultaneous high-speed power delivery for laptops, smartphones, and wearables.',
+        bgGradient: 'from-slate-950 via-zinc-900 to-slate-900',
+        deviceType: 'powerbank' as const,
+        colorHex: '#1E293B',
+        brand: 'Anker',
+        productId: 'prod-anker-prime-20k',
+        category: 'power-banks' as ProductCategory,
+        ctaText: 'Explore Charging',
+      },
+      {
+        title: 'Soundpeats Capsule3 Pro+ Hi-Res',
+        badge: 'MEMS ACOUSTIC TRANSDUCERS',
+        subtitle: 'Pure studio fidelity with -45dB Hybrid ANC, LDAC lossless codec, and 43h playback.',
+        bgGradient: 'from-neutral-900 via-rose-950 to-slate-950',
+        deviceType: 'earbuds' as const,
+        colorHex: '#111827',
+        brand: 'Soundpeats',
+        productId: 'prod-soundpeats-capsule3',
+        category: 'audio' as ProductCategory,
+        ctaText: 'Explore Audio',
+      },
+    ],
+    []
+  );
 
-  // Auto carousel slide every 5.5s
+  // Dynamically resolve live products from storefrontProducts to ensure prices, stock, and status are never stale
+  const resolvedSlides = useMemo(() => {
+    const list = heroSlideTemplates.map((template) => {
+      // Find matching active product or fallback to a category-matched active item
+      const live =
+        products.find((p) => p.id === template.productId && !p.archived) ||
+        products.find((p) => p.category === template.category && !p.archived) ||
+        products.find((p) => !p.archived);
+
+      if (!live) return null;
+
+      return {
+        ...template,
+        liveProduct: live,
+        title: live.name,
+        subtitle: live.tagline || template.subtitle,
+        brand: live.brand,
+        colorHex: live.colorOptions[0]?.hex || template.colorHex,
+        deviceType: live.deviceType || template.deviceType,
+        priceLKR: live.priceLKR,
+        priceUSD: live.priceUSD,
+        stock: live.stock,
+      };
+    }).filter(Boolean);
+
+    return list.length > 0 ? (list as NonNullable<(typeof list)[number]>[]) : [];
+  }, [products, heroSlideTemplates]);
+
+  // Dynamic promo watch product
+  const watchProd = useMemo(() => {
+    return (
+      products.find((p) => p.id === 'prod-applewatch-s10' && !p.archived) ||
+      products.find((p) => p.category === 'smartwatches' && !p.archived) ||
+      products[0]
+    );
+  }, [products]);
+
+  // Auto carousel slide every 6s
   useEffect(() => {
+    if (resolvedSlides.length <= 1) return;
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 5500);
+      setActiveSlide((prev) => (prev + 1) % resolvedSlides.length);
+    }, 6000);
     return () => clearInterval(timer);
-  }, [heroSlides.length]);
+  }, [resolvedSlides.length]);
 
-  const currentHero = heroSlides[activeSlide];
+  const currentHero = resolvedSlides[activeSlide] || resolvedSlides[0];
 
   const quickCategories = [
     { name: 'AppleHuT', icon: Smartphone, category: 'apple-store' as const },
@@ -77,6 +129,10 @@ export const HeroSection: React.FC = () => {
     { name: 'Cases', icon: Layers, category: 'cases-protection' as const },
   ];
 
+  if (!currentHero) {
+    return null;
+  }
+
   return (
     <section className="bg-slate-50 pt-3 sm:pt-4 pb-6 sm:pb-8 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
@@ -84,8 +140,8 @@ export const HeroSection: React.FC = () => {
         {/* Top Hero Layout: Main Banner Carousel + Subordinate Promo Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
           
-          {/* Main Carousel Banner (8 cols desktop) - mobile height optimized */}
-          <div className="lg:col-span-8 relative rounded-2xl overflow-hidden shadow-md flex items-center min-h-[290px] sm:min-h-[360px] md:min-h-[400px]">
+          {/* Main Carousel Banner (8 cols desktop) - Dynamic Live Data */}
+          <div className="lg:col-span-8 relative rounded-2xl overflow-hidden shadow-md flex items-center min-h-[300px] sm:min-h-[360px] md:min-h-[390px]">
             <div
               className={`absolute inset-0 bg-gradient-to-r ${currentHero.bgGradient} transition-all duration-700`}
             />
@@ -107,12 +163,32 @@ export const HeroSection: React.FC = () => {
                   {currentHero.subtitle}
                 </p>
 
+                {/* Dynamic Live Price & Stock Display */}
+                {currentHero.liveProduct && (
+                  <div className="space-y-0.5 pt-0.5 sm:pt-1">
+                    <div className="text-xl sm:text-2xl md:text-3xl font-black font-mono text-white tabular-nums">
+                      {hasPriceRange(currentHero.liveProduct) && (
+                        <span className="text-xs sm:text-sm font-normal text-slate-300 mr-1.5">From</span>
+                      )}
+                      {formatPrice(currentHero.liveProduct.priceLKR, currentHero.liveProduct.priceUSD)}
+                    </div>
+                    <div className="text-[10px] sm:text-[11px] text-amber-300 font-medium">
+                      {currentHero.liveProduct.stock > 0 ? (
+                        <>⚡ 3x {formatPrice(Math.round(currentHero.liveProduct.priceLKR / 3), Math.round(currentHero.liveProduct.priceUSD / 3))} with Koko (Demo)</>
+                      ) : (
+                        <span className="text-rose-300 font-bold">Currently Sold Out</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-center sm:justify-start gap-2.5 pt-1 sm:pt-2">
                   <button
                     type="button"
                     onClick={() => {
-                      const p = products.find((prod) => prod.id === currentHero.productId);
-                      if (p) setSelectedProductForDetail(p);
+                      if (currentHero.liveProduct) {
+                        setSelectedProductForDetail(currentHero.liveProduct);
+                      }
                     }}
                     className="px-4 sm:px-5 py-2 sm:py-2.5 bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 cursor-pointer shadow-md min-h-[38px]"
                   >
@@ -123,8 +199,7 @@ export const HeroSection: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      const el = document.getElementById('catalog-section');
-                      el?.scrollIntoView({ behavior: 'smooth' });
+                      executeSearch('', currentHero.category);
                     }}
                     className="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer backdrop-blur-xs min-h-[38px]"
                   >
@@ -145,83 +220,86 @@ export const HeroSection: React.FC = () => {
             </div>
 
             {/* Navigation Arrows */}
-            <button
-              type="button"
-              onClick={() =>
-                setActiveSlide((prev) => (prev === 0 ? heroSlides.length - 1 : prev - 1))
-              }
-              className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-7 sm:w-8 h-7 sm:h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center z-20 transition-colors cursor-pointer"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSlide((prev) => (prev + 1) % heroSlides.length)}
-              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-7 sm:w-8 h-7 sm:h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center z-20 transition-colors cursor-pointer"
-              aria-label="Next slide"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-
-            {/* Dots */}
-            <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-              {heroSlides.map((_, idx) => (
+            {resolvedSlides.length > 1 && (
+              <>
                 <button
-                  key={idx}
                   type="button"
-                  onClick={() => setActiveSlide(idx)}
-                  className={`h-1.5 sm:h-2 rounded-full transition-all cursor-pointer ${
-                    activeSlide === idx ? 'bg-[#E11D48] w-5 sm:w-6' : 'bg-white/50 w-1.5 sm:w-2'
-                  }`}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
-            </div>
+                  onClick={() =>
+                    setActiveSlide((prev) => (prev === 0 ? resolvedSlides.length - 1 : prev - 1))
+                  }
+                  className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-7 sm:w-8 h-7 sm:h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center z-20 transition-colors cursor-pointer"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSlide((prev) => (prev + 1) % resolvedSlides.length)}
+                  className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-7 sm:w-8 h-7 sm:h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center z-20 transition-colors cursor-pointer"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {/* Dots */}
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+                  {resolvedSlides.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveSlide(idx)}
+                      className={`h-1.5 sm:h-2 rounded-full transition-all cursor-pointer ${
+                        activeSlide === idx ? 'bg-[#E11D48] w-5 sm:w-6' : 'bg-white/50 w-1.5 sm:w-2'
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Subordinate Side Promo Cards (4 cols desktop, stacked/side-by-side on mobile) */}
           <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
             
-            {/* Promo Card 1: Apple Watch Series 10 */}
-            <div
-              onClick={() => {
-                const watchProd = products.find((p) => p.id === 'prod-applewatch-s10');
-                if (watchProd) setSelectedProductForDetail(watchProd);
-              }}
-              className="bg-white p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-slate-300 transition-all shadow-2xs flex items-center justify-between group cursor-pointer hover:shadow-xs"
-            >
-              <div className="space-y-1 max-w-[62%]">
-                <span className="text-[9px] font-black tracking-wider uppercase text-[#E11D48] bg-rose-50 px-2 py-0.5 rounded">
-                  FEATURED SMARTWATCH
-                </span>
-                <h2 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#E11D48] transition-colors leading-snug">
-                  Apple Watch Series 10 (46mm)
-                </h2>
-                <p className="text-[11px] text-slate-500 line-clamp-1">
-                  S10 SiP OLED Wide-angle Display
-                </p>
-                <span className="text-[10px] font-semibold text-[#E11D48] inline-flex items-center gap-1 mt-0.5">
-                  View specs &amp; colors →
-                </span>
+            {/* Promo Card 1: Dynamic Smartwatch Card */}
+            {watchProd && (
+              <div
+                onClick={() => setSelectedProductForDetail(watchProd)}
+                className="bg-white p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200/90 hover:border-slate-300 transition-all shadow-2xs flex items-center justify-between group cursor-pointer hover:shadow-xs"
+              >
+                <div className="space-y-1 max-w-[62%]">
+                  <span className="text-[9px] font-black tracking-wider uppercase text-[#E11D48] bg-rose-50 px-2 py-0.5 rounded">
+                    FEATURED WEARABLE
+                  </span>
+                  <h2 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#E11D48] transition-colors leading-snug">
+                    {watchProd.name}
+                  </h2>
+                  <p className="text-xs font-mono font-bold text-slate-950 tabular-nums">
+                    {formatPrice(watchProd.priceLKR, watchProd.priceUSD)}
+                  </p>
+                  <span className="text-[10px] font-semibold text-[#E11D48] inline-flex items-center gap-1 mt-0.5">
+                    {watchProd.stock > 0 ? 'View specs & stock →' : 'Sold Out'}
+                  </span>
+                </div>
+                <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0">
+                  <DeviceGraphic deviceType={watchProd.deviceType} colorHex="#0A0A0A" />
+                </div>
               </div>
-              <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0">
-                <DeviceGraphic deviceType="smartwatch" colorHex="#0A0A0A" />
-              </div>
-            </div>
+            )}
 
-            {/* Promo Card 2: Installments info */}
+            {/* Promo Card 2: Installments info (Transparent Demo Plan) */}
             <div className="bg-gradient-to-br from-slate-900 to-slate-950 text-white p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-800 shadow-2xs flex items-center justify-between">
               <div className="space-y-1 max-w-[65%]">
                 <span className="text-[9px] font-black uppercase text-amber-400 flex items-center gap-1">
                   <CreditCard className="w-3 h-3" />
-                  <span>0% INTEREST BNPL</span>
+                  <span>DEMO BNPL PREVIEW</span>
                 </span>
                 <h2 className="text-xs sm:text-sm font-bold text-white leading-snug">
-                  Split in 3 with Koko &amp; Mintpay
+                  0% Installment Simulator
                 </h2>
                 <p className="text-[10px] sm:text-[11px] text-slate-300 leading-tight">
-                  Sample payment demo. Explore zero-interest simulated plans.
+                  Simulated 3-month split payment breakdown for demo products.
                 </p>
               </div>
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/10 rounded-xl flex flex-col items-center justify-center p-1.5 text-center shrink-0 border border-white/10">
@@ -260,8 +338,8 @@ export const HeroSection: React.FC = () => {
               <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">Koko &amp; Mintpay</h2>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">3 Installments Plan</p>
+              <h2 className="text-[11px] sm:text-xs font-bold text-slate-900 truncate">Installment Plans</h2>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">3-Month Preview</p>
             </div>
           </div>
 
@@ -276,7 +354,7 @@ export const HeroSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick Category Icons Strip - Mobile Scrollable Snap */}
+        {/* Quick Category Icons Strip - Mobile Scrollable Snap & Connected to Filter */}
         <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between mb-2.5 px-1">
             <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-900">
@@ -285,8 +363,7 @@ export const HeroSection: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                const el = document.getElementById('catalog-section');
-                el?.scrollIntoView({ behavior: 'smooth' });
+                executeSearch('', 'all');
               }}
               className="text-[11px] text-[#E11D48] font-bold cursor-pointer hover:underline"
             >
@@ -302,8 +379,7 @@ export const HeroSection: React.FC = () => {
                   key={i}
                   type="button"
                   onClick={() => {
-                    const el = document.getElementById('catalog-section');
-                    el?.scrollIntoView({ behavior: 'smooth' });
+                    executeSearch('', c.category);
                   }}
                   className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-50 transition-colors group cursor-pointer shrink-0 w-20 sm:w-24 snap-start"
                 >
