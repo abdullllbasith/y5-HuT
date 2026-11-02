@@ -219,6 +219,16 @@ body {
   bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }
 
+/* Marquee Animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
 /* Tabular Numerals */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
