@@ -4,28 +4,28 @@ import { Quote, Star } from 'lucide-react';
 
 export const Testimonials: React.FC = () => {
   return (
-    <section className="py-10 border-t border-slate-200">
-      <div className="max-w-3xl mb-8">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#E11D48]">
-          DEMO · Fictional sample testimonials
+    <section className="py-8 sm:py-12 border-t border-[#E5E7EB]">
+      <div className="max-w-2xl mb-6 sm:mb-8 text-left">
+        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-[#F7F8FA] px-2.5 py-0.5 rounded-full border border-[#E5E7EB]">
+          Demo · Sample Experience
         </span>
-        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans mt-1">
-          What customers might say
+        <h2 className="text-xl sm:text-2xl font-bold text-[#111827] font-sans mt-2 tracking-tight">
+          Client Feedback Demonstrations
         </h2>
-        <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-          Fictional sample quotes for the concept demo. They are not real customer reviews.
+        <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">
+          Illustrative reviews showing verified purchase layouts and merchant satisfaction scores.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {TESTIMONIALS.map((t, idx) => (
-          <div
+          <article
             key={idx}
-            className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-all hover:shadow-md"
+            className="bg-white p-5 sm:p-6 rounded-[18px] border border-[#E5E7EB] shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all text-left"
           >
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <Quote className="w-6 h-6 text-[#E11D48] opacity-80" />
+              <div className="flex items-center justify-between mb-3">
+                <Quote className="w-5 h-5 text-[#E11D48] opacity-80" />
                 <div className="flex text-amber-400">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-current" />
@@ -33,23 +33,23 @@ export const Testimonials: React.FC = () => {
                 </div>
               </div>
 
-              <p className="text-xs text-slate-700 leading-relaxed italic">
-                "{t.quote}"
+              <p className="text-xs text-[#111827] leading-relaxed italic">
+                &ldquo;{t.quote}&rdquo;
               </p>
             </div>
 
-            <div className="pt-4 mt-6 border-t border-slate-100">
-              <div className="font-bold text-xs text-slate-900">
+            <div className="pt-4 mt-5 border-t border-[#E5E7EB]">
+              <div className="font-bold text-xs text-[#111827]">
                 {t.author}
               </div>
-              <div className="text-[11px] text-slate-600">
+              <div className="text-[11px] text-[#6B7280]">
                 {t.role} · {t.company}
               </div>
               <div className="text-[10px] text-slate-400 mt-1 font-mono">
                 {t.location} · {t.verifiedUnits}
               </div>
             </div>
-          </div>
+          </article>
         ))}
       </div>
     </section>
