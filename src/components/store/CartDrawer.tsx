@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
-import { X, Trash2, ArrowRight, ShieldCheck, Truck, CreditCard } from 'lucide-react';
+import { X, Trash2, ArrowRight, Truck, CreditCard } from 'lucide-react';
 import { CheckoutModal } from '../checkout/CheckoutModal';
+import { DeviceGraphic } from '../common/DeviceGraphic';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -35,43 +36,51 @@ export const CartDrawer: React.FC = () => {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/40 backdrop-blur-xs">
-        <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shopping Cart Drawer"
+        className="fixed inset-0 z-50 overflow-hidden bg-slate-950/50 backdrop-blur-xs animate-in fade-in duration-150"
+      >
+        <div className="absolute inset-y-0 right-0 max-w-full flex pl-2 sm:pl-10">
           <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col">
             
             {/* Header */}
-            <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+            <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
               <div>
                 <h3 className="text-base font-bold text-slate-900 font-sans">
                   Shopping Bag ({cartTotalCount})
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  y5Hut.lk Sri Lanka Express Checkout
+                  y5Hut.lk Express Checkout (Demo)
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setIsCartOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
+                aria-label="Close cart"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Free Shipping Meter */}
-            <div className="px-6 py-3 bg-slate-50 border-b border-slate-100 text-xs text-slate-600">
+            <div className="px-4 sm:px-6 py-2.5 bg-slate-50 border-b border-slate-100 text-xs text-slate-600 shrink-0">
               {isFreeShipping ? (
                 <div className="flex items-center gap-1.5 text-emerald-800 font-bold">
-                  <Truck className="w-4 h-4 text-emerald-600" />
+                  <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>You've unlocked FREE Islandwide Delivery!</span>
                 </div>
               ) : (
                 <div>
-                  Add{' '}
-                  <strong className="text-slate-900 font-mono">
-                    Rs. {(FREE_SHIPPING_THRESHOLD_LKR - cartSubtotalLKR).toLocaleString()}
-                  </strong>{' '}
-                  more for FREE Islandwide Delivery
-                  <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="flex justify-between items-center text-[11px] sm:text-xs">
+                    <span>
+                      Add <strong className="text-slate-900 font-mono">Rs. {(FREE_SHIPPING_THRESHOLD_LKR - cartSubtotalLKR).toLocaleString()}</strong> more for FREE Delivery
+                    </span>
+                    <span className="font-mono text-slate-500 font-bold">{Math.round(progressToFreeShipping)}%</span>
+                  </div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full mt-1.5 overflow-hidden">
                     <div
                       className="bg-[#E11D48] h-full transition-all duration-300"
                       style={{ width: `${progressToFreeShipping}%` }}
@@ -82,16 +91,20 @@ export const CartDrawer: React.FC = () => {
             </div>
 
             {/* Cart Items List */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
               {cart.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400">
+                  <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                    <Truck className="w-7 h-7 text-slate-300" />
+                  </div>
                   <p className="text-sm font-bold text-slate-700">Your shopping bag is empty</p>
                   <p className="text-xs text-slate-400 mt-1 max-w-xs">
-                    Explore our genuine smartphones, Apple products, and fast charging gadgets.
+                    Explore our genuine smartphones, Apple devices, and fast charging gadgets.
                   </p>
                   <button
+                    type="button"
                     onClick={() => setIsCartOpen(false)}
-                    className="mt-4 px-5 py-2 text-xs font-bold text-white bg-[#E11D48] rounded-md hover:bg-[#BE123C] transition-colors cursor-pointer"
+                    className="mt-4 px-5 py-2 text-xs font-bold text-white bg-[#E11D48] rounded-lg hover:bg-[#BE123C] transition-colors cursor-pointer shadow-xs min-h-[38px]"
                   >
                     Start Shopping
                   </button>
@@ -99,21 +112,23 @@ export const CartDrawer: React.FC = () => {
               ) : (
                 cart.map((item, idx) => (
                   <div
-                    key={`${item.productId}-${item.selectedColor}-${idx}`}
-                    className="p-3.5 border border-slate-200 rounded-lg flex items-start gap-3 hover:border-slate-300 transition-colors bg-white shadow-xs"
+                    key={`${item.productId}-${item.selectedColor}-${item.selectedStorage}-${idx}`}
+                    className="p-3 border border-slate-200 rounded-xl flex items-center gap-3 hover:border-slate-300 transition-colors bg-white shadow-2xs"
                   >
-                    <div className="w-12 h-12 bg-slate-100 rounded-md flex items-center justify-center shrink-0 border border-slate-200">
-                      <span className="text-[10px] uppercase font-bold text-slate-600 font-mono">
-                        {item.deviceType.substring(0, 3)}
-                      </span>
+                    <div className="w-12 h-12 bg-slate-50 rounded-lg p-1 flex items-center justify-center shrink-0 border border-slate-100">
+                      <DeviceGraphic
+                        deviceType={item.deviceType}
+                        colorHex="#1E293B"
+                        className="max-h-10"
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <h4 className="text-xs font-bold text-slate-900 truncate">
                         {item.name}
                       </h4>
-                      <div className="text-[11px] text-slate-500 mt-0.5 space-x-1.5">
-                        {item.selectedColor && <span>{item.selectedColor}</span>}
+                      <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                        {item.selectedColor && <span className="font-medium text-slate-700">{item.selectedColor}</span>}
                         {item.selectedStorage && (
                           <>
                             <span>·</span>
@@ -130,8 +145,9 @@ export const CartDrawer: React.FC = () => {
 
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-2 mt-2">
-                        <div className="flex items-center border border-slate-200 rounded text-xs">
+                        <div className="flex items-center border border-slate-200 rounded-md text-xs">
                           <button
+                            type="button"
                             onClick={() =>
                               updateCartQuantity(
                                 item.productId,
@@ -140,14 +156,16 @@ export const CartDrawer: React.FC = () => {
                                 item.selectedStorage
                               )
                             }
-                            className="px-2 py-0.5 hover:bg-slate-100 cursor-pointer"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-100 cursor-pointer font-bold"
+                            aria-label="Decrease quantity"
                           >
                             -
                           </button>
-                          <span className="px-2 py-0.5 font-mono tabular-nums font-semibold text-slate-800">
+                          <span className="w-8 text-center font-mono tabular-nums font-semibold text-slate-800">
                             {item.quantity}
                           </span>
                           <button
+                            type="button"
                             onClick={() =>
                               updateCartQuantity(
                                 item.productId,
@@ -157,13 +175,15 @@ export const CartDrawer: React.FC = () => {
                               )
                             }
                             disabled={item.quantity >= item.maxStock}
-                            className="px-2 py-0.5 hover:bg-slate-100 disabled:opacity-40 cursor-pointer"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40 cursor-pointer font-bold"
+                            aria-label="Increase quantity"
                           >
                             +
                           </button>
                         </div>
 
                         <button
+                          type="button"
                           onClick={() =>
                             removeFromCart(
                               item.productId,
@@ -171,10 +191,11 @@ export const CartDrawer: React.FC = () => {
                               item.selectedStorage
                             )
                           }
-                          className="p-1 text-slate-400 hover:text-rose-600 transition-colors ml-auto cursor-pointer"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors ml-auto cursor-pointer"
                           title="Remove item"
+                          aria-label={`Remove ${item.name} from cart`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -185,13 +206,13 @@ export const CartDrawer: React.FC = () => {
 
             {/* Footer Summary & Checkout Action */}
             {cart.length > 0 && (
-              <div className="p-6 border-t border-slate-200 bg-slate-50/70 space-y-3">
+              <div className="p-4 sm:p-6 border-t border-slate-200 bg-slate-50/70 space-y-3 pb-safe shrink-0">
                 
                 {/* BNPL Installment Teaser */}
                 <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-[11px] text-slate-700 flex items-center justify-between">
                   <span className="flex items-center gap-1 font-bold text-[#E11D48]">
                     <CreditCard className="w-3.5 h-3.5" />
-                    <span>Pay in 3 Installments:</span>
+                    <span>Pay in 3 with Koko:</span>
                   </span>
                   <span className="font-mono font-bold text-slate-900">
                     {currency === 'LKR' ? `Rs. ${installmentThird.toLocaleString()} / mo` : `$${installmentThird} / mo`}
@@ -223,15 +244,16 @@ export const CartDrawer: React.FC = () => {
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setIsCheckoutOpen(true)}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-md cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-md cursor-pointer min-h-[44px]"
                 >
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <p className="text-[10px] text-center text-slate-400">
-                  🔒 Bank-Grade 256-bit SSL Security · Islandwide COD &amp; 0% Installments
+                  Concept checkout demo · Simulated order confirmation
                 </p>
               </div>
             )}
