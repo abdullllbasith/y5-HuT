@@ -255,7 +255,7 @@ export const Footer: React.FC = () => {
         <div className="border-t border-slate-800 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center sm:justify-start text-xs font-bold">
             <span className="text-slate-400 mr-1 text-[11px] w-full sm:w-auto text-center sm:text-left">
-              Accepted Methods:
+              Accepted Methods (Simulated Demo):
             </span>
             <span className="bg-slate-800 px-2 py-0.5 rounded text-white border border-slate-700 text-[10px] sm:text-xs">Koko (3x)</span>
             <span className="bg-slate-800 px-2 py-0.5 rounded text-white border border-slate-700 text-[10px] sm:text-xs">Mintpay</span>

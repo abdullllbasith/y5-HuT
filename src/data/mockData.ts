@@ -4,7 +4,7 @@ import { buildVariants } from '../lib/variants';
 /** Bump when seed products change shape/content; drives localStorage migration. */
 export const DEMO_DATA_VERSION = 2;
 
-const PHONE_WARRANTY = '1-Year official local warranty (sample demo record)';
+const PHONE_WARRANTY = '1-Year sample warranty record (demo)';
 
 
 export const INITIAL_PRODUCTS: Product[] = [
@@ -126,7 +126,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       connectivity: '5G Dual SIM, Wi-Fi 7, Bluetooth 5.3, UWB',
       dimensions: '162.3 x 79.0 x 8.6 mm',
       weight: '232 grams',
-      warranty: '1 Year Singer/Samsung Sri Lanka Warranty',
+      warranty: '1-Year sample warranty record (demo)',
     },
     reviews: [
       {
@@ -173,7 +173,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       connectivity: 'Wi-Fi 4, Bluetooth 5.3, Ultra Wideband 2nd gen',
       dimensions: '46 x 39 x 9.7 mm',
       weight: '36.4 grams',
-      warranty: '1 Year Apple International & Local Warranty',
+      warranty: '1-Year sample warranty record (demo)',
     },
     reviews: [],
   },
@@ -282,7 +282,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       connectivity: 'Bluetooth 5.3, Dual-Device Multipoint Connection',
       dimensions: '62 x 48 x 25 mm',
       weight: '4.8g per earbud; 45g case',
-      warranty: '1 Year y5Hut Replacement Warranty',
+      warranty: '1-Year sample warranty record (demo)',
     },
     reviews: [],
   },
@@ -313,7 +313,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       connectivity: '3x USB-C (PD 3.0 / QC 4+), 1x USB-A (SCP / QC 3.0)',
       dimensions: '69 x 69 x 33 mm',
       weight: '215 grams',
-      warranty: '18 Months UGREEN Sri Lanka Warranty',
+      warranty: '18-Month sample warranty record (demo)',
     },
     reviews: [],
   },
@@ -346,14 +346,14 @@ export const INITIAL_PRODUCTS: Product[] = [
       connectivity: 'Qi2 15W Magnetic + Apple Watch MFi 5W + Base 5W',
       dimensions: '89 x 60 x 25 mm (folded)',
       weight: '195 grams',
-      warranty: '18 Months Anker Warranty',
+      warranty: '18-Month sample warranty record (demo)',
     },
     reviews: [],
   },
   {
     id: 'prod-spigen-magsafe-case',
     name: 'Spigen Ultra Hybrid MagSafe Case (iPhone 16 Pro)',
-    brand: 'y5 HuT Certified',
+    brand: 'Spigen',
     category: 'cases-protection',
     priceLKR: 9500,
     priceUSD: 35,
@@ -362,7 +362,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.8,
     reviewCount: 135,
     tagline: 'Crystal clear anti-yellowing PC back with shock-absorbing TPU bumper and MagSafe magnets.',
-    description: 'Military-grade Air Cushion technology on all four corners. Raised bezels protect screen and camera lens against flat surface scratches.',
+    description: 'Air Cushion technology on all four corners. Raised bezels protect screen and camera lens against flat surface scratches.',
     isFeaturedPromo: false,
     kokoEligible: true,
     mintpayEligible: true,
@@ -374,7 +374,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     specs: {
       dimensions: '153 x 75 x 11 mm',
       weight: '32 grams',
-      warranty: '6 Months y5Hut Replacement Guarantee',
+      warranty: '6-Month sample warranty record (demo)',
     },
     reviews: [],
   },
@@ -402,7 +402,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       connectivity: 'USB-C to USB-C PD 3.1 240W, 480Mbps Data',
       dimensions: '2.0 meters (6.6 ft)',
       weight: '62 grams',
-      warranty: '1 Year Warranty',
+      warranty: '1-Year sample warranty record (demo)',
     },
     reviews: [],
   },
