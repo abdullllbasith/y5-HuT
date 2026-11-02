@@ -3,9 +3,37 @@
 @theme {
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "Space Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-primary: #E11D48;
+  --color-primary-hover: #BE123C;
+  --color-primary-subtle: #FDE7EB;
+  --color-ink: #111827;
+  --color-ink-muted: #6B7280;
+  --color-bg: #F7F8FA;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+
+  --shadow-floating: 0 4px 16px rgba(17, 24, 39, 0.08);
+  --shadow-hairline: 0 0 0 1px #E5E7EB;
 }
 
 :root {
+  --color-primary: #E11D48;
+  --color-primary-hover: #BE123C;
+  --color-primary-subtle: #FDE7EB;
+  --color-ink: #111827;
+  --color-ink-muted: #6B7280;
+  --color-bg: #F7F8FA;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+
+  /* Legacy aliases for backward compatibility */
   --y5hut-red: #E11D48;
   --y5hut-red-hover: #BE123C;
   --y5hut-dark: #111827;
@@ -13,8 +41,8 @@
 
 body {
   font-family: var(--font-sans);
-  color: #0F172A;
-  background-color: #F8FAFC;
+  color: #111827;
+  background-color: #F7F8FA;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -51,8 +79,16 @@ body {
 .pt-safe {
   padding-top: max(env(safe-area-inset-top, 0px), 8px);
 }
+.bottom-safe {
+  bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
 
-/* Reduced motion support for accessibility */
+/* Tabular nums helper for prices and stock counts */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Reduced motion support for accessibility (WCAG 2.2) */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -63,5 +99,3 @@ body {
     scroll-behavior: auto !important;
   }
 }
-
-
