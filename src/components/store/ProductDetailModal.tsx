@@ -9,6 +9,11 @@ import {
   getVariantStorages,
 } from '../../lib/variants';
 import {
+  getDemoWhatsAppNumber,
+  buildWhatsAppEnquiryText,
+  buildWhatsAppUrl,
+} from '../../lib/whatsapp';
+import {
   X,
   Star,
   ShieldCheck,
@@ -17,6 +22,9 @@ import {
   Heart,
   CreditCard,
   ShoppingBag,
+  MessageCircle,
+  Copy,
+  ExternalLink,
 } from 'lucide-react';
 
 export const ProductDetailModal: React.FC = () => {
@@ -48,6 +56,10 @@ export const ProductDetailModal: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [reviewTab, setReviewTab] = useState<'specs' | 'reviews' | 'write'>('specs');
 
+  // WhatsApp enquiry state
+  const [isWhatsAppPreviewOpen, setIsWhatsAppPreviewOpen] = useState(false);
+  const [copiedEnquiry, setCopiedEnquiry] = useState(false);
+
   // Review state
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewTitle, setReviewTitle] = useState('');
@@ -58,13 +70,15 @@ export const ProductDetailModal: React.FC = () => {
 
   const productId = product?.id;
   useEffect(() => {
-    // Reset selection when a different product is opened (the modal stays mounted).
+    // Reset selection when a different product is opened
     const p = products.find((x) => x.id === productId);
     if (!p) return;
     const dv = getDefaultVariant(p);
     setSelectedColor(dv?.color || p.colorOptions[0]?.name || '');
     setSelectedStorage(dv?.storage || p.storageOptions?.[0] || '');
     setQuantity(1);
+    setIsWhatsAppPreviewOpen(false);
+    setCopiedEnquiry(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
@@ -72,12 +86,16 @@ export const ProductDetailModal: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setSelectedProductForDetail(null);
+        if (isWhatsAppPreviewOpen) {
+          setIsWhatsAppPreviewOpen(false);
+        } else {
+          setSelectedProductForDetail(null);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setSelectedProductForDetail]);
+  }, [setSelectedProductForDetail, isWhatsAppPreviewOpen]);
 
   if (!product) return null;
 
@@ -100,6 +118,40 @@ export const ProductDetailModal: React.FC = () => {
     currency === 'LKR'
       ? Math.round(unitPriceLKR / 3)
       : Math.round(unitPriceUSD / 3);
+
+  const whatsappNumber = getDemoWhatsAppNumber();
+  const whatsappMessage = buildWhatsAppEnquiryText({
+    productName: product.name,
+    brand: product.brand,
+    sku: variant?.sku || product.id,
+    variantColor: selectedColor,
+    variantStorage: selectedStorage,
+    priceLKR: unitPriceLKR,
+    priceUSD: unitPriceUSD,
+    currency,
+    stock: unitStock,
+  });
+
+  const handleWhatsAppAction = () => {
+    if (whatsappNumber) {
+      // Configured: open wa.me upon deliberate user click
+      const url = buildWhatsAppUrl(whatsappNumber, whatsappMessage);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      // Unset: open copyable enquiry preview with clear demo notice
+      setIsWhatsAppPreviewOpen(true);
+    }
+  };
+
+  const handleCopyEnquiry = async () => {
+    try {
+      await navigator.clipboard.writeText(whatsappMessage);
+      setCopiedEnquiry(true);
+      setTimeout(() => setCopiedEnquiry(false), 2000);
+    } catch {
+      setCopiedEnquiry(false);
+    }
+  };
 
   const handleAddToCart = () => {
     if (isOutOfStock || variantCombinationMissing) return;
@@ -153,7 +205,7 @@ export const ProductDetailModal: React.FC = () => {
             <span>·</span>
             <span className="truncate">SKU: {variant?.sku || product.id}</span>
             <span className="hidden sm:inline">·</span>
-            <span className="hidden sm:inline text-emerald-700 font-semibold truncate">Sample demo catalogue</span>
+            <span className="hidden sm:inline text-emerald-700 font-semibold truncate">Live Demo Catalogue</span>
           </div>
 
           <button
@@ -191,11 +243,11 @@ export const ProductDetailModal: React.FC = () => {
               <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] sm:text-[11px] text-slate-600">
                 <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center gap-1.5 sm:gap-2">
                   <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E11D48] shrink-0" />
-                  <span className="truncate">Islandwide Delivery</span>
+                  <span className="truncate">Islandwide Delivery (Demo)</span>
                 </div>
                 <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center gap-1.5 sm:gap-2">
                   <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
-                  <span className="truncate">Demo Warranty Info</span>
+                  <span className="truncate">Sample Warranty Spec</span>
                 </div>
               </div>
             </div>
@@ -223,7 +275,7 @@ export const ProductDetailModal: React.FC = () => {
                   <span className="text-slate-400">({product.reviewCount} reviews)</span>
                 </div>
 
-                {/* Price & Savings */}
+                {/* Live Variant Price & Savings */}
                 <div className="mt-3 flex items-baseline gap-2.5">
                   <span className="text-2xl sm:text-3xl font-black font-mono text-slate-950 tabular-nums">
                     {formatPrice(unitPriceLKR, unitPriceUSD)}
@@ -238,24 +290,24 @@ export const ProductDetailModal: React.FC = () => {
                   )}
                 </div>
 
-                {/* Installment Widget */}
+                {/* Installment Widget (Demo Preview) */}
                 {product.kokoEligible && (
                   <div className="mt-2.5 p-2.5 sm:p-3 bg-rose-50/70 border border-rose-200 rounded-lg space-y-0.5">
                     <div className="flex items-center justify-between text-xs font-bold text-slate-900">
                       <span className="flex items-center gap-1.5 text-[#E11D48]">
                         <CreditCard className="w-3.5 h-3.5" />
-                        <span>0% Interest Installments</span>
+                        <span>0% Interest Installment Preview</span>
                       </span>
                       <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-rose-200 text-slate-700 font-mono">
                         Koko · Mintpay
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600">
-                      Split in 3 monthly installments of{' '}
+                      Simulated 3 monthly installments of{' '}
                       <strong className="text-slate-950 font-mono font-bold">
                         {currency === 'LKR' ? `Rs. ${installmentThird.toLocaleString()}` : `$${installmentThird}`}
                       </strong>{' '}
-                      with zero interest.
+                      (concept preview).
                     </p>
                   </div>
                 )}
@@ -361,19 +413,29 @@ export const ProductDetailModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Desktop CTA (hidden on mobile, where sticky bottom bar is used) */}
+              {/* Desktop CTAs: Clearly distinguishes Add to Cart (Simulated) from WhatsApp Enquiry */}
               <div className="pt-2 space-y-2 hidden sm:block">
                 <button
                   type="button"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock || variantCombinationMissing}
-                  className="w-full py-3 px-4 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>{buttonText}</span>
                 </button>
+
+                <button
+                  type="button"
+                  onClick={handleWhatsAppAction}
+                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <span>Ask on WhatsApp (Demo Enquiry)</span>
+                </button>
+
                 <p className="text-[10px] text-slate-400 text-center">
-                  Sample/demo prices.{currency === 'USD' ? ' USD is illustrative and not exchange-rate synced.' : ''}
+                  Live demo pricing from store state. {currency === 'USD' ? 'USD is illustrative.' : ''}
                 </p>
               </div>
             </div>
@@ -535,10 +597,10 @@ export const ProductDetailModal: React.FC = () => {
         </div>
 
         {/* Sticky Bottom Action Bar on Mobile Screens (< sm) */}
-        <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 pb-safe z-30 shadow-lg flex items-center justify-between gap-3">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-slate-500 font-medium">Total</span>
-            <span className="text-base font-black font-mono text-slate-950 tabular-nums">
+        <div className="sm:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 sm:p-3 pb-safe z-30 shadow-lg flex items-center justify-between gap-2.5">
+          <div className="flex flex-col min-w-[70px]">
+            <span className="text-[9px] text-slate-500 font-medium">Total</span>
+            <span className="text-sm font-black font-mono text-slate-950 tabular-nums truncate">
               {formatPrice(unitPriceLKR * quantity, unitPriceUSD * quantity)}
             </span>
           </div>
@@ -547,14 +609,108 @@ export const ProductDetailModal: React.FC = () => {
             type="button"
             onClick={handleAddToCart}
             disabled={isOutOfStock || variantCombinationMissing}
-            className="flex-1 py-2.5 px-4 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 min-h-[42px]"
+            className="flex-1 py-2.5 px-3 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5 min-h-[42px]"
           >
-            <ShoppingBag className="w-4 h-4" />
-            <span>
+            <ShoppingBag className="w-4 h-4 shrink-0" />
+            <span className="truncate">
               {variantCombinationMissing ? 'Unavailable' : isOutOfStock ? 'Sold Out' : 'Add to Cart'}
             </span>
           </button>
+
+          <button
+            type="button"
+            onClick={handleWhatsAppAction}
+            className="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 transition-colors cursor-pointer min-w-[42px] min-h-[42px] flex items-center justify-center shrink-0"
+            title="Ask on WhatsApp (Demo Enquiry)"
+            aria-label="Ask on WhatsApp about this device"
+          >
+            <MessageCircle className="w-5 h-5 text-emerald-600" />
+          </button>
         </div>
+
+        {/* WhatsApp Enquiry Preview Sheet / Modal (When Unset or Explaining Demo State) */}
+        {isWhatsAppPreviewOpen && (
+          <div className="absolute inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150">
+            <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
+              
+              <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-emerald-50/70">
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-emerald-600" />
+                  <h3 className="text-sm font-bold text-slate-900 font-sans">
+                    WhatsApp Enquiry Preview
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsWhatsAppPreviewOpen(false)}
+                  className="p-1 text-slate-400 hover:text-slate-700 rounded-md"
+                  aria-label="Close preview"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-4 sm:p-5 space-y-3.5 overflow-y-auto text-xs">
+                
+                {/* Status Notice Box */}
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 space-y-1">
+                  <p className="font-bold flex items-center gap-1.5">
+                    <span>Demo Showcase — No WhatsApp recipient configured</span>
+                  </p>
+                  <p className="text-[11px] text-amber-800 leading-relaxed">
+                    In a production store, clicking this launches WhatsApp with the pre-filled enquiry below. In this concept preview, no message has been sent. To test direct launching, set <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-[10px]">VITE_DEMO_WHATSAPP_NUMBER</code> in your environment.
+                  </p>
+                </div>
+
+                {/* Pre-composed Message Box */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Pre-composed Message Preview
+                  </label>
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 font-mono text-[11px] text-slate-800 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
+                    {whatsappMessage}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleCopyEnquiry}
+                    className="flex-1 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 min-h-[38px] cursor-pointer"
+                  >
+                    {copiedEnquiry ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedEnquiry ? 'Copied to Clipboard!' : 'Copy Enquiry Text'}</span>
+                  </button>
+
+                  {whatsappNumber && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = buildWhatsAppUrl(whatsappNumber, whatsappMessage);
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 min-h-[38px] cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Open wa.me</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setIsWhatsAppPreviewOpen(false)}
+                    className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors min-h-[38px] cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
