@@ -207,7 +207,7 @@ export const ProductDetailModal: React.FC = () => {
           <button
             type="button"
             onClick={() => setSelectedProductForDetail(null)}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full cursor-pointer transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center shrink-0"
+            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full cursor-pointer transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
             aria-label="Close product details"
           >
             <X className="w-5 h-5" />
@@ -386,17 +386,17 @@ export const ProductDetailModal: React.FC = () => {
                       type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={quantity <= 1 || isOutOfStock || variantCombinationMissing}
-                      className="px-3 py-1.5 text-xs hover:bg-slate-100 cursor-pointer disabled:opacity-30"
+                      className="w-10 h-10 text-xs hover:bg-slate-100 cursor-pointer disabled:opacity-30 flex items-center justify-center"
                       aria-label="Decrease quantity"
                     >
                       -
                     </button>
-                    <span className="px-3 py-1.5 text-xs font-mono font-bold">{quantity}</span>
+                    <span className="w-10 h-10 text-xs font-mono font-bold flex items-center justify-center border-x border-[#E5E7EB]">{quantity}</span>
                     <button
                       type="button"
                       onClick={() => setQuantity(Math.min(unitStock, quantity + 1))}
                       disabled={quantity >= unitStock || isOutOfStock || variantCombinationMissing}
-                      className="px-3 py-1.5 text-xs hover:bg-slate-100 cursor-pointer disabled:opacity-30"
+                      className="w-10 h-10 text-xs hover:bg-slate-100 cursor-pointer disabled:opacity-30 flex items-center justify-center"
                       aria-label="Increase quantity"
                     >
                       +
@@ -420,7 +420,7 @@ export const ProductDetailModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleWhatsAppAction}
-                  className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2 min-h-[40px]"
+                  className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
                 >
                   <MessageCircle className="w-4 h-4 text-emerald-600" />
                   <span>Ask on WhatsApp (Demo Enquiry)</span>
@@ -601,7 +601,7 @@ export const ProductDetailModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsWhatsAppPreviewOpen(false)}
-                  className="p-1 text-slate-400 hover:text-slate-700 rounded-md cursor-pointer"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
                   aria-label="Close preview"
                 >
                   <X className="w-5 h-5" />
@@ -631,7 +631,7 @@ export const ProductDetailModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleCopyEnquiry}
-                    className="flex-1 py-2 px-3 bg-[#111827] hover:bg-slate-800 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 min-h-[40px] cursor-pointer"
+                    className="flex-1 py-2 px-3 bg-[#111827] hover:bg-slate-800 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
                   >
                     {copiedEnquiry ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                     <span>{copiedEnquiry ? 'Copied!' : 'Copy Enquiry Text'}</span>
@@ -644,7 +644,7 @@ export const ProductDetailModal: React.FC = () => {
                         const url = buildWhatsAppUrl(whatsappNumber, whatsappMessage);
                         window.open(url, '_blank', 'noopener,noreferrer');
                       }}
-                      className="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 min-h-[40px] cursor-pointer"
+                      className="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
                     >
                       <ExternalLink className="w-4 h-4" />
                       <span>Open wa.me</span>
@@ -654,7 +654,7 @@ export const ProductDetailModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsWhatsAppPreviewOpen(false)}
-                    className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors min-h-[40px] cursor-pointer"
+                    className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors min-h-[44px] cursor-pointer"
                   >
                     Close
                   </button>

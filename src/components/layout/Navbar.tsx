@@ -245,7 +245,7 @@ export const Navbar: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsMobileSearchVisible(!isMobileSearchVisible)}
-            className="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+            className="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
             title="Search Store"
             aria-label="Toggle mobile search bar"
             aria-expanded={isMobileSearchVisible}
@@ -270,7 +270,7 @@ export const Navbar: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsNotificationOpen(true)}
-            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg relative cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg relative cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
             title="Milestone Notifications & Alerts"
             aria-label="View notifications"
           >
@@ -284,7 +284,7 @@ export const Navbar: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsWishlistOpen(true)}
-            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg relative cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
+            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg relative cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
             title="Saved Wishlist"
             aria-label={`Wishlist with ${wishlist.length} saved items`}
           >
@@ -300,7 +300,7 @@ export const Navbar: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsCartOpen(true)}
-            className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer min-w-[40px] min-h-[40px]"
+            className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer min-w-[44px] min-h-[44px]"
             aria-label={`Shopping Cart with ${cartTotalCount} items`}
           >
             <div className="relative">
@@ -323,7 +323,7 @@ export const Navbar: React.FC = () => {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-lg min-w-[40px] min-h-[40px] flex items-center justify-center transition-colors"
+            className="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
           >

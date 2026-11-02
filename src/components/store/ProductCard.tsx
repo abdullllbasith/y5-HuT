@@ -66,7 +66,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             e.stopPropagation();
             toggleWishlist(product.id);
           }}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-10 cursor-pointer min-w-[32px] min-h-[32px] ${
+          className={`absolute top-2.5 right-2.5 w-9 h-9 rounded-full flex items-center justify-center transition-colors z-10 cursor-pointer min-w-[44px] min-h-[44px] ${
             wishlisted
               ? 'bg-rose-50 text-[#E11D48] border border-rose-200'
               : 'bg-white/90 text-slate-400 hover:text-[#E11D48] hover:bg-white border border-[#E5E7EB]'
@@ -74,7 +74,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           title={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
           aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
         >
-          <Heart className={`w-3.5 h-3.5 ${wishlisted ? 'fill-current' : ''}`} />
+          <Heart className={`w-4 h-4 ${wishlisted ? 'fill-current' : ''}`} />
         </button>
 
         {/* Device Image Click Trigger */}
@@ -227,7 +227,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               if (!isOutOfStock) addToCart(product, 1);
             }}
             disabled={isOutOfStock}
-            className="w-full py-2 px-3 bg-[#111827] hover:bg-[#E11D48] text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-h-[38px]"
+            className="w-full py-2.5 px-3 bg-[#111827] hover:bg-[#E11D48] text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-h-[44px]"
             aria-label={isOutOfStock ? `${product.name} is sold out` : `Add ${product.name} to cart`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
