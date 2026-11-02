@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { CheckCircle, FlaskConical, SearchX, PackageOpen, Undo2, X } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { CheckCircle, FlaskConical, SearchX, PackageOpen, Undo2 } from 'lucide-react';
 import { useStore } from '../../../context/StoreContext';
 import { BulkMode, previewBulk } from '../../../lib/bulkPricing';
 import { BulkToolbar } from './BulkToolbar';
@@ -11,12 +11,14 @@ import { PriceFiltersBar } from './PriceFiltersBar';
 import { PriceTable } from './PriceTable';
 import { PriceCards } from './PriceCards';
 import { ReviewPanel } from './ReviewPanel';
+import { UndoToast } from '../../ui/Toast';
+import { Button } from '../../ui/Button';
 
 export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => {
   const [filters, setFilters] = useState<PriceFilters>(EMPTY_FILTERS);
   const [reviewing, setReviewing] = useState(false);
   const [publishedMsg, setPublishedMsg] = useState<string | null>(null);
-  const [undoTimer, setUndoTimer] = useState<number | null>(null);
+  const [showUndoToast, setShowUndoToast] = useState(false);
   const [bulk, setBulk] = useState<{ mode: BulkMode; value: number } | null>(null);
   const { lastPublish, undoLastPublish } = useStore();
 
@@ -37,88 +39,49 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
     }
   }
 
-  // 10-second countdown timer for the post-publish Undo toast
-  useEffect(() => {
-    if (undoTimer === null) return;
-    if (undoTimer <= 0) {
-      setUndoTimer(null);
-      return;
-    }
-    const interval = setInterval(() => {
-      setUndoTimer((prev) => (prev !== null && prev > 1 ? prev - 1 : null));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [undoTimer]);
-
-  // Phone spacer so the last rows can scroll clear of the fixed action dock.
   const dockSpace = draft.selected.size > 0 ? 'h-80' : dirty > 0 ? 'h-24' : 'h-0';
 
-  const textBtn = 'min-h-10 px-2 text-xs font-semibold text-slate-700 hover:text-[#E11D48] disabled:opacity-40 cursor-pointer transition-colors';
+  const textBtn = 'min-h-[40px] px-3 font-data text-xs font-bold text-ink-soft hover:text-red disabled:opacity-40 cursor-pointer transition-colors';
 
   return (
-    <div className="space-y-4 text-left">
+    <div className="space-y-4 text-left font-ui">
       {/* Scope Disclaimer */}
-      <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-2.5 text-xs text-amber-900 shadow-2xs">
-        <FlaskConical className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+      <div className="flex items-start gap-2.5 rounded-2xl border border-line bg-highlighter/30 px-4 py-3 text-xs text-ink shadow-hard-sm">
+        <FlaskConical className="w-4 h-4 shrink-0 mt-0.5 text-red" />
         <p>
           Prices are maintained in <strong>LKR</strong>. Published price changes update catalog and checkout in <strong>this browser</strong> immediately.
-          <span className="hidden sm:inline text-amber-800"> USD display prices are illustrative conversions.</span>
+          <span className="hidden sm:inline text-ink-soft"> USD display prices are illustrative conversions.</span>
         </p>
       </div>
 
-      {/* Floating 10-Second Undo Toast */}
-      {undoTimer !== null && (
-        <div
-          role="status"
-          className="fixed bottom-16 sm:bottom-6 right-4 sm:right-6 z-50 bg-[#111827] text-white p-3.5 sm:p-4 rounded-[16px] shadow-floating border border-slate-700 max-w-md flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2 duration-200"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
-            <div className="text-xs">
-              <span className="font-bold block truncate">{publishedMsg}</span>
-              <span className="text-[11px] text-slate-300">
-                Reversible for <strong className="text-amber-400 font-mono">{undoTimer}s</strong>
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => {
-                const { restored, skipped } = undoLastPublish();
-                setUndoTimer(null);
-                setPublishedMsg(
-                  `Undid last publish: ${restored} restored${skipped ? `, ${skipped} skipped` : ''}.`
-                );
-              }}
-              className="px-3 py-1.5 bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
-            >
-              <Undo2 className="w-3.5 h-3.5" />
-              <span>Undo ({undoTimer}s)</span>
-            </button>
-            <button
-              onClick={() => setUndoTimer(null)}
-              className="p-1 text-slate-400 hover:text-white rounded cursor-pointer"
-              aria-label="Dismiss toast"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* 10-Second Undo Toast */}
+      <UndoToast
+        isOpen={showUndoToast}
+        message={publishedMsg || 'Price changes published to counter!'}
+        durationMs={10000}
+        onUndo={() => {
+          const { restored, skipped } = undoLastPublish();
+          setShowUndoToast(false);
+          setPublishedMsg(
+            `Undid last publish: ${restored} restored${skipped ? `, ${skipped} skipped` : ''}.`
+          );
+        }}
+        onDismiss={() => setShowUndoToast(false)}
+      />
 
-      {/* Static Feedback when Undo Timer expires */}
-      {publishedMsg && undoTimer === null && (
-        <div role="status" className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs text-emerald-900">
-          <CheckCircle className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
+      {/* Static Feedback when Undo expires */}
+      {publishedMsg && !showUndoToast && (
+        <div role="status" className="flex items-start gap-2 rounded-2xl border border-go/20 bg-go/10 px-4 py-3 text-xs text-go font-bold">
+          <CheckCircle className="w-4 h-4 shrink-0 mt-0.5 text-go" />
           <span>{publishedMsg}</span>
         </div>
       )}
 
       {/* Permanent Historical Undo Option */}
-      {lastPublish && undoTimer === null && (
-        <div role="status" className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-xs text-slate-700 shadow-2xs">
+      {lastPublish && !showUndoToast && (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 rounded-2xl border border-line bg-card px-4 py-3 text-xs text-ink shadow-hard-sm">
           <span>
-            Previous publish: <strong className="font-mono text-[#111827]">{lastPublish.entries.length}</strong> price{lastPublish.entries.length === 1 ? '' : 's'} updated at{' '}
+            Previous publish: <strong className="font-data text-red">{lastPublish.entries.length}</strong> price{lastPublish.entries.length === 1 ? '' : 's'} updated at{' '}
             {new Date(lastPublish.at).toLocaleTimeString()}.
           </span>
           <button
@@ -128,7 +91,7 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
                 `Undid last publish: ${restored} restored${skipped ? `, ${skipped} left alone because they changed since` : ''}.`
               );
             }}
-            className="inline-flex items-center gap-1 font-semibold text-[#E11D48] hover:underline cursor-pointer"
+            className="inline-flex items-center gap-1.5 font-bold font-data text-red hover:underline cursor-pointer"
           >
             <Undo2 className="w-3.5 h-3.5" /> Revert last publish
           </button>
@@ -139,9 +102,9 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
 
       {/* Filtered count vs. explicit selection */}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs px-1">
-        <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-[#6B7280]" aria-live="polite">
-          <span>Filtered products: <strong className="text-[#111827] font-mono">{filteredProducts}</strong> <span className="text-slate-400">({visible.length} variant rows)</span></span>
-          <span>Selected variants: <strong className="text-[#E11D48] font-mono font-bold">{draft.selected.size}</strong></span>
+        <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-ink-soft font-data" aria-live="polite">
+          <span>Filtered products: <strong className="text-ink font-bold">{filteredProducts}</strong> <span className="opacity-70">({visible.length} variant rows)</span></span>
+          <span>Selected variants: <strong className="text-red font-bold">{draft.selected.size}</strong></span>
         </div>
         <div className="flex gap-2">
           <button onClick={() => draft.selectMany(visible.map((r) => r.key))} disabled={visible.length === 0} className={textBtn}>
@@ -218,7 +181,7 @@ export const PriceManagerPage: React.FC<{ draft: PriceDraft }> = ({ draft }) => 
           onPublished={(n) => {
             setReviewing(false);
             setPublishedMsg(`Published ${n} price change${n === 1 ? '' : 's'} to the storefront.`);
-            setUndoTimer(10);
+            setShowUndoToast(true);
           }}
         />
       )}
@@ -232,12 +195,12 @@ const EmptyState: React.FC<{
   text: string;
   action?: { label: string; onClick: () => void };
 }> = ({ icon: Icon, title, text, action }) => (
-  <div className="bg-white rounded-[18px] border border-dashed border-[#E5E7EB] p-10 text-center">
-    <Icon className="w-8 h-8 mx-auto text-slate-300" />
-    <div className="mt-2 text-sm font-bold text-[#111827]">{title}</div>
-    <p className="text-xs text-[#6B7280]">{text}</p>
+  <div className="bg-card rounded-2xl border border-dashed border-line p-10 text-center space-y-2">
+    <Icon className="w-8 h-8 mx-auto text-ink-soft" />
+    <div className="font-display font-bold text-base text-ink">{title}</div>
+    <p className="font-ui text-xs text-ink-soft">{text}</p>
     {action && (
-      <button onClick={action.onClick} className="mt-3 min-h-11 text-xs font-semibold text-[#E11D48] hover:underline cursor-pointer">
+      <button onClick={action.onClick} className="mt-3 min-h-[44px] px-4 font-data text-xs font-bold text-red hover:underline cursor-pointer">
         {action.label}
       </button>
     )}
