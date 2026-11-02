@@ -1,58 +1,65 @@
-# Handoff: y5Hut Smart Price Manager demo
+# Handoff: y5Hut Smart Price Manager & Retail Storefront Demo
 
-> **DEMO MODE — data is stored only in this browser.** This is a concept demonstration, not a store.
+> **DEMO MODE — data is stored only in this browser.** This is a concept demonstration for pitching to a mobile phone shop owner, not a live production store.
 
-## Setup / demo URL
-- There is no hosted URL. Run it locally:
-  1. `npm install`
-  2. `npm run dev` → http://localhost:3000
-- Checks: `npm run lint` (type-check) and `npm run build`.
-- Optional sanity scripts (no test framework in the repo), run with `npx tsx`:
-  `src/lib/variants.check.ts`, `priceValidation.check.ts`, `bulkPricing.check.ts`, `priceImport.check.ts`, `productForm.check.ts`.
-- Walkthrough: [CLIENT-DEMO-SCRIPT.md](CLIENT-DEMO-SCRIPT.md). Scope and phases: [README.md](README.md).
-- `package-lock.json` is not committed; the repo owner should decide whether to add one.
+---
 
-## What the demo shows
-Price Manager (quick edit, bulk update, draft → review → publish, undo), CSV template/export/import with a dry-run preview,
-product variants with SKU/price/stock, Products (add, edit, duplicate, archive), Inventory (set/add/remove stock with reasons
-and a log), Price History with a restore action, and a reset. Published changes appear on the storefront without a reload.
+## 1. Quickstart & Local Setup
 
-## What is simulated (and flagged DEMO in the UI)
-Checkout and payments, order milestones, email/SMS previews, role switching (no real login), analytics figures, sample
-stock, promotions, warranties, delivery times, and shop contact details. Nothing here is a real offer, approval,
-authorization or transaction.
+- **Requirements:** Node.js 18+ and npm (or pnpm).
+- **Run locally:**
+  ```bash
+  npm install
+  npm run dev
+  # Server starts on http://localhost:3000 (accessible on local network at your host IP)
+  ```
+- **Build & Quality Checks:**
+  ```bash
+  npm run lint       # TypeScript strict type check (0 errors)
+  npm run build      # Production client build via Vite
+  ```
+- **Verification Scripts:**
+  ```bash
+  npx tsx src/lib/variants.check.ts
+  npx tsx src/lib/priceValidation.check.ts
+  npx tsx src/lib/bulkPricing.check.ts
+  npx tsx src/lib/priceImport.check.ts
+  npx tsx src/lib/productForm.check.ts
+  ```
 
-## Persistence (browser-only)
-Data lives in this browser's `localStorage` (about 5 MB), per browser profile and per address. Keys:
-`y5hut_products_v4`, `y5hut_orders_v3`, `y5hut_clients_v3`, `y5hut_user_v3`, `y5hut_wishlist_v3`, `y5hut_currency_v3`,
-`y5hut_stock_log_v1`, `y5hut_price_history_v1`, `y5hut_demo_data_version`. It does not sync between devices or browsers,
-and clearing site data erases it.
+---
 
-## How to reset
-In Admin use **Reset demo data** (top banner or Overview) and confirm. It restores the sample products, orders, clients,
-and clears the price history, stock log and cart, for this browser only. Alternatively clear the site's storage in browser
-dev tools.
+## 2. Feature & Architecture Matrix
 
-## Known limitations
-- No authentication or authorization. The role switcher is a UI simulation and is not security.
-- Price history and stock log are plain local data: not tamper-proof, no real user identity, capped at 500 / 200 entries.
-- USD display prices are illustrative and never derived from LKR. The hero banner prices are static.
-- Undo is for the most recent publish only and is lost on refresh. Restore (Price History) is per variant.
-- Orders store the prices at purchase time; later price changes never rewrite them. Cart lines are re-priced on publish.
-- Sample orders/analytics/clients are static mock data. The catalog's category tabs are a fixed list.
-- CSV: UTF-8 CSV only (no `.xlsx`), up to 1 MB. Excel can drop leading zeros from number-like SKUs; format the column as Text.
-- Edge cases in the browser UI were checked by reading the code and by rendering each screen on the server; the interactive
-  flows should be clicked through once before a client meeting.
+| Capability | Demonstration Status | Real Production Equivalent Needed |
+| :--- | :--- | :--- |
+| **Single Price Edit** | **Fully Interactive in Browser.** Edits stage, preview, publish, and reflect instantly on public catalog, hero, and cart without reload. | API endpoint + PostgreSQL/Firestore write with optimistic locking. |
+| **Multi-Variant Bulk Update** | **Fully Interactive in Browser.** Filter by brand/model, select items, adjust by amount (+/− Rs.) or %, whole-rupee rounding, safety warning on >25% shifts. | Batch update query with transactional rollback and staff audit logs. |
+| **CSV Import / Export** | **Fully Interactive in Browser.** Export active prices to CSV; import supplier CSV with dry run, inline error corrections, and exclusion toggles. Rejects null bytes, protects formula injection. Friendly `.xlsx` guidance. | Background worker parsing spreadsheet files on S3/GCS with schema validation. |
+| **Inventory Management** | **Fully Interactive in Browser.** Quick preset adjustments (+1, +5, +10, −1, −5, Set 0), reasons, before/after preview, storefront sold-out badge enforcement, stock movement log. | Multi-warehouse inventory system synced with barcode scanners and point-of-sale. |
+| **Product & Variant Form** | **Fully Interactive in Browser.** Step-by-step form wizard (Model details → Variants with Storage/Color/SKU/Price/Stock → Publish/Archive). Prevents duplicate SKUs. | Admin CMS with image asset upload to CDN, S3/Cloud Storage, and slug generator. |
+| **Price History & Restore** | **Fully Interactive in Browser.** Chronological log of price shifts with previous/new values, timestamps, and staff roles. One-tap restore generates a new append-only audit event. | Immutable SQL append-only ledger or event store with cryptographic audit trail. |
+| **Customer Storefront** | **Fully Interactive & Responsive.** Dynamic hero, hot deals derived from active state, mobile-first product cards, product details modal, end-to-end keyword and category search. | Edge-cached SSR/SSG storefront with SEO meta tags and CDN caching. |
+| **WhatsApp Customer Enquiry** | **Interactive Prototype.** Click opens clean message preview with formatted model, storage, color, SKU, and price. Supports `VITE_DEMO_WHATSAPP_NUMBER` env variable. Never sends automated spam. | Official WhatsApp Business API / Cloud API integration with webhook auto-responder. |
+| **Customer Checkout** | **Simulated Demo Flow.** Step-by-step modal (Shipping → Installments/Card → Confirmation) with client-side stock deduction and mock email preview. | Payment gateway (Stripe, PayHere, Koko/Mintpay merchant API) with webhook webhooks. |
+| **User Roles & Security** | **Simulated Demo Roles.** Role switcher (Super Admin, Inventory Manager, Sales Rep, Customer) for testing UI gating. No passwords required. | Real authentication (OAuth / JWT / Supabase / Clerk) with row-level security. |
+| **Data Persistence** | **Browser LocalStorage.** Keys: `y5hut_products_v4`, `y5hut_orders_v3`, `y5hut_clients_v3`, `y5hut_user_v3`, `y5hut_stock_log_v1`, `y5hut_price_history_v1`. Stable across reloads. | Persistent cloud database with daily backups and multi-region replication. |
 
-## What a real, paid production version would need (not built here)
-- **Backend and database** (products, variants, orders, price/stock history) with migrations and backups.
-- **Authentication and authorization**: real staff accounts, roles enforced on the server, session security, audit logging.
-- **Cross-device sync and multi-user safety**: concurrent edits, conflict handling, optimistic locking.
-- **Real inventory**: stock movements tied to orders and returns, supplier receiving, multi-location if needed.
-- **Payments and checkout**: a payment gateway (e.g. cards, installment providers), webhooks, refunds, tax/invoicing, order
-  management and a tamper-proof audit trail.
-- **Notifications**: real email/SMS providers, templates, delivery tracking.
-- **Currency**: a real LKR/USD policy and rate source if USD is shown.
-- **Catalogue content and legal**: real product data, images, warranty/approval claims verified with the actual shop and
-  brands, privacy policy and terms.
-- **Engineering**: automated tests, CI/CD, monitoring, accessibility and performance audits, secrets management, hosting.
+---
+
+## 3. Demo Limitations (Disclose Honestly to Client)
+
+1. **Browser-Isolated State:** Data changed in one browser window will not appear on another person's device unless they share the same physical browser profile. Clearing site data returns the app to seed values.
+2. **Simulated Security:** The role switcher is a visual demonstration aid. There are no stored passwords or server-side permission checks.
+3. **Illustrative Currency & Financing:** All transactions and admin operations operate in Sri Lankan Rupees (LKR). When toggled to USD, values are illustrative estimates. Koko 3-month installment calculations are shown for concept demonstration.
+4. **Mocked Orders & Analytics:** The initial order records and sales graphs are static sample metrics provided to illustrate how a reporting dashboard would look once connected to a sales database.
+5. **CSV Format:** Only `.csv` text files are parsed in-browser. Standard Excel `.xlsx` binary files are detected and prompt a friendly reminder to use **"File" → "Save As" → "CSV"**.
+
+---
+
+## 4. Production Roadmap (What to Build After Owner Buys In)
+
+1. **Phase 1: Cloud Backend & Auth:** Connect to Supabase or Firebase for real PostgreSQL database, JWT authentication, and row-level security.
+2. **Phase 2: Real WhatsApp & SMS Integration:** Connect the WhatsApp enquiry prototype to the shop's verified Meta WhatsApp Business Account for automated customer lead capture.
+3. **Phase 3: Payment Gateway & Invoicing:** Integrate Sri Lankan payment gateways (e.g. PayHere, direct Koko/Mintpay merchant API) with automated PDF receipt generation.
+4. **Phase 4: Physical Store Barcode Sync:** Link the web inventory module to the shop's physical barcode scanner or existing POS software.

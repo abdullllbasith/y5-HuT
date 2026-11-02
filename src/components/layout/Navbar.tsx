@@ -451,11 +451,14 @@ export const Navbar: React.FC = () => {
                 type="button"
                 onClick={() => setActiveView('admin')}
                 className={`py-3 hover:text-[#E11D48] transition-colors cursor-pointer flex items-center gap-1.5 ${
-                  activeView === 'admin' ? 'text-[#E11D48] border-b-2 border-[#E11D48]' : 'text-slate-500'
+                  activeView === 'admin' ? 'text-[#E11D48] border-b-2 border-[#E11D48]' : 'text-slate-700'
                 }`}
               >
-                <Shield className="w-3.5 h-3.5" />
-                <span>Admin Suite &amp; CRM</span>
+                <Shield className="w-3.5 h-3.5 text-[#E11D48]" />
+                <span>Owner Console</span>
+                <span className="text-[9px] bg-[#E11D48] text-white px-1.5 py-0.5 rounded font-mono font-bold tracking-tight">
+                  MANAGE PRICES
+                </span>
               </button>
             </nav>
           </div>
@@ -567,15 +570,20 @@ export const Navbar: React.FC = () => {
                 setActiveView('admin');
                 setMobileMenuOpen(false);
               }}
-              className={`flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-bold transition-colors ${
-                activeView === 'admin' ? 'bg-rose-50 text-[#E11D48]' : 'text-slate-800 hover:bg-slate-50'
+              className={`flex items-center justify-between w-full px-3.5 py-3 rounded-xl text-sm font-bold transition-colors ${
+                activeView === 'admin'
+                  ? 'bg-rose-50 text-[#E11D48] border border-rose-200'
+                  : 'bg-slate-900 text-white hover:bg-slate-800'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-indigo-600" />
-                <span>Admin Suite &amp; CRM</span>
+              <div className="flex items-center gap-2.5">
+                <Shield className="w-4 h-4 text-[#E11D48]" />
+                <div className="text-left">
+                  <div className="text-xs font-bold leading-tight">Owner Console</div>
+                  <div className="text-[10px] text-slate-300 font-normal">Manage prices in seconds</div>
+                </div>
               </div>
-              <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold border border-indigo-200">PORTAL</span>
+              <span className="text-[10px] bg-[#E11D48] text-white px-2 py-0.5 rounded-full font-bold">LIVE DEMO</span>
             </button>
           </div>
 
