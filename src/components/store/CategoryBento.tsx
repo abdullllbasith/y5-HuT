@@ -30,7 +30,7 @@ export const CategoryBento: React.FC = () => {
   };
 
   return (
-    <section className="py-6 sm:py-8 space-y-4 text-left">
+    <section id="departments" className="py-6 sm:py-8 space-y-4 text-left">
       {/* Section Header */}
       <div className="flex items-end justify-between border-b border-line pb-3">
         <div>

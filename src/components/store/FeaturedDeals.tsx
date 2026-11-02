@@ -44,7 +44,7 @@ export const FeaturedDeals: React.FC = () => {
   };
 
   return (
-    <section className="py-6 sm:py-8 space-y-4 sm:space-y-6 text-left">
+    <section id="deals" className="py-6 sm:py-8 space-y-4 sm:space-y-6 text-left">
       {/* Header: Today's Tags */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-line pb-3">
         <div>

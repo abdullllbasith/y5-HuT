@@ -19,9 +19,18 @@ import { CartDrawer } from './components/store/CartDrawer';
 import { WishlistDrawer } from './components/store/WishlistDrawer';
 import { NotificationDrawer } from './components/notifications/NotificationDrawer';
 import { DemoNotice } from './components/common/DemoNotice';
+import { Flame, LayoutGrid, Tag as TagIcon, Star } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const { activeView } = useStore();
+
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <main className="min-h-screen flex flex-col bg-paper text-ink selection:bg-red selection:text-white font-ui">
@@ -44,7 +53,49 @@ const MainContent: React.FC = () => {
         {activeView === 'store' && (
           <div>
             <HeroSection />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 py-6">
+
+            {/* In-Page Quick Jump Rail to make all sections immediately visible & accessible */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
+                <span className="font-data text-[10px] uppercase font-bold text-ink-soft tracking-wider mr-1 shrink-0">
+                  Quick Jump:
+                </span>
+                <a
+                  href="#deals"
+                  onClick={(e) => handleSmoothScroll(e, 'deals')}
+                  className="px-3 py-1 rounded-full bg-card hover:bg-paper-sunk border border-line hover:border-ink font-ui font-semibold text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <Flame className="w-3.5 h-3.5 text-red" />
+                  <span>Today's Deals</span>
+                </a>
+                <a
+                  href="#departments"
+                  onClick={(e) => handleSmoothScroll(e, 'departments')}
+                  className="px-3 py-1 rounded-full bg-card hover:bg-paper-sunk border border-line hover:border-ink font-ui font-semibold text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5 text-ink-soft" />
+                  <span>Departments</span>
+                </a>
+                <a
+                  href="#catalog"
+                  onClick={(e) => handleSmoothScroll(e, 'catalog')}
+                  className="px-3 py-1 rounded-full bg-card hover:bg-paper-sunk border border-line hover:border-ink font-ui font-semibold text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <TagIcon className="w-3.5 h-3.5 text-ink-soft" />
+                  <span>Product Catalog</span>
+                </a>
+                <a
+                  href="#customer-reviews"
+                  onClick={(e) => handleSmoothScroll(e, 'customer-reviews')}
+                  className="px-3 py-1 rounded-full bg-card hover:bg-paper-sunk border border-line hover:border-ink font-ui font-semibold text-ink text-xs transition-colors shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <Star className="w-3.5 h-3.5 text-low" />
+                  <span>Customer Reviews</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 py-4 sm:py-6">
               <CategoryBento />
               <FeaturedDeals />
               <BrandsStrip />

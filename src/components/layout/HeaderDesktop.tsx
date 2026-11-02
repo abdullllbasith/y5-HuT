@@ -127,19 +127,19 @@ export const HeaderDesktop: React.FC<HeaderDesktopProps> = ({ onOpenSearch }) =>
           {/* Owner Console Link */}
           <button
             type="button"
-            onClick={() => setActiveView('admin')}
+            onClick={() => setActiveView(activeView === 'admin' ? 'store' : 'admin')}
             className={`
-              inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-ui text-xs font-bold transition-all cursor-pointer border-[1.5px]
+              inline-flex items-center gap-2 px-3.5 py-2 rounded-full font-ui text-xs font-bold transition-all cursor-pointer border-[1.5px]
               ${
                 activeView === 'admin'
-                  ? 'bg-ink text-paper border-ink shadow-hard'
-                  : 'bg-card text-ink border-ink hover:bg-paper-sunk'
+                  ? 'bg-red text-white border-ink shadow-hard hover:bg-red-ink'
+                  : 'bg-card text-ink border-ink hover:bg-paper-sunk shadow-2xs hover:shadow-hard'
               }
             `}
             title="Open merchant pricing and stock dashboard"
           >
-            <Shield className="w-3.5 h-3.5 text-red" />
-            <span>Owner Console</span>
+            <Shield className="w-4 h-4 text-red group-hover:scale-110 transition-transform" />
+            <span>{activeView === 'admin' ? '← Back to Store' : 'Owner Console'}</span>
           </button>
         </div>
       </div>
@@ -201,6 +201,24 @@ export const HeaderDesktop: React.FC<HeaderDesktopProps> = ({ onOpenSearch }) =>
                 </button>
               );
             })}
+
+            {/* Reviews view shortcut */}
+            <button
+              type="button"
+              onClick={() => setActiveView('reviews')}
+              className={`
+                px-3 py-1.5 rounded-md font-data text-xs uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer
+                ${
+                  activeView === 'reviews'
+                    ? 'bg-ink text-paper font-bold shadow-2xs'
+                    : 'text-ink-soft hover:text-ink hover:bg-paper-sunk font-medium'
+                }
+              `}
+            >
+              {activeView === 'reviews' && <Dot tone="red" size="xs" />}
+              <span>Reviews</span>
+              <span className="text-[10px] opacity-70">(450+)</span>
+            </button>
           </nav>
 
           {/* Right link: Hot Deals shortcut */}

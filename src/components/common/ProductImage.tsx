@@ -73,10 +73,11 @@ export const ProductImage: React.FC<ProductImageProps> = ({
 
   if (targetImageUrl && !failed) {
     return (
-      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* Transparent loader - no opaque rectangular pulse that clashes with discs */}
         {!loaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-paper-sunk/30 animate-pulse rounded-xl">
-            <div className="w-6 h-6 rounded-full border-2 border-ink/20 border-t-red animate-spin opacity-60" />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-5 h-5 rounded-full border-2 border-ink/20 border-t-red animate-spin opacity-50" />
           </div>
         )}
         <img
@@ -86,7 +87,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
           referrerPolicy="no-referrer"
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
-          className={`object-cover w-full h-full rounded-xl transition-all duration-300 ${
+          className={`object-contain max-h-full max-w-full rounded-xl transition-all duration-300 ${
             loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           } ${className ?? ''}`}
         />

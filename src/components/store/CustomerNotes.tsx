@@ -5,7 +5,7 @@ import { Dot } from '../ui/Dot';
 
 export const CustomerNotes: React.FC = () => {
   return (
-    <section className="py-8 sm:py-12 border-t border-line text-left space-y-6">
+    <section id="customer-reviews" className="py-8 sm:py-12 border-t border-line text-left space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-1.5 font-data text-[10px] font-bold uppercase tracking-wider text-red">
