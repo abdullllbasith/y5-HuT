@@ -13,30 +13,35 @@ export const BrandsStrip: React.FC = () => {
   ];
 
   return (
-    <section className="py-8 bg-white border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+    <section className="py-5 sm:py-8 bg-white border-t border-slate-200">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-3 sm:space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-1">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
             Brands in this demo
           </span>
-          <span className="text-xs font-semibold text-slate-400">
-            Sample content, not a real offer
+          <span className="text-[10px] sm:text-xs font-semibold text-slate-400">
+            Sample content · Not a real offer
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3">
           {topBrands.map((b, idx) => (
-            <div
+            <button
               key={idx}
-              className="p-3 bg-slate-50 hover:bg-white rounded-xl border border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center justify-center text-center shadow-2xs group cursor-pointer"
+              type="button"
+              onClick={() => {
+                const el = document.getElementById('catalog-section');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="p-2.5 sm:p-3 bg-slate-50 hover:bg-white rounded-xl border border-slate-200 hover:border-slate-300 transition-all flex flex-col items-center justify-center text-center shadow-2xs group cursor-pointer"
             >
-              <span className="font-extrabold text-sm text-slate-800 group-hover:text-[#E11D48] transition-colors font-sans">
+              <span className="font-extrabold text-xs sm:text-sm text-slate-800 group-hover:text-[#E11D48] transition-colors font-sans">
                 {b.name}
               </span>
-              <span className="text-[9px] text-slate-400 uppercase tracking-tight mt-0.5">
+              <span className="text-[9px] text-slate-400 uppercase tracking-tight mt-0.5 truncate w-full">
                 {b.tag}
               </span>
-            </div>
+            </button>
           ))}
         </div>
       </div>
