@@ -105,20 +105,20 @@ export const Sheet: React.FC<SheetProps> = ({
               role="dialog"
               aria-modal="true"
               className={`
-                bg-card border-ink flex flex-col text-ink shadow-sheet
+                bg-surface flex flex-col text-ink shadow-sheet
                 ${
                   mode === 'modal'
-                    ? `w-full ${maxWidth} rounded-[20px] border-[1.5px] max-h-[90vh]`
+                    ? `w-full ${maxWidth} rounded-2xl border border-line max-h-[90vh]`
                     : mode === 'drawer'
-                    ? `w-full ${maxWidth} h-full border-l-[1.5px]`
-                    : `w-full max-h-[92vh] rounded-t-[24px] border-t-[1.5px] border-x-[1.5px] md:max-h-full md:rounded-none md:rounded-l-[24px] md:border-l-[1.5px] md:border-t-0 md:border-r-0 md:${maxWidth} md:h-full`
+                    ? `w-full ${maxWidth} h-full border-l border-line`
+                    : `w-full max-h-[92vh] rounded-t-3xl border-t border-x border-line md:max-h-full md:rounded-none md:rounded-l-3xl md:border-l md:border-t-0 md:border-r-0 md:${maxWidth} md:h-full`
                 }
                 ${className}
               `}
             >
               {/* Mobile Drag Handle */}
               <div className="md:hidden pt-3 pb-1 flex justify-center shrink-0">
-                <div className="w-10 h-1.5 rounded-full bg-ink/20" />
+                <div className="w-10 h-1.5 rounded-full bg-line" />
               </div>
 
               {/* Sheet Header */}
@@ -139,7 +139,7 @@ export const Sheet: React.FC<SheetProps> = ({
                       type="button"
                       onClick={onClose}
                       aria-label="Close dialog"
-                      className="w-9 h-9 rounded-full flex items-center justify-center border border-line bg-paper text-ink hover:bg-paper-sunk hover:border-ink transition-colors cursor-pointer shrink-0"
+                      className="w-10 h-10 rounded-full flex items-center justify-center border border-line bg-surface text-ink hover:bg-soft-surface hover:border-ink transition-colors cursor-pointer shrink-0 min-w-[44px] min-h-[44px]"
                     >
                       <X className="w-4 h-4" />
                     </button>

@@ -102,9 +102,9 @@ export const Price: React.FC<PriceProps> = ({
 
         {showDiscountPill && hasDiscount && isLKR && (
           <span
-            className={`font-data font-bold uppercase rounded-sm bg-highlighter text-ink border border-ink/20 shadow-2xs select-none ${sz.delta}`}
+            className={`font-data font-semibold uppercase rounded bg-red-wash text-red select-none ${sz.delta}`}
           >
-            Down Rs. {discountDelta.toLocaleString('en-LK')}
+            Save Rs. {discountDelta.toLocaleString('en-LK')}
           </span>
         )}
       </div>

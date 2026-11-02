@@ -20,75 +20,55 @@ interface StickerProps {
 export const Sticker: React.FC<StickerProps> = ({
   type = 'HOT',
   text,
-  rotation,
+  rotation = 0,
   size = 'md',
   className = '',
 }) => {
-  // Deterministic slight angle per type if rotation not explicitly provided
-  const defaultRotations: Record<StickerType, number> = {
-    HOT: -3.5,
-    SALE: 4,
-    NEW: -2.5,
-    GENUINE: 2,
-    BESTSELLER: -4.5,
-    INSTALLMENT_0: 3,
-    FEATURED: -1.5,
-  };
-
-  const angle = rotation !== undefined ? rotation : defaultRotations[type] ?? -3;
-
   const configMap: Record<
     StickerType,
-    { label: string; bg: string; textCol: string; border: string; corner: string }
+    { label: string; bg: string; textCol: string; border: string }
   > = {
     HOT: {
       label: 'HOT',
-      bg: 'bg-red',
+      bg: 'bg-red text-white',
       textCol: 'text-white',
-      border: 'border-red-ink',
-      corner: 'border-t-red-ink border-l-red-ink',
+      border: 'border-transparent',
     },
     SALE: {
       label: 'SALE',
-      bg: 'bg-highlighter',
-      textCol: 'text-ink font-black',
-      border: 'border-ink/20',
-      corner: 'border-t-ink/30 border-l-ink/30',
+      bg: 'bg-red-wash',
+      textCol: 'text-red font-bold',
+      border: 'border-red/20',
     },
     NEW: {
       label: 'NEW',
-      bg: 'bg-card',
-      textCol: 'text-red font-bold',
+      bg: 'bg-soft-surface',
+      textCol: 'text-ink font-semibold',
       border: 'border-line',
-      corner: 'border-t-ink/10 border-l-ink/10',
     },
     GENUINE: {
       label: 'VERIFIED',
       bg: 'bg-ink',
-      textCol: 'text-paper',
+      textCol: 'text-white',
       border: 'border-ink',
-      corner: 'border-t-paper/30 border-l-paper/30',
     },
     BESTSELLER: {
       label: 'TOP PICK',
-      bg: 'bg-red',
-      textCol: 'text-white font-extrabold',
-      border: 'border-red-ink',
-      corner: 'border-t-red-ink border-l-red-ink',
+      bg: 'bg-red text-white',
+      textCol: 'text-white font-bold',
+      border: 'border-transparent',
     },
     INSTALLMENT_0: {
-      label: '0% × 3',
-      bg: 'bg-highlighter',
-      textCol: 'text-ink font-bold',
-      border: 'border-ink/20',
-      corner: 'border-t-ink/20 border-l-ink/20',
+      label: '0% SPLIT',
+      bg: 'bg-soft-surface',
+      textCol: 'text-ink font-semibold',
+      border: 'border-line',
     },
     FEATURED: {
       label: 'SPOTLIGHT',
-      bg: 'bg-red-wash',
-      textCol: 'text-red-ink font-bold',
-      border: 'border-red/20',
-      corner: 'border-t-red/30 border-l-red/30',
+      bg: 'bg-signal-blue/40',
+      textCol: 'text-ink font-bold',
+      border: 'border-signal-blue',
     },
   };
 
@@ -96,25 +76,17 @@ export const Sticker: React.FC<StickerProps> = ({
   const displayText = text || conf.label;
 
   const sizeStyles = {
-    sm: 'text-[9px] px-2 py-0.5 min-w-[36px]',
-    md: 'text-[10px] px-2.5 py-1 min-w-[42px]',
-    lg: 'text-xs px-3 py-1.5 min-w-[50px]',
+    sm: 'text-[9px] px-2 py-0.5 min-w-[32px] rounded',
+    md: 'text-[10px] px-2.5 py-0.5 min-w-[38px] rounded-md',
+    lg: 'text-xs px-3 py-1 min-w-[46px] rounded-md',
   };
 
   return (
     <span
-      style={{ transform: `rotate(${angle}deg)` }}
-      className={`relative inline-flex items-center justify-center font-data uppercase tracking-wider rounded-full border shadow-2xs select-none transition-transform hover:scale-110 duration-150 ${conf.bg} ${conf.textCol} ${conf.border} ${sizeStyles[size]} ${className}`}
+      style={rotation ? { transform: `rotate(${rotation}deg)` } : undefined}
+      className={`inline-flex items-center justify-center font-data uppercase tracking-wider border select-none transition-all ${conf.bg} ${conf.textCol} ${conf.border} ${sizeStyles[size]} ${className}`}
     >
-      {/* Tiny peeled corner detail on top-right */}
-      <span
-        className="absolute -top-[1px] -right-[1px] w-2 h-2 pointer-events-none rounded-tr-full overflow-hidden opacity-30"
-        aria-hidden="true"
-      >
-        <span className="block w-full h-full bg-ink rotate-45 transform origin-bottom-left" />
-      </span>
-
-      <span className="relative z-10 leading-none">{displayText}</span>
+      <span className="leading-none">{displayText}</span>
     </span>
   );
 };

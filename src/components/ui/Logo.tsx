@@ -55,15 +55,14 @@ export const Logo: React.FC<LogoProps> = ({
           fill="var(--color-red)"
         />
 
-        {/* Serif 'y' */}
+        {/* Modern 'y' */}
         <text
           x="16.5"
           y="28"
           fill="#FFFFFF"
-          fontFamily="Fraunces, Georgia, serif"
+          fontFamily="system-ui, -apple-system, 'Hanken Grotesk', sans-serif"
           fontSize="21"
-          fontWeight="700"
-          fontStyle="italic"
+          fontWeight="800"
           textAnchor="middle"
         >
           y
@@ -72,11 +71,11 @@ export const Logo: React.FC<LogoProps> = ({
         {/* Superscript '5' */}
         <text
           x="27"
-          y="17"
+          y="18"
           fill="#FFFFFF"
-          fontFamily="Fraunces, Georgia, serif"
-          fontSize="12"
-          fontWeight="800"
+          fontFamily="system-ui, -apple-system, 'Hanken Grotesk', sans-serif"
+          fontSize="13"
+          fontWeight="900"
           textAnchor="middle"
         >
           5
