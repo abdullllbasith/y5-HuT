@@ -61,7 +61,7 @@ export const MobileTabBar: React.FC<MobileTabBarProps> = ({ onOpenSearch }) => {
     <>
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t-[1.5px] border-ink pb-safe shadow-sheet select-none"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-line pb-safe shadow-sheet select-none"
       >
         <div className="grid grid-cols-5 h-14 relative px-1">
           {/* 1. Shop */}
@@ -74,7 +74,7 @@ export const MobileTabBar: React.FC<MobileTabBarProps> = ({ onOpenSearch }) => {
             {currentTab === 'shop' && (
               <motion.span
                 layoutId="mobileNavPill"
-                className="absolute inset-x-1.5 inset-y-1 bg-ink/10 rounded-xl -z-10"
+                className="absolute inset-x-1.5 inset-y-1 bg-soft-surface rounded-xl -z-10"
                 transition={{ type: 'spring', bounce: 0.2, duration: 0.3 }}
               />
             )}

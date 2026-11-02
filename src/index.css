@@ -1,71 +1,102 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #F3EEE4;
-  --color-paper-sunk: #EAE3D5;
-  --color-card: #FBF8F2;
-  --color-ink: #141210;
-  --color-ink-soft: #5B554C;
-  --color-line: rgba(20, 18, 16, 0.14);
-  --color-red: #E10600;
-  --color-red-ink: #C40500;
-  --color-red-wash: #FFDCD6;
-  --color-highlighter: #FFE14D;
-  --color-go: #14803C;
-  --color-low: #B45309;
-  --color-night: #0F0D0B;
-  --color-night-card: #1A1714;
+  /* Y5 Signal — Precision Tech Showroom Tokens */
+  --color-canvas: #F6F8F9;
+  --color-surface: #FFFFFF;
+  --color-soft-surface: #EDF1F3;
+  --color-ink: #101418;
+  --color-body: #2D3740;
+  --color-muted: #64717B;
+  --color-line: #DFE5E9;
+  --color-brand-red: #E10600;
+  --color-brand-hover: #BA0806;
+  --color-signal-blue: #DCECF4;
+  --color-positive: #16734B;
+  --color-warning: #9B6200;
+  --color-error: #B42318;
 
-  --font-display: "Fraunces", Georgia, serif;
+  /* Typography Scale */
+  --font-display: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --font-ui: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --font-sans: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --font-data: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Aliases for backwards compatibility */
+  /* Aliases for backwards compatibility during progressive migration */
+  --color-paper: #F6F8F9;
+  --color-paper-sunk: #EDF1F3;
+  --color-card: #FFFFFF;
+  --color-ink-soft: #64717B;
+  --color-red: #E10600;
+  --color-red-ink: #BA0806;
+  --color-red-wash: #FEE8E7;
+  --color-highlighter: #FDF3C7;
+  --color-go: #16734B;
+  --color-low: #9B6200;
+  --color-night: #101418;
+  --color-night-card: #1C2229;
+
   --color-primary: #E10600;
-  --color-primary-hover: #C40500;
-  --color-primary-subtle: #FFDCD6;
-  --color-bg: #F3EEE4;
-  --color-surface: #FBF8F2;
-  --color-border: rgba(20, 18, 16, 0.14);
-  --color-success: #14803C;
-  --color-warning: #B45309;
-  --color-danger: #C40500;
+  --color-primary-hover: #BA0806;
+  --color-primary-subtle: #FEE8E7;
+  --color-bg: #F6F8F9;
+  --color-border: #DFE5E9;
+  --color-success: #16734B;
+  --color-warning: #9B6200;
+  --color-danger: #B42318;
 }
 
 :root {
-  --paper: #F3EEE4;
-  --paper-sunk: #EAE3D5;
-  --card: #FBF8F2;
-  --ink: #141210;
-  --ink-soft: #5B554C;
-  --line: rgba(20, 18, 16, 0.14);
-  --red: #E10600;
-  --red-ink: #C40500;
-  --red-wash: #FFDCD6;
-  --highlighter: #FFE14D;
-  --go: #14803C;
-  --low: #B45309;
-  --night: #0F0D0B;
-  --night-card: #1A1714;
+  --canvas: #F6F8F9;
+  --surface: #FFFFFF;
+  --soft-surface: #EDF1F3;
+  --ink: #101418;
+  --body: #2D3740;
+  --muted: #64717B;
+  --line: #DFE5E9;
+  --brand-red: #E10600;
+  --brand-hover: #BA0806;
+  --signal-blue: #DCECF4;
+  --positive: #16734B;
+  --warning: #9B6200;
+  --error: #B42318;
 
-  --font-display: "Fraunces", Georgia, serif;
+  /* Backwards compatibility aliases */
+  --paper: #F6F8F9;
+  --paper-sunk: #EDF1F3;
+  --card: #FFFFFF;
+  --ink-soft: #64717B;
+  --red: #E10600;
+  --red-ink: #BA0806;
+  --red-wash: #FEE8E7;
+  --highlighter: #FDF3C7;
+  --go: #16734B;
+  --low: #9B6200;
+  --night: #101418;
+  --night-card: #1C2229;
+
+  --font-display: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --font-ui: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --font-data: "JetBrains Mono", monospace;
 
-  /* Hard shadow for interactive elements */
-  --shadow-hard: 3px 3px 0 #141210;
-  --shadow-hard-hover: 4px 4px 0 #141210;
-  --shadow-hard-pressed: 1px 1px 0 #141210;
-  --shadow-sheet: 0 24px 48px rgba(20, 18, 16, 0.18);
+  /* Precision Showroom Elevation Shadows */
+  --shadow-xs: 0 1px 2px rgba(16, 20, 24, 0.04);
+  --shadow-sm: 0 1px 3px rgba(16, 20, 24, 0.06), 0 1px 2px rgba(16, 20, 24, 0.04);
+  --shadow-md: 0 4px 12px rgba(16, 20, 24, 0.08), 0 2px 4px rgba(16, 20, 24, 0.04);
+  --shadow-lg: 0 12px 32px rgba(16, 20, 24, 0.12), 0 4px 8px rgba(16, 20, 24, 0.04);
+  --shadow-sheet: 0 20px 48px rgba(16, 20, 24, 0.16);
+
+  /* Legacy shadow mappings to subtle precision shadows */
+  --shadow-hard: 0 1px 3px rgba(16, 20, 24, 0.08), 0 1px 2px rgba(16, 20, 24, 0.05);
+  --shadow-hard-hover: 0 4px 12px rgba(16, 20, 24, 0.10), 0 2px 4px rgba(16, 20, 24, 0.06);
+  --shadow-hard-pressed: 0 1px 1px rgba(16, 20, 24, 0.06);
 }
 
 body {
   font-family: var(--font-ui);
   color: var(--ink);
-  background-color: var(--paper);
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+  background-color: var(--canvas);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -73,28 +104,32 @@ body {
 /* Typography Scale */
 .display-hero {
   font-family: var(--font-display);
-  font-size: clamp(56px, 12vw, 168px);
-  line-height: 0.92;
+  font-size: clamp(40px, 8vw, 96px);
+  font-weight: 800;
+  line-height: 1.05;
   letter-spacing: -0.03em;
 }
 
 .heading-1 {
   font-family: var(--font-display);
-  font-size: clamp(36px, 6vw, 72px);
-  line-height: 1;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
 .heading-2 {
   font-family: var(--font-display);
-  font-size: clamp(28px, 4vw, 40px);
-  line-height: 1.1;
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 700;
+  line-height: 1.2;
   letter-spacing: -0.015em;
 }
 
 .price-xl {
   font-family: var(--font-display);
-  font-size: clamp(38px, 6vw, 64px);
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
   line-height: 1;
   font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: -0.02em;
@@ -107,19 +142,19 @@ body {
   letter-spacing: 0.08em;
 }
 
-/* Hard Drop Shadows */
+/* Precision Drop Shadows */
 .shadow-hard {
   box-shadow: var(--shadow-hard);
 }
 
 .shadow-hard-hover:hover {
   box-shadow: var(--shadow-hard-hover);
-  transform: translate(-1px, -1px);
+  transform: translateY(-1px);
 }
 
 .shadow-hard-pressed:active {
   box-shadow: var(--shadow-hard-pressed);
-  transform: translate(2px, 2px);
+  transform: translateY(1px);
 }
 
 .shadow-sheet {

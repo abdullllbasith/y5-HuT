@@ -30,23 +30,23 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'relative inline-flex items-center justify-center font-ui font-bold select-none transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-ink focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40';
+      'relative inline-flex items-center justify-center font-ui font-semibold select-none transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-ink focus-visible:outline-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100';
 
     const sizeStyles: Record<ButtonSize, string> = {
-      sm: 'text-xs px-3.5 py-2 min-h-[36px] rounded-full gap-1.5',
-      md: 'text-xs sm:text-sm px-5 py-2.5 min-h-[44px] rounded-full gap-2',
-      lg: 'text-sm sm:text-base px-6 py-3 min-h-[48px] rounded-full gap-2.5',
+      sm: 'text-xs px-3.5 py-2 min-h-[36px] rounded-lg gap-1.5',
+      md: 'text-xs sm:text-sm px-4 py-2.5 min-h-[44px] rounded-xl gap-2',
+      lg: 'text-sm sm:text-base px-6 py-3 min-h-[48px] rounded-xl gap-2.5',
     };
 
     const variantStyles: Record<ButtonVariant, string> = {
       primary:
-        'bg-red text-white border-[1.5px] border-ink shadow-hard hover:shadow-hard-hover hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-hard-pressed active:translate-x-0.5 active:translate-y-0.5',
+        'bg-red text-white hover:bg-red-ink shadow-sm hover:shadow transition-colors',
       secondary:
-        'bg-card text-ink border-[1.5px] border-ink hover:bg-paper-sunk active:bg-paper',
+        'bg-card text-ink border border-line hover:bg-paper-sunk hover:border-ink/30 shadow-xs',
       ghost:
-        'bg-transparent text-ink hover:text-red hover:underline underline-offset-4 border-none shadow-none',
+        'bg-transparent text-ink-soft hover:text-ink hover:bg-paper-sunk border-none shadow-none',
       danger:
-        'bg-red-ink text-white border-[1.5px] border-ink shadow-hard hover:bg-red',
+        'bg-error text-white hover:bg-error/90 shadow-sm',
     };
 
     return (

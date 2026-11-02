@@ -84,15 +84,15 @@ export const Receipt: React.FC<ReceiptProps> = ({
 
   return (
     <div
-      className={`relative bg-card rounded-t-xl border-[1.5px] border-ink p-5 sm:p-6 font-data text-ink shadow-2xs select-none ${className}`}
+      className={`relative bg-surface rounded-2xl border border-line p-5 sm:p-6 font-data text-ink shadow-sm select-none ${className}`}
     >
       {/* Receipt Header */}
-      <div className="text-center pb-4 border-b-[1.5px] border-dashed border-ink/20 space-y-1">
+      <div className="text-center pb-4 border-b border-line space-y-1">
         <div className="font-display font-bold text-lg text-ink tracking-tight">
           y5<span className="text-red">HuT</span>.lk
         </div>
         <div className="text-[10px] text-ink-soft uppercase tracking-wider">
-          Thermal Counter Slip · Colombo 04
+          Order Summary &amp; Digital Slip
         </div>
         <div className="text-[10px] text-ink-soft flex items-center justify-center gap-3 pt-1">
           <span>{displayDate}</span>
@@ -134,7 +134,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
 
       {/* Totals Section */}
       {items.length > 0 && (
-        <div className="pt-3 border-t-[1.5px] border-dashed border-ink/20 space-y-1.5">
+        <div className="pt-3 border-t border-line space-y-1.5">
           <div className="flex justify-between text-xs text-ink-soft">
             <span>Subtotal</span>
             <span className="tabular-nums">
@@ -142,7 +142,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
             </span>
           </div>
 
-          <div className="flex items-baseline justify-between pt-2 border-t border-ink/10">
+          <div className="flex items-baseline justify-between pt-2 border-t border-line">
             <span className="font-ui font-bold text-sm uppercase tracking-wide">
               Total Due
             </span>
@@ -164,7 +164,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
 
       {/* Barcode representation */}
       {items.length > 0 && (
-        <div className="pt-5 border-t border-dashed border-ink/20 text-center">
+        <div className="pt-5 border-t border-line text-center">
           <SvgBarcode value={primaryBarcode} />
         </div>
       )}
@@ -178,16 +178,6 @@ export const Receipt: React.FC<ReceiptProps> = ({
 
       {/* Slotted Actions (e.g. Checkout button) */}
       {children && <div className="pt-4">{children}</div>}
-
-      {/* Zigzag torn thermal bottom edge */}
-      <div
-        className="absolute -bottom-2 left-0 right-0 h-2 bg-card overflow-hidden"
-        style={{
-          maskImage: 'repeating-linear-gradient(45deg, #000 0px, #000 4px, transparent 4px, transparent 8px)',
-          WebkitMaskImage: 'repeating-linear-gradient(45deg, #000 0px, #000 4px, transparent 4px, transparent 8px)',
-        }}
-        aria-hidden="true"
-      />
     </div>
   );
 };
