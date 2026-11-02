@@ -1,53 +1,188 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-paper: #F3EEE4;
+  --color-paper-sunk: #EAE3D5;
+  --color-card: #FBF8F2;
+  --color-ink: #141210;
+  --color-ink-soft: #5B554C;
+  --color-line: rgba(20, 18, 16, 0.14);
+  --color-red: #E10600;
+  --color-red-ink: #C40500;
+  --color-red-wash: #FFDCD6;
+  --color-highlighter: #FFE14D;
+  --color-go: #14803C;
+  --color-low: #B45309;
+  --color-night: #0F0D0B;
+  --color-night-card: #1A1714;
 
-  --color-primary: #E11D48;
-  --color-primary-hover: #BE123C;
-  --color-primary-subtle: #FDE7EB;
-  --color-ink: #111827;
-  --color-ink-muted: #6B7280;
-  --color-bg: #F7F8FA;
-  --color-surface: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-success: #16A34A;
-  --color-warning: #D97706;
-  --color-danger: #DC2626;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  --font-sans: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --shadow-floating: 0 4px 16px rgba(17, 24, 39, 0.08);
-  --shadow-hairline: 0 0 0 1px #E5E7EB;
+  /* Aliases for backwards compatibility */
+  --color-primary: #E10600;
+  --color-primary-hover: #C40500;
+  --color-primary-subtle: #FFDCD6;
+  --color-bg: #F3EEE4;
+  --color-surface: #FBF8F2;
+  --color-border: rgba(20, 18, 16, 0.14);
+  --color-success: #14803C;
+  --color-warning: #B45309;
+  --color-danger: #C40500;
 }
 
 :root {
-  --color-primary: #E11D48;
-  --color-primary-hover: #BE123C;
-  --color-primary-subtle: #FDE7EB;
-  --color-ink: #111827;
-  --color-ink-muted: #6B7280;
-  --color-bg: #F7F8FA;
-  --color-surface: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-success: #16A34A;
-  --color-warning: #D97706;
-  --color-danger: #DC2626;
+  --paper: #F3EEE4;
+  --paper-sunk: #EAE3D5;
+  --card: #FBF8F2;
+  --ink: #141210;
+  --ink-soft: #5B554C;
+  --line: rgba(20, 18, 16, 0.14);
+  --red: #E10600;
+  --red-ink: #C40500;
+  --red-wash: #FFDCD6;
+  --highlighter: #FFE14D;
+  --go: #14803C;
+  --low: #B45309;
+  --night: #0F0D0B;
+  --night-card: #1A1714;
 
-  /* Legacy aliases for backward compatibility */
-  --y5hut-red: #E11D48;
-  --y5hut-red-hover: #BE123C;
-  --y5hut-dark: #111827;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  --font-data: "JetBrains Mono", monospace;
+
+  /* Hard shadow for interactive elements */
+  --shadow-hard: 3px 3px 0 #141210;
+  --shadow-hard-hover: 4px 4px 0 #141210;
+  --shadow-hard-pressed: 1px 1px 0 #141210;
+  --shadow-sheet: 0 24px 48px rgba(20, 18, 16, 0.18);
 }
 
 body {
-  font-family: var(--font-sans);
-  color: #111827;
-  background-color: #F7F8FA;
+  font-family: var(--font-ui);
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbars for clean UI */
+/* Typography Scale */
+.display-hero {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 12vw, 168px);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+}
+
+.heading-1 {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 6vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.heading-2 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+.price-xl {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 6vw, 64px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
+}
+
+.label-mono {
+  font-family: var(--font-data);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Hard Drop Shadows */
+.shadow-hard {
+  box-shadow: var(--shadow-hard);
+}
+
+.shadow-hard-hover:hover {
+  box-shadow: var(--shadow-hard-hover);
+  transform: translate(-1px, -1px);
+}
+
+.shadow-hard-pressed:active {
+  box-shadow: var(--shadow-hard-pressed);
+  transform: translate(2px, 2px);
+}
+
+.shadow-sheet {
+  box-shadow: var(--shadow-sheet);
+}
+
+/* Punched Hole for Hang Tags */
+.tag-hole {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background-color: var(--paper);
+  border: 1.5px solid var(--ink);
+  position: relative;
+}
+
+.tag-hole::after {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5px;
+  height: 12px;
+  background-color: var(--ink);
+  opacity: 0.4;
+}
+
+/* Dotted Leader Line for Receipts */
+.dotted-leader {
+  background-image: radial-gradient(circle, var(--ink) 1px, transparent 1px);
+  background-position: bottom;
+  background-size: 6px 2px;
+  background-repeat: repeat-x;
+}
+
+/* Thermal Receipt Zigzag Edge */
+.receipt-edge {
+  position: relative;
+}
+
+.receipt-edge::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: radial-gradient(circle, transparent, transparent 50%, var(--card) 50%, var(--card) 100%);
+  background-size: 14px 14px;
+}
+
+.receipt-zigzag {
+  mask-image: repeating-linear-gradient(
+    135deg,
+    #000 0px,
+    #000 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -56,14 +191,15 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--paper-sunk);
+  border: 1px solid var(--line);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--ink-soft);
 }
 
-/* Hide scrollbar for category strips */
+/* Hide Scrollbar */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
@@ -72,23 +208,29 @@ body {
   scrollbar-width: none;
 }
 
-/* Safe area padding utilities for mobile edge-to-edge screens */
+/* Safe Area Padding */
 .pb-safe {
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
 }
 .pt-safe {
-  padding-top: max(env(safe-area-inset-top, 0px), 8px);
+  padding-top: max(env(safe-area-inset-top, 0px), 12px);
 }
 .bottom-safe {
   bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }
 
-/* Tabular nums helper for prices and stock counts */
+/* Tabular Numerals */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* Reduced motion support for accessibility (WCAG 2.2) */
+/* Accessible Focus States */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion (WCAG 2.2) */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
